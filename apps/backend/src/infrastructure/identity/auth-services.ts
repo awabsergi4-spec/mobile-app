@@ -48,9 +48,16 @@ export const staffPermissionRepository = new PrismaStaffPermissionRepository(pri
 export const otpSender = new ConsoleOtpSender();
 export const remoteConfigReader = new PrismaRemoteConfigReader(prisma);
 
+// Hosting dashboards (e.g. Render) pass env values through verbatim, so a
+// PEM pasted on one line with literal "\n" escapes must be unescaped here —
+// local .env loading does this automatically, platform env vars don't.
+function pemFromEnv(name: string): string {
+  return requiredEnv(name).replace(/\\n/g, "\n").trim();
+}
+
 export const tokenService = new JwtTokenService(
-  requiredEnv("JWT_PRIVATE_KEY"),
-  requiredEnv("JWT_PUBLIC_KEY"),
+  pemFromEnv("JWT_PRIVATE_KEY"),
+  pemFromEnv("JWT_PUBLIC_KEY"),
   accessTokenTtlSeconds,
 );
 
