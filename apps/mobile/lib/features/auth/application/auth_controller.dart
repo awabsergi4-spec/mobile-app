@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_failure.dart';
+import '../../../core/l10n/locale_controller.dart';
 import '../../../core/networking/providers.dart';
 import '../../../core/remote_config/remote_config_providers.dart';
 import '../../../core/utils/result.dart';
@@ -60,7 +62,12 @@ class AuthController extends Notifier<AuthState> {
       return;
     }
 
-    final result = await repo.fetchCurrentUser();
+    var result = await repo.fetchCurrentUser();
+    // A network failure (server waking up, flaky signal) isn't a dead
+    // session — try once more before sending the user to the login screen.
+    if (result case Failure(failure: NetworkFailure())) {
+      result = await repo.fetchCurrentUser();
+    }
     state = result.when(
       success: (user) => AuthState(status: AuthStatus.authenticated, user: user),
       // A 401 here already went through AuthInterceptor's refresh-and-retry
@@ -168,6 +175,7 @@ class AuthController extends Notifier<AuthState> {
     );
     if (state.status == AuthStatus.authenticated) {
       _invalidateUserScopedProviders();
+      ref.read(localeControllerProvider.notifier).applyAccountPreference(state.user!.preferredLanguage);
     }
   }
 }

@@ -1813,6 +1813,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An account with this email already exists.'**
   String get errorEmailAlreadyRegistered;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get navExplore;
+
+  /// No description provided for @navRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get navRequests;
+
+  /// No description provided for @navWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get navWallet;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navDashboard;
+
+  /// No description provided for @navJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get navJobs;
+
+  /// No description provided for @navServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get navServices;
+
+  /// No description provided for @navEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings'**
+  String get navEarnings;
+
+  /// No description provided for @navTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get navTeam;
+
+  /// No description provided for @navFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get navFinance;
+
+  /// No description provided for @roleCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Company'**
+  String get roleCompany;
+
+  /// No description provided for @homeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a service…'**
+  String get homeSearchHint;
+
+  /// No description provided for @homeServiceTypesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you need today?'**
+  String get homeServiceTypesTitle;
+
+  /// No description provided for @homeForYou.
+  ///
+  /// In en, this message translates to:
+  /// **'For you'**
+  String get homeForYou;
+
+  /// No description provided for @serviceTypeShortTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Short-Term'**
+  String get serviceTypeShortTerm;
+
+  /// No description provided for @serviceTypeLongTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-Term'**
+  String get serviceTypeLongTerm;
+
+  /// No description provided for @serviceTypeOnDemandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast help, right now'**
+  String get serviceTypeOnDemandHint;
+
+  /// No description provided for @serviceTypeShortTermHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote tasks & short projects'**
+  String get serviceTypeShortTermHint;
+
+  /// No description provided for @serviceTypeLongTermHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Contracts & big projects'**
+  String get serviceTypeLongTermHint;
+
+  /// No description provided for @exploreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore services'**
+  String get exploreTitle;
+
+  /// No description provided for @exploreEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No services in this category yet.'**
+  String get exploreEmpty;
+
+  /// No description provided for @exploreRequestAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get exploreRequestAction;
+
+  /// No description provided for @requestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Requests'**
+  String get requestsTitle;
+
+  /// No description provided for @requestsOnDemandSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant jobs you requested'**
+  String get requestsOnDemandSubtitle;
+
+  /// No description provided for @requestsShortTermSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote work you booked'**
+  String get requestsShortTermSubtitle;
+
+  /// No description provided for @requestsLongTermSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects, bids and contracts'**
+  String get requestsLongTermSubtitle;
+
+  /// No description provided for @requestsDisputesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Problems you reported'**
+  String get requestsDisputesSubtitle;
+
+  /// No description provided for @providerStatRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get providerStatRating;
+
+  /// No description provided for @providerStatCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed jobs'**
+  String get providerStatCompleted;
+
+  /// No description provided for @providerStatBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available balance'**
+  String get providerStatBalance;
+
+  /// No description provided for @jobsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs'**
+  String get jobsTitle;
+
+  /// No description provided for @jobsOffersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New on-demand requests sent to you'**
+  String get jobsOffersSubtitle;
+
+  /// No description provided for @jobsBookingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Short-term work customers booked'**
+  String get jobsBookingsSubtitle;
+
+  /// No description provided for @jobsBidsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your offers on long-term projects'**
+  String get jobsBidsSubtitle;
+
+  /// No description provided for @jobsBrowseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find long-term projects to bid on'**
+  String get jobsBrowseSubtitle;
+
+  /// No description provided for @servicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Services'**
+  String get servicesTitle;
+
+  /// No description provided for @servicesPortfolioSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Show customers your best work'**
+  String get servicesPortfolioSubtitle;
+
+  /// No description provided for @servicesVerificationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents that verify your account'**
+  String get servicesVerificationSubtitle;
+
+  /// No description provided for @servicesProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Business name, bio, skills'**
+  String get servicesProfileSubtitle;
+
+  /// No description provided for @companyStatMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Team members'**
+  String get companyStatMembers;
+
+  /// No description provided for @companyStatPendingInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending invitations'**
+  String get companyStatPendingInvites;
+
+  /// No description provided for @companyTeamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members and manage roles'**
+  String get companyTeamSubtitle;
+
+  /// No description provided for @companyVerificationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Business documents and verification'**
+  String get companyVerificationSubtitle;
+
+  /// No description provided for @companyJobsUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company jobs are coming'**
+  String get companyJobsUnavailableTitle;
+
+  /// No description provided for @companyJobsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigning requests to your team and tracking their progress isn\'t available yet. It\'s being added in the next update.'**
+  String get companyJobsUnavailable;
+
+  /// No description provided for @companyFinanceUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company finance is coming'**
+  String get companyFinanceUnavailableTitle;
+
+  /// No description provided for @companyFinanceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Company revenue, payments and reports aren\'t available yet. They\'re being added in the next update.'**
+  String get companyFinanceUnavailable;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @accountSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountSection;
+
+  /// No description provided for @activitySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activitySection;
+
+  /// No description provided for @settingsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsSection;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to sign in again to use SAHL on this device.'**
+  String get logoutConfirmMessage;
 }
 
 class _AppLocalizationsDelegate

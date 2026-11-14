@@ -896,4 +896,192 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorEmailAlreadyRegistered =>
       'An account with this email already exists.';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navExplore => 'Explore';
+
+  @override
+  String get navRequests => 'Requests';
+
+  @override
+  String get navWallet => 'Wallet';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navJobs => 'Jobs';
+
+  @override
+  String get navServices => 'Services';
+
+  @override
+  String get navEarnings => 'Earnings';
+
+  @override
+  String get navTeam => 'Team';
+
+  @override
+  String get navFinance => 'Finance';
+
+  @override
+  String get roleCompany => 'Company';
+
+  @override
+  String get homeSearchHint => 'Search for a service…';
+
+  @override
+  String get homeServiceTypesTitle => 'What do you need today?';
+
+  @override
+  String get homeForYou => 'For you';
+
+  @override
+  String get serviceTypeShortTerm => 'Short-Term';
+
+  @override
+  String get serviceTypeLongTerm => 'Long-Term';
+
+  @override
+  String get serviceTypeOnDemandHint => 'Fast help, right now';
+
+  @override
+  String get serviceTypeShortTermHint => 'Remote tasks & short projects';
+
+  @override
+  String get serviceTypeLongTermHint => 'Contracts & big projects';
+
+  @override
+  String get exploreTitle => 'Explore services';
+
+  @override
+  String get exploreEmpty => 'No services in this category yet.';
+
+  @override
+  String get exploreRequestAction => 'Request';
+
+  @override
+  String get requestsTitle => 'My Requests';
+
+  @override
+  String get requestsOnDemandSubtitle => 'Instant jobs you requested';
+
+  @override
+  String get requestsShortTermSubtitle => 'Remote work you booked';
+
+  @override
+  String get requestsLongTermSubtitle => 'Projects, bids and contracts';
+
+  @override
+  String get requestsDisputesSubtitle => 'Problems you reported';
+
+  @override
+  String get providerStatRating => 'Rating';
+
+  @override
+  String get providerStatCompleted => 'Completed jobs';
+
+  @override
+  String get providerStatBalance => 'Available balance';
+
+  @override
+  String get jobsTitle => 'Jobs';
+
+  @override
+  String get jobsOffersSubtitle => 'New on-demand requests sent to you';
+
+  @override
+  String get jobsBookingsSubtitle => 'Short-term work customers booked';
+
+  @override
+  String get jobsBidsSubtitle => 'Your offers on long-term projects';
+
+  @override
+  String get jobsBrowseSubtitle => 'Find long-term projects to bid on';
+
+  @override
+  String get servicesTitle => 'My Services';
+
+  @override
+  String get servicesPortfolioSubtitle => 'Show customers your best work';
+
+  @override
+  String get servicesVerificationSubtitle =>
+      'Documents that verify your account';
+
+  @override
+  String get servicesProfileSubtitle => 'Business name, bio, skills';
+
+  @override
+  String get companyStatMembers => 'Team members';
+
+  @override
+  String get companyStatPendingInvites => 'Pending invitations';
+
+  @override
+  String get companyTeamSubtitle => 'Invite members and manage roles';
+
+  @override
+  String get companyVerificationSubtitle =>
+      'Business documents and verification';
+
+  @override
+  String get companyJobsUnavailableTitle => 'Company jobs are coming';
+
+  @override
+  String get companyJobsUnavailable =>
+      'Assigning requests to your team and tracking their progress isn\'t available yet. It\'s being added in the next update.';
+
+  @override
+  String get companyFinanceUnavailableTitle => 'Company finance is coming';
+
+  @override
+  String get companyFinanceUnavailable =>
+      'Company revenue, payments and reports aren\'t available yet. They\'re being added in the next update.';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get accountSection => 'Account';
+
+  @override
+  String get activitySection => 'Activity';
+
+  @override
+  String get settingsSection => 'Settings';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get logoutConfirmTitle => 'Log out?';
+
+  @override
+  String get logoutConfirmMessage =>
+      'You\'ll need to sign in again to use SAHL on this device.';
 }

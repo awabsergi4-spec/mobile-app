@@ -18,17 +18,21 @@ class AsyncValueView<T> extends StatelessWidget {
     required this.value,
     required this.data,
     this.onRetry,
+    this.loading,
   });
 
   final AsyncValue<T> value;
   final Widget Function(BuildContext context, T data) data;
   final VoidCallback? onRetry;
 
+  /// Optional loading placeholder (e.g. `SkeletonList`); defaults to a spinner.
+  final Widget? loading;
+
   @override
   Widget build(BuildContext context) {
     return value.when(
       data: (d) => data(context, d),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => loading ?? const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) {
         final l10n = AppLocalizations.of(context)!;
         final message = error is AppFailure ? localizeFailure(l10n, error) : l10n.errorGeneric;

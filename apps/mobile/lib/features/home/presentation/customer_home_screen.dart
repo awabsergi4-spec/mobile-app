@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/remote_config/remote_config_providers.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/sahl_ui.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../notification/presentation/widgets/notification_bell_button.dart';
 import 'widgets/home_layout_block_list.dart';
 
-enum _CustomerMenuAction { onDemand, contracts, remote, disputes, companyInvitations, logout }
-
+/// Customer › Home tab: greeting, search, the three service types and the
+/// admin-published "For you" blocks.
 class CustomerHomeScreen extends ConsumerWidget {
   const CustomerHomeScreen({super.key});
 
@@ -16,47 +21,68 @@ class CustomerHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(authControllerProvider).user;
+    final tokens = context.sahl;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final serviceTypes = [
+      (Symbols.bolt, colorScheme.primary, l10n.serviceTypeOnDemand, l10n.serviceTypeOnDemandHint, 'onDemand'),
+      (Symbols.laptop_mac, tokens.info, l10n.serviceTypeShortTerm, l10n.serviceTypeShortTermHint, 'remote'),
+      (Symbols.handshake, tokens.success, l10n.serviceTypeLongTerm, l10n.serviceTypeLongTermHint, 'contract'),
+    ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(user != null ? l10n.homeGreeting(user.fullName) : l10n.homePlaceholderTitle),
-        actions: [
-          const NotificationBellButton(),
-          IconButton(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            tooltip: l10n.walletTitle,
-            onPressed: () => context.push('/wallet'),
-          ),
-          PopupMenuButton<_CustomerMenuAction>(
-            onSelected: (action) {
-              switch (action) {
-                case _CustomerMenuAction.onDemand:
-                  context.push('/on-demand');
-                case _CustomerMenuAction.contracts:
-                  context.push('/contracts');
-                case _CustomerMenuAction.remote:
-                  context.push('/remote');
-                case _CustomerMenuAction.disputes:
-                  context.push('/disputes');
-                case _CustomerMenuAction.companyInvitations:
-                  context.push('/company/invitations');
-                case _CustomerMenuAction.logout:
-                  ref.read(authControllerProvider.notifier).logout();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(value: _CustomerMenuAction.onDemand, child: Text(l10n.onDemandMyRequests)),
-              PopupMenuItem(value: _CustomerMenuAction.contracts, child: Text(l10n.contractMyProjects)),
-              PopupMenuItem(value: _CustomerMenuAction.remote, child: Text(l10n.remoteMyEngagements)),
-              PopupMenuItem(value: _CustomerMenuAction.disputes, child: Text(l10n.disputeMyDisputes)),
-              PopupMenuItem(value: _CustomerMenuAction.companyInvitations, child: Text(l10n.companyMyInvitationsTitle)),
-              const PopupMenuDivider(),
-              PopupMenuItem(value: _CustomerMenuAction.logout, child: Text(l10n.logout)),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(homeLayoutProvider),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.md, AppSpacing.base, AppSpacing.xl),
+            children: [
+              Row(
+                children: [
+                  SahlAvatar(name: user?.fullName ?? '', imageUrl: user?.profilePictureUrl),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Text(
+                      user != null ? l10n.homeGreeting(user.fullName) : l10n.homePlaceholderTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  const NotificationBellButton(),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SearchBarButton(hint: l10n.homeSearchHint, onTap: () => context.go('/c/explore')),
+              SectionHeader(title: l10n.homeServiceTypesTitle),
+              for (final (icon, color, title, hint, type) in serviceTypes) ...[
+                SahlCard(
+                  onTap: () => context.go('/c/explore?type=$type'),
+                  child: Row(
+                    children: [
+                      IconBadge(icon: icon, color: color, size: 52),
+                      const SizedBox(width: AppSpacing.base),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 2),
+                            Text(hint, style: TextStyle(color: tokens.textMuted)),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right_rounded, color: tokens.textMuted),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+              const HomeLayoutBlockList(),
             ],
           ),
-        ],
+        ),
       ),
-      body: const HomeLayoutBlockList(),
     );
   }
 }

@@ -1,58 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
+import '../../features/auth/domain/current_user.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/session_restoring_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
-import '../../features/home/presentation/home_screen.dart';
-import '../../features/on_demand/presentation/create_on_demand_request_screen.dart';
-import '../../features/on_demand/presentation/on_demand_request_detail_screen.dart';
-import '../../features/on_demand/presentation/on_demand_request_list_screen.dart';
-import '../../features/on_demand/presentation/provider_assignment_list_screen.dart';
+import '../../features/company/presentation/company_members_screen.dart';
+import '../../features/company/presentation/company_verification_screen.dart';
+import '../../features/company/presentation/my_company_invitations_screen.dart';
 import '../../features/contract/presentation/browse_contract_projects_screen.dart';
 import '../../features/contract/presentation/contract_detail_screen.dart';
 import '../../features/contract/presentation/contract_project_detail_screen.dart';
 import '../../features/contract/presentation/create_contract_project_screen.dart';
 import '../../features/contract/presentation/my_contract_bids_screen.dart';
 import '../../features/contract/presentation/my_contract_projects_screen.dart';
-import '../../features/company/presentation/company_members_screen.dart';
-import '../../features/company/presentation/company_verification_screen.dart';
-import '../../features/company/presentation/my_company_invitations_screen.dart';
+import '../../features/dispute/presentation/my_disputes_screen.dart';
+import '../../features/explore/presentation/explore_screen.dart';
+import '../../features/home/presentation/company_home_screen.dart';
+import '../../features/home/presentation/customer_home_screen.dart';
+import '../../features/home/presentation/customer_requests_screen.dart';
+import '../../features/home/presentation/provider_home_screen.dart';
+import '../../features/home/presentation/provider_hub_screens.dart';
+import '../../features/notification/presentation/notifications_screen.dart';
+import '../../features/on_demand/presentation/create_on_demand_request_screen.dart';
+import '../../features/on_demand/presentation/on_demand_request_detail_screen.dart';
+import '../../features/on_demand/presentation/on_demand_request_list_screen.dart';
+import '../../features/on_demand/presentation/provider_assignment_list_screen.dart';
+import '../../features/provider/presentation/provider_payout_accounts_screen.dart';
+import '../../features/provider/presentation/provider_portfolio_screen.dart';
 import '../../features/provider/presentation/provider_profile_screen.dart';
 import '../../features/provider/presentation/provider_verification_screen.dart';
-import '../../features/provider/presentation/provider_portfolio_screen.dart';
-import '../../features/provider/presentation/provider_payout_accounts_screen.dart';
 import '../../features/remote/presentation/create_remote_engagement_screen.dart';
 import '../../features/remote/presentation/my_remote_engagements_screen.dart';
 import '../../features/remote/presentation/remote_engagement_detail_screen.dart';
+import '../../features/settings/presentation/account_screen.dart';
+import '../../features/shell/presentation/role_shell.dart';
 import '../../features/wallet/presentation/wallet_screen.dart';
 import '../../features/wallet/presentation/withdrawals_screen.dart';
-import '../../features/dispute/presentation/my_disputes_screen.dart';
-import '../../features/notification/presentation/notifications_screen.dart';
+import '../l10n/generated/app_localizations.dart';
 
-/// Notifies GoRouter to re-run its `redirect` callback whenever auth state
-/// changes — GoRouter's `refreshListenable` wants a plain ChangeNotifier,
-/// not a Riverpod provider directly, so this is the bridge between the two.
+/// Re-runs GoRouter's `redirect` when the auth status or the user's role
+/// (workspace) changes — e.g. after login, logout, or accepting a company
+/// invitation that turns a customer into a company member.
 class _AuthRouterRefreshNotifier extends ChangeNotifier {
   _AuthRouterRefreshNotifier(Ref ref) {
     ref.listen(authControllerProvider, (previous, next) {
-      if (previous?.status != next.status) notifyListeners();
+      if (previous?.status != next.status || previous?.user?.workspace != next.user?.workspace) {
+        notifyListeners();
+      }
     });
   }
 }
 
 const _unauthenticatedRoutes = {'/', '/login', '/register'};
 
-/// GoRouter is built once (Provider, not recreated per auth-state change —
-/// that would reset the navigation stack); only its `redirect` re-runs, via
-/// `refreshListenable`. The redirect is the single place that decides who
-/// can see what — no screen guards itself, per docs/00-system-architecture.md.
+/// First tab of each role's shell.
+String roleHomePath(UserWorkspace workspace) => switch (workspace) {
+      UserWorkspace.customer => '/c/home',
+      UserWorkspace.provider => '/p/dashboard',
+      UserWorkspace.company => '/co/dashboard',
+    };
+
+/// Which role a location belongs to, or null if any signed-in user may open it.
+UserWorkspace? _roleOwningLocation(String location) {
+  if (location.startsWith('/c/')) return UserWorkspace.customer;
+  if (location.startsWith('/p/') || location.startsWith('/provider/')) return UserWorkspace.provider;
+  if (location.startsWith('/co/')) return UserWorkspace.company;
+  // /company/:id/members|verification are company-admin screens;
+  // /company/invitations is for anyone who was invited.
+  if (location.startsWith('/company/') && location != '/company/invitations') return UserWorkspace.company;
+  return null;
+}
+
+/// GoRouter is built once (not recreated per auth change — that would reset
+/// navigation); only `redirect` re-runs via `refreshListenable`. The redirect
+/// is the single place deciding who can see what.
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = _AuthRouterRefreshNotifier(ref);
+  String companyId() => ref.read(authControllerProvider).user?.companyId ?? '';
 
   return GoRouter(
     initialLocation: '/splash',
@@ -69,9 +99,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return _unauthenticatedRoutes.contains(location) ? null : '/';
       }
 
-      // authenticated
-      if (location == '/splash' || _unauthenticatedRoutes.contains(location)) {
-        return '/home';
+      // Authenticated. The user can be momentarily null while /users/me loads.
+      final user = auth.user;
+      if (user == null) return null;
+      final home = roleHomePath(user.workspace);
+
+      if (location == '/splash' || location == '/home' || _unauthenticatedRoutes.contains(location)) {
+        return home;
+      }
+      final owner = _roleOwningLocation(location);
+      if (owner != null && owner != user.workspace) {
+        return home; // never show another role's screens
       }
       return null;
     },
@@ -80,7 +118,105 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
-      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      // Legacy entry point — always redirected to the role's first tab.
+      GoRoute(path: '/home', builder: (context, state) => const SessionRestoringScreen()),
+
+      // ── Customer shell ────────────────────────────────────────────────
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) {
+          final l10n = AppLocalizations.of(context)!;
+          return RoleShell(navigationShell: shell, destinations: [
+            ShellDestination(icon: Symbols.home, selectedIcon: Symbols.home_filled, label: l10n.navHome),
+            ShellDestination(icon: Symbols.explore, selectedIcon: Symbols.explore, label: l10n.navExplore),
+            ShellDestination(icon: Symbols.receipt_long, selectedIcon: Symbols.receipt_long, label: l10n.navRequests),
+            ShellDestination(icon: Symbols.account_balance_wallet, selectedIcon: Symbols.account_balance_wallet, label: l10n.navWallet),
+            ShellDestination(icon: Symbols.person, selectedIcon: Symbols.person, label: l10n.navProfile),
+          ]);
+        },
+        branches: [
+          StatefulShellBranch(routes: [GoRoute(path: '/c/home', builder: (c, s) => const CustomerHomeScreen())]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/c/explore', builder: (c, s) => ExploreScreen(initialType: s.uri.queryParameters['type'])),
+          ]),
+          StatefulShellBranch(routes: [GoRoute(path: '/c/requests', builder: (c, s) => const CustomerRequestsScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/c/wallet', builder: (c, s) => const WalletScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/c/profile', builder: (c, s) => const AccountScreen())]),
+        ],
+      ),
+
+      // ── Provider shell ────────────────────────────────────────────────
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) {
+          final l10n = AppLocalizations.of(context)!;
+          return RoleShell(navigationShell: shell, destinations: [
+            ShellDestination(icon: Symbols.dashboard, selectedIcon: Symbols.dashboard, label: l10n.navDashboard),
+            ShellDestination(icon: Symbols.work, selectedIcon: Symbols.work, label: l10n.navJobs),
+            ShellDestination(icon: Symbols.home_repair_service, selectedIcon: Symbols.home_repair_service, label: l10n.navServices),
+            ShellDestination(icon: Symbols.payments, selectedIcon: Symbols.payments, label: l10n.navEarnings),
+            ShellDestination(icon: Symbols.person, selectedIcon: Symbols.person, label: l10n.navProfile),
+          ]);
+        },
+        branches: [
+          StatefulShellBranch(routes: [GoRoute(path: '/p/dashboard', builder: (c, s) => const ProviderHomeScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/p/jobs', builder: (c, s) => const ProviderJobsScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/p/services', builder: (c, s) => const ProviderServicesScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/p/earnings', builder: (c, s) => const WalletScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: '/p/profile', builder: (c, s) => const AccountScreen())]),
+        ],
+      ),
+
+      // ── Company shell ─────────────────────────────────────────────────
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) {
+          final l10n = AppLocalizations.of(context)!;
+          return RoleShell(navigationShell: shell, destinations: [
+            ShellDestination(icon: Symbols.dashboard, selectedIcon: Symbols.dashboard, label: l10n.navDashboard),
+            ShellDestination(icon: Symbols.work, selectedIcon: Symbols.work, label: l10n.navJobs),
+            ShellDestination(icon: Symbols.groups, selectedIcon: Symbols.groups, label: l10n.navTeam),
+            ShellDestination(icon: Symbols.monitoring, selectedIcon: Symbols.monitoring, label: l10n.navFinance),
+            ShellDestination(icon: Symbols.person, selectedIcon: Symbols.person, label: l10n.navProfile),
+          ]);
+        },
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/co/dashboard', builder: (c, s) => CompanyHomeScreen(companyId: companyId())),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/co/jobs',
+              builder: (c, s) {
+                final l10n = AppLocalizations.of(c)!;
+                return CompanyFeatureUnavailableScreen(
+                  title: l10n.navJobs,
+                  heading: l10n.companyJobsUnavailableTitle,
+                  message: l10n.companyJobsUnavailable,
+                  icon: Symbols.work,
+                );
+              },
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: '/co/team', builder: (c, s) => CompanyMembersScreen(companyId: companyId())),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/co/finance',
+              builder: (c, s) {
+                final l10n = AppLocalizations.of(c)!;
+                return CompanyFeatureUnavailableScreen(
+                  title: l10n.navFinance,
+                  heading: l10n.companyFinanceUnavailableTitle,
+                  message: l10n.companyFinanceUnavailable,
+                  icon: Symbols.monitoring,
+                );
+              },
+            ),
+          ]),
+          StatefulShellBranch(routes: [GoRoute(path: '/co/profile', builder: (c, s) => const AccountScreen())]),
+        ],
+      ),
+
+      // ── Detail screens (pushed full-screen over the shells) ───────────
       GoRoute(path: '/on-demand', builder: (context, state) => const OnDemandRequestListScreen()),
       GoRoute(path: '/on-demand/new', builder: (context, state) => const CreateOnDemandRequestScreen()),
       GoRoute(path: '/on-demand/offers', builder: (context, state) => const ProviderAssignmentListScreen()),

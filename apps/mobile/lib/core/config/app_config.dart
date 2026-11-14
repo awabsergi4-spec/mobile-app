@@ -43,6 +43,7 @@ abstract final class AppConfig {
   /// sensitive fields (see core/networking/logging_interceptor.dart).
   static bool get verboseLogging => kDebugMode && !isProduction;
 
-  static const connectTimeout = Duration(seconds: 15);
-  static const receiveTimeout = Duration(seconds: 20);
+  // Generous enough for a Render free-tier cold start (~30–50 s to wake).
+  static const connectTimeout = Duration(seconds: 30);
+  static const receiveTimeout = Duration(seconds: 60);
 }

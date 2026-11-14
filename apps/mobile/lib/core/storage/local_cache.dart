@@ -13,9 +13,8 @@ abstract final class LocalCache {
 
   static bool get isReady => _box != null;
 
-  /// Called once during app startup, before first paint. Must never throw
-  /// in a way that blocks startup — a cache-init failure degrades to
-  /// "nothing cached," not a crashed app (see app/bootstrap.dart).
+  /// Called once in `main()` before first paint. Callers wrap it in
+  /// try/catch — a cache-init failure degrades to "nothing cached".
   static Future<void> init() async {
     await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);

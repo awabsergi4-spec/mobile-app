@@ -64,3 +64,21 @@ const testUser = CurrentUser(
   preferredLanguage: 'en',
   status: 'ACTIVE',
 );
+
+const testProviderUser = CurrentUser(
+  id: 'user-2',
+  phone: '+249900000001',
+  fullName: 'Test Provider',
+  preferredLanguage: 'en',
+  status: 'ACTIVE',
+  providerProfileId: 'pp-1',
+);
+
+const testCompanyUser = CurrentUser(
+  id: 'user-3',
+  phone: '+249900000002',
+  fullName: 'Test Company',
+  preferredLanguage: 'en',
+  status: 'ACTIVE',
+  companyId: 'co-1',
+);

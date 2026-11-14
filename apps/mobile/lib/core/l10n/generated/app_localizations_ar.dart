@@ -892,4 +892,190 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errorEmailAlreadyRegistered =>
       'يوجد حساب مسجّل بهذا البريد الإلكتروني.';
+
+  @override
+  String get navHome => 'الرئيسية';
+
+  @override
+  String get navExplore => 'استكشف';
+
+  @override
+  String get navRequests => 'طلباتي';
+
+  @override
+  String get navWallet => 'المحفظة';
+
+  @override
+  String get navProfile => 'حسابي';
+
+  @override
+  String get navDashboard => 'لوحة التحكم';
+
+  @override
+  String get navJobs => 'المهام';
+
+  @override
+  String get navServices => 'خدماتي';
+
+  @override
+  String get navEarnings => 'الأرباح';
+
+  @override
+  String get navTeam => 'الفريق';
+
+  @override
+  String get navFinance => 'المالية';
+
+  @override
+  String get roleCompany => 'شركة';
+
+  @override
+  String get homeSearchHint => 'ابحث عن خدمة…';
+
+  @override
+  String get homeServiceTypesTitle => 'ماذا تحتاج اليوم؟';
+
+  @override
+  String get homeForYou => 'مختارات لك';
+
+  @override
+  String get serviceTypeShortTerm => 'قصيرة المدى';
+
+  @override
+  String get serviceTypeLongTerm => 'طويلة المدى';
+
+  @override
+  String get serviceTypeOnDemandHint => 'مساعدة سريعة الآن';
+
+  @override
+  String get serviceTypeShortTermHint => 'مهام عن بُعد ومشاريع قصيرة';
+
+  @override
+  String get serviceTypeLongTermHint => 'عقود ومشاريع كبيرة';
+
+  @override
+  String get exploreTitle => 'استكشف الخدمات';
+
+  @override
+  String get exploreEmpty => 'لا توجد خدمات في هذا القسم بعد.';
+
+  @override
+  String get exploreRequestAction => 'اطلب';
+
+  @override
+  String get requestsTitle => 'طلباتي';
+
+  @override
+  String get requestsOnDemandSubtitle => 'الخدمات الفورية التي طلبتها';
+
+  @override
+  String get requestsShortTermSubtitle => 'الأعمال عن بُعد التي حجزتها';
+
+  @override
+  String get requestsLongTermSubtitle => 'المشاريع والعروض والعقود';
+
+  @override
+  String get requestsDisputesSubtitle => 'المشكلات التي أبلغت عنها';
+
+  @override
+  String get providerStatRating => 'التقييم';
+
+  @override
+  String get providerStatCompleted => 'مهام مكتملة';
+
+  @override
+  String get providerStatBalance => 'الرصيد المتاح';
+
+  @override
+  String get jobsTitle => 'المهام';
+
+  @override
+  String get jobsOffersSubtitle => 'طلبات فورية جديدة مرسلة إليك';
+
+  @override
+  String get jobsBookingsSubtitle => 'أعمال قصيرة المدى حجزها العملاء';
+
+  @override
+  String get jobsBidsSubtitle => 'عروضك على المشاريع طويلة المدى';
+
+  @override
+  String get jobsBrowseSubtitle => 'ابحث عن مشاريع طويلة المدى لتقديم عرض';
+
+  @override
+  String get servicesTitle => 'خدماتي';
+
+  @override
+  String get servicesPortfolioSubtitle => 'اعرض أفضل أعمالك للعملاء';
+
+  @override
+  String get servicesVerificationSubtitle => 'المستندات التي توثّق حسابك';
+
+  @override
+  String get servicesProfileSubtitle => 'اسم النشاط والنبذة والمهارات';
+
+  @override
+  String get companyStatMembers => 'أعضاء الفريق';
+
+  @override
+  String get companyStatPendingInvites => 'دعوات معلّقة';
+
+  @override
+  String get companyTeamSubtitle => 'ادعُ الأعضاء وأدر الصلاحيات';
+
+  @override
+  String get companyVerificationSubtitle => 'مستندات الشركة والتوثيق';
+
+  @override
+  String get companyJobsUnavailableTitle => 'مهام الشركة قادمة قريباً';
+
+  @override
+  String get companyJobsUnavailable =>
+      'إسناد الطلبات لفريقك ومتابعة تقدّمها غير متاح بعد، وسيُضاف في التحديث القادم.';
+
+  @override
+  String get companyFinanceUnavailableTitle => 'مالية الشركة قادمة قريباً';
+
+  @override
+  String get companyFinanceUnavailable =>
+      'إيرادات الشركة والمدفوعات والتقارير غير متاحة بعد، وستُضاف في التحديث القادم.';
+
+  @override
+  String get profileTitle => 'حسابي';
+
+  @override
+  String get accountSection => 'الحساب';
+
+  @override
+  String get activitySection => 'النشاط';
+
+  @override
+  String get settingsSection => 'الإعدادات';
+
+  @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get themeSystem => 'النظام';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get logoutConfirmTitle => 'تسجيل الخروج؟';
+
+  @override
+  String get logoutConfirmMessage =>
+      'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام سهل على هذا الجهاز.';
 }
