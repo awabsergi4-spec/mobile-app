@@ -24,5 +24,10 @@ abstract interface class ContractRepository {
 
   Future<Result<Contract>> fetchContractById(String id);
   Future<Result<List<ContractMilestone>>> listMilestones(String contractId);
+  Future<Result<void>> cancelProject(String projectId);
+
+  /// `toStatus`: IN_PROGRESS / SUBMITTED (provider) or APPROVED (customer).
+  Future<Result<ContractMilestone>> updateMilestoneStatus(String milestoneId, String toStatus);
+
   Future<Result<ContractMilestone>> createMilestone({required String contractId, required String title, required int amount});
 }

@@ -960,7 +960,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exploreEmpty => 'لا توجد خدمات في هذا القسم بعد.';
 
   @override
-  String get exploreRequestAction => 'اطلب';
+  String get exploreRequestAction => 'عرض التفاصيل';
 
   @override
   String get requestsTitle => 'طلباتي';
@@ -1078,4 +1078,554 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get logoutConfirmMessage =>
       'ستحتاج إلى تسجيل الدخول مرة أخرى لاستخدام سهل على هذا الجهاز.';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get homeActiveRequest => 'طلبك الحالي';
+
+  @override
+  String get homeRecommended => 'الأعلى تقييماً';
+
+  @override
+  String get homePromotions => 'عروض لك';
+
+  @override
+  String promoPercentOff(int value) {
+    return 'خصم $value٪';
+  }
+
+  @override
+  String promoFlatOff(int amount) {
+    return 'وفّر $amount';
+  }
+
+  @override
+  String get searchCategories => 'الخدمات';
+
+  @override
+  String get searchProviders => 'مقدمو الخدمة';
+
+  @override
+  String searchNoResults(String query) {
+    return 'لا توجد نتائج لـ «$query».';
+  }
+
+  @override
+  String get serviceProvidersTitle => 'مقدمو الخدمة';
+
+  @override
+  String serviceProvidersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مقدم خدمة',
+      many: '$count مقدم خدمة',
+      few: '$count مقدمي خدمة',
+      two: 'مقدما خدمة',
+      one: 'مقدم خدمة واحد',
+      zero: 'لا يوجد مقدمو خدمة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String priceFrom(String amount) {
+    return 'يبدأ من $amount';
+  }
+
+  @override
+  String priceRange(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String get priceOnRequest => 'السعر حسب الطلب';
+
+  @override
+  String get sortRating => 'الأعلى تقييماً';
+
+  @override
+  String get sortJobs => 'الأكثر إنجازاً';
+
+  @override
+  String get sortNewest => 'الأحدث';
+
+  @override
+  String get requestServiceAction => 'اطلب هذه الخدمة';
+
+  @override
+  String get postProjectAction => 'انشر مشروعاً';
+
+  @override
+  String get serviceNoProviders => 'لا يوجد مقدمو خدمة لهذه الخدمة بعد.';
+
+  @override
+  String get onDemandMatchingNote =>
+      'نرسل طلبك إلى أفضل مقدم خدمة متاح بالقرب منك، دون الحاجة لاختياره.';
+
+  @override
+  String get remotePickProviderNote =>
+      'اختر مقدم خدمة من القائمة لحجز هذه الخدمة.';
+
+  @override
+  String get verifiedProvider => 'موثّق';
+
+  @override
+  String yearsExperience(int years) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: 'خبرة $years سنة',
+      many: 'خبرة $years سنة',
+      few: 'خبرة $years سنوات',
+      two: 'خبرة سنتين',
+      one: 'خبرة سنة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String jobsDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مهمة',
+      many: '$count مهمة',
+      few: '$count مهام',
+      two: 'مهمتان',
+      one: 'مهمة واحدة',
+      zero: 'لا مهام',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تقييم',
+      many: '$count تقييمًا',
+      few: '$count تقييمات',
+      two: 'تقييمان',
+      one: 'تقييم واحد',
+      zero: 'لا تقييمات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aboutTitle => 'نبذة';
+
+  @override
+  String get skillsTitle => 'المهارات';
+
+  @override
+  String get servicesOffered => 'الخدمات';
+
+  @override
+  String get reviewsTitle => 'التقييمات';
+
+  @override
+  String get noReviewsYet => 'لا توجد تقييمات بعد.';
+
+  @override
+  String get bookProviderAction => 'احجز مقدم الخدمة';
+
+  @override
+  String memberOfCompany(String company) {
+    return 'تابع لـ $company';
+  }
+
+  @override
+  String get bookingTitle => 'طلب خدمة';
+
+  @override
+  String bookingStepOf(int step, int total) {
+    return 'الخطوة $step من $total';
+  }
+
+  @override
+  String get bookingStepService => 'ما الخدمة التي تحتاجها؟';
+
+  @override
+  String get bookingStepDetails => 'أخبرنا عن المهمة';
+
+  @override
+  String get bookingStepLocation => 'أين يأتي مقدم الخدمة؟';
+
+  @override
+  String get bookingStepTime => 'متى تحتاجها؟';
+
+  @override
+  String get bookingStepReview => 'راجع طلبك';
+
+  @override
+  String get bookingDescribeHint =>
+      'صف ما تحتاجه، مثلاً: صنبور المطبخ يسرّب الماء…';
+
+  @override
+  String get bookingEmergency => 'هذه حالة طارئة';
+
+  @override
+  String get bookingEmergencyHint =>
+      'تُعرض الطلبات الطارئة على مقدمي الخدمة أولاً';
+
+  @override
+  String get bookingUseLocation => 'استخدم موقعي الحالي';
+
+  @override
+  String get bookingLocating => 'جارٍ تحديد موقعك…';
+
+  @override
+  String get bookingLocationSet => 'تم تحديد الموقع';
+
+  @override
+  String get bookingLocationDenied =>
+      'تم رفض إذن الموقع. اسمح به من إعدادات الهاتف للمتابعة.';
+
+  @override
+  String get bookingLocationOff => 'شغّل خدمات الموقع للمتابعة.';
+
+  @override
+  String get bookingLocationFailed => 'تعذّر تحديد موقعك. حاول مرة أخرى.';
+
+  @override
+  String get bookingAddressHint => 'العنوان أو أقرب معلم (اختياري)';
+
+  @override
+  String get bookingNow => 'في أقرب وقت';
+
+  @override
+  String get bookingSchedule => 'جدولة لوقت لاحق';
+
+  @override
+  String get bookingPickTime => 'اختر التاريخ والوقت';
+
+  @override
+  String get bookingSubmit => 'إرسال الطلب';
+
+  @override
+  String get bookingSuccessTitle => 'تم إرسال طلبك!';
+
+  @override
+  String get bookingSuccessMessage =>
+      'نبحث الآن عن أفضل مقدم خدمة متاح. تابع التحديثات من «طلباتي».';
+
+  @override
+  String get bookingScheduledSuccessMessage =>
+      'تمت جدولة طلبك. تابع التحديثات من «طلباتي».';
+
+  @override
+  String get viewMyRequests => 'عرض طلباتي';
+
+  @override
+  String get addressPrefix => 'العنوان';
+
+  @override
+  String get requestsBucketAll => 'الكل';
+
+  @override
+  String get requestsBucketPending => 'قيد الانتظار';
+
+  @override
+  String get requestsBucketAccepted => 'مقبولة';
+
+  @override
+  String get requestsBucketInProgress => 'قيد التنفيذ';
+
+  @override
+  String get requestsBucketCompleted => 'مكتملة';
+
+  @override
+  String get requestsBucketCancelled => 'ملغاة';
+
+  @override
+  String get requestsEmpty => 'لا يوجد شيء هنا بعد.';
+
+  @override
+  String scheduledFor(String date) {
+    return 'مجدولة في $date';
+  }
+
+  @override
+  String requestedOn(String date) {
+    return 'طُلبت في $date';
+  }
+
+  @override
+  String get assignedProvider => 'مقدم الخدمة';
+
+  @override
+  String get rateService => 'قيّم الخدمة';
+
+  @override
+  String get reviewTitle => 'كيف كانت الخدمة؟';
+
+  @override
+  String get reviewCommentHint => 'شارك تجربتك مع الآخرين (اختياري)';
+
+  @override
+  String get reviewSubmit => 'إرسال التقييم';
+
+  @override
+  String get reviewThanks => 'شكراً على تقييمك!';
+
+  @override
+  String get yourRating => 'تقييمك';
+
+  @override
+  String get milestoneStatusPending => 'لم تبدأ';
+
+  @override
+  String get milestoneStatusInProgress => 'قيد التنفيذ';
+
+  @override
+  String get milestoneStatusSubmitted => 'بانتظار الموافقة';
+
+  @override
+  String get milestoneStatusApproved => 'تمت الموافقة';
+
+  @override
+  String get milestoneStatusPaid => 'مدفوعة';
+
+  @override
+  String get milestoneStart => 'بدء العمل';
+
+  @override
+  String get milestoneSubmit => 'إرسال للموافقة';
+
+  @override
+  String get milestoneApprove => 'موافقة';
+
+  @override
+  String get milestoneApproveConfirm => 'الموافقة على هذه المرحلة؟';
+
+  @override
+  String get milestoneApproveMessage =>
+      'الموافقة تؤكد اكتمال العمل في هذه المرحلة، ثم يقوم سهل بتحرير الدفعة.';
+
+  @override
+  String get cancelProject => 'إلغاء المشروع';
+
+  @override
+  String get cancelProjectConfirm => 'إلغاء هذا المشروع؟';
+
+  @override
+  String get cancelProjectMessage =>
+      'سيتم رفض العروض المفتوحة. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get walletPending => 'قيد الانتظار';
+
+  @override
+  String get walletLocked => 'محجوز';
+
+  @override
+  String get txStatusPending => 'قيد الانتظار';
+
+  @override
+  String get txStatusHeld => 'محجوز';
+
+  @override
+  String get txStatusSucceeded => 'مكتملة';
+
+  @override
+  String get txStatusFailed => 'فشلت';
+
+  @override
+  String get txStatusReversed => 'مستردة';
+
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get editProfileSaved => 'تم تحديث الملف الشخصي';
+
+  @override
+  String get cityLabel => 'المدينة';
+
+  @override
+  String get addressLabel => 'العنوان';
+
+  @override
+  String get bioLabel => 'نبذة عني';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get security => 'الأمان';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get passwordChanged =>
+      'تم تغيير كلمة المرور وتسجيل خروجك من الأجهزة الأخرى.';
+
+  @override
+  String get notificationPrefsTitle => 'تفضيلات الإشعارات';
+
+  @override
+  String get prefOrders => 'الطلبات والمهام';
+
+  @override
+  String get prefOrdersHint => 'تغيّر حالة طلباتك ومهامك';
+
+  @override
+  String get prefMessages => 'الرسائل';
+
+  @override
+  String get prefMessagesHint => 'الرسائل الجديدة من العملاء ومقدمي الخدمة';
+
+  @override
+  String get prefPromotions => 'العروض والتخفيضات';
+
+  @override
+  String get prefPromotionsHint => 'الخصومات وأخبار سهل';
+
+  @override
+  String get prefAccount => 'الحساب والأمان';
+
+  @override
+  String get prefAccountHint => 'تسجيلات الدخول والتوثيق وتغييرات الحساب';
+
+  @override
+  String get helpSupport => 'المساعدة والدعم';
+
+  @override
+  String get supportNewTicket => 'طلب دعم جديد';
+
+  @override
+  String get supportSubject => 'الموضوع';
+
+  @override
+  String get supportMessage => 'كيف يمكننا مساعدتك؟';
+
+  @override
+  String get supportSend => 'إرسال';
+
+  @override
+  String get supportEmpty => 'لا توجد طلبات دعم بعد. نحن هنا إن احتجت إلينا.';
+
+  @override
+  String get supportReplyHint => 'اكتب ردك…';
+
+  @override
+  String get supportClosedNote => 'تم إغلاق هذا الطلب.';
+
+  @override
+  String get ticketStatusOpen => 'مفتوح';
+
+  @override
+  String get ticketStatusInProgress => 'قيد المعالجة';
+
+  @override
+  String get ticketStatusResolved => 'تم الحل';
+
+  @override
+  String get ticketStatusClosed => 'مغلق';
+
+  @override
+  String get errorInvalidCurrentPassword => 'كلمة المرور الحالية غير صحيحة.';
+
+  @override
+  String get errorPasswordUnchanged => 'اختر كلمة مرور مختلفة عن الحالية.';
+
+  @override
+  String get errorAlreadyReviewed => 'لقد قيّمت هذه المهمة من قبل.';
+
+  @override
+  String get errorJobNotCompleted => 'يمكنك تقييم المهمة بعد اكتمالها.';
+
+  @override
+  String get errorTicketClosed => 'طلب الدعم هذا مغلق.';
+
+  @override
+  String get errorProjectNotOpen => 'هذا المشروع لم يعد مفتوحاً.';
+
+  @override
+  String get validationDescriptionTooShort =>
+      'أضف تفاصيل أكثر قليلاً (5 أحرف على الأقل).';
+
+  @override
+  String get bookingScheduleInPast => 'اختر وقتاً في المستقبل.';
+
+  @override
+  String get openSettings => 'فتح الإعدادات';
+
+  @override
+  String get contractStatusInProgress => 'قيد التنفيذ';
+
+  @override
+  String get contractStatusCompleted => 'مكتمل';
+
+  @override
+  String get contractStatusDisputed => 'في نزاع';
+
+  @override
+  String get contractTotal => 'إجمالي العقد';
+
+  @override
+  String get viewContract => 'عرض العقد';
+
+  @override
+  String get projectBudget => 'الميزانية';
+
+  @override
+  String get txTypeDeposit => 'إيداع';
+
+  @override
+  String get txTypeWithdrawal => 'سحب';
+
+  @override
+  String get txTypeTransfer => 'تحويل';
+
+  @override
+  String get txTypeEscrowHold => 'مبلغ محجوز';
+
+  @override
+  String get txTypeEscrowRelease => 'تحرير مبلغ';
+
+  @override
+  String get txTypeRefund => 'استرداد';
+
+  @override
+  String get txTypeCommission => 'عمولة';
+
+  @override
+  String get txTypeBonus => 'مكافأة';
+
+  @override
+  String get txTypeCashback => 'استرداد نقدي';
+
+  @override
+  String get txTypeReward => 'جائزة';
+
+  @override
+  String get txTypeAdjustment => 'تسوية';
+
+  @override
+  String get txTypePenalty => 'غرامة';
+
+  @override
+  String get txTypePromotion => 'عرض ترويجي';
+
+  @override
+  String get txTypeTax => 'ضريبة';
+
+  @override
+  String get txTypeProcessingFee => 'رسوم معالجة';
+
+  @override
+  String get walletFrozen => 'محفظتك مجمّدة. تواصل مع الدعم للمساعدة.';
 }

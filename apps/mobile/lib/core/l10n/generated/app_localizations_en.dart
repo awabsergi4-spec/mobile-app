@@ -964,7 +964,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreEmpty => 'No services in this category yet.';
 
   @override
-  String get exploreRequestAction => 'Request';
+  String get exploreRequestAction => 'View details';
 
   @override
   String get requestsTitle => 'My Requests';
@@ -1084,4 +1084,546 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get logoutConfirmMessage =>
       'You\'ll need to sign in again to use SAHL on this device.';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get homeActiveRequest => 'Your active request';
+
+  @override
+  String get homeRecommended => 'Top-rated providers';
+
+  @override
+  String get homePromotions => 'Offers for you';
+
+  @override
+  String promoPercentOff(int value) {
+    return '$value% off';
+  }
+
+  @override
+  String promoFlatOff(int amount) {
+    return 'Save $amount';
+  }
+
+  @override
+  String get searchCategories => 'Services';
+
+  @override
+  String get searchProviders => 'Providers';
+
+  @override
+  String searchNoResults(String query) {
+    return 'Nothing matches “$query”.';
+  }
+
+  @override
+  String get serviceProvidersTitle => 'Providers';
+
+  @override
+  String serviceProvidersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count providers',
+      one: '1 provider',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String priceFrom(String amount) {
+    return 'From $amount';
+  }
+
+  @override
+  String priceRange(String min, String max) {
+    return '$min – $max';
+  }
+
+  @override
+  String get priceOnRequest => 'Price on request';
+
+  @override
+  String get sortRating => 'Top rated';
+
+  @override
+  String get sortJobs => 'Most jobs';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get requestServiceAction => 'Request this service';
+
+  @override
+  String get postProjectAction => 'Post a project';
+
+  @override
+  String get serviceNoProviders => 'No providers offer this service yet.';
+
+  @override
+  String get onDemandMatchingNote =>
+      'We send your request to the best available provider near you — no need to pick one.';
+
+  @override
+  String get remotePickProviderNote =>
+      'Choose a provider below to book this service.';
+
+  @override
+  String get verifiedProvider => 'Verified';
+
+  @override
+  String yearsExperience(int years) {
+    String _temp0 = intl.Intl.pluralLogic(
+      years,
+      locale: localeName,
+      other: '$years yrs experience',
+      one: '1 yr experience',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String jobsDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jobs',
+      one: '1 job',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+      zero: 'No reviews',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get skillsTitle => 'Skills';
+
+  @override
+  String get servicesOffered => 'Services';
+
+  @override
+  String get reviewsTitle => 'Reviews';
+
+  @override
+  String get noReviewsYet => 'No reviews yet.';
+
+  @override
+  String get bookProviderAction => 'Book this provider';
+
+  @override
+  String memberOfCompany(String company) {
+    return 'Part of $company';
+  }
+
+  @override
+  String get bookingTitle => 'Request a service';
+
+  @override
+  String bookingStepOf(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get bookingStepService => 'Which service do you need?';
+
+  @override
+  String get bookingStepDetails => 'Tell us about the job';
+
+  @override
+  String get bookingStepLocation => 'Where should the provider come?';
+
+  @override
+  String get bookingStepTime => 'When do you need it?';
+
+  @override
+  String get bookingStepReview => 'Check your request';
+
+  @override
+  String get bookingDescribeHint =>
+      'Describe what you need, e.g. the kitchen tap is leaking…';
+
+  @override
+  String get bookingEmergency => 'This is an emergency';
+
+  @override
+  String get bookingEmergencyHint =>
+      'Emergency requests are offered to providers first';
+
+  @override
+  String get bookingUseLocation => 'Use my current location';
+
+  @override
+  String get bookingLocating => 'Getting your location…';
+
+  @override
+  String get bookingLocationSet => 'Location set';
+
+  @override
+  String get bookingLocationDenied =>
+      'Location permission was denied. Allow it in your phone settings to continue.';
+
+  @override
+  String get bookingLocationOff => 'Turn on location services to continue.';
+
+  @override
+  String get bookingLocationFailed =>
+      'Couldn\'t get your location. Please try again.';
+
+  @override
+  String get bookingAddressHint => 'Address or landmark (optional)';
+
+  @override
+  String get bookingNow => 'As soon as possible';
+
+  @override
+  String get bookingSchedule => 'Schedule for later';
+
+  @override
+  String get bookingPickTime => 'Pick date & time';
+
+  @override
+  String get bookingSubmit => 'Send request';
+
+  @override
+  String get bookingSuccessTitle => 'Request sent!';
+
+  @override
+  String get bookingSuccessMessage =>
+      'We\'re finding the best available provider. Follow updates in My Requests.';
+
+  @override
+  String get bookingScheduledSuccessMessage =>
+      'Your request is scheduled. Follow updates in My Requests.';
+
+  @override
+  String get viewMyRequests => 'View my requests';
+
+  @override
+  String get addressPrefix => 'Address';
+
+  @override
+  String get requestsBucketAll => 'All';
+
+  @override
+  String get requestsBucketPending => 'Pending';
+
+  @override
+  String get requestsBucketAccepted => 'Accepted';
+
+  @override
+  String get requestsBucketInProgress => 'In progress';
+
+  @override
+  String get requestsBucketCompleted => 'Completed';
+
+  @override
+  String get requestsBucketCancelled => 'Cancelled';
+
+  @override
+  String get requestsEmpty => 'Nothing here yet.';
+
+  @override
+  String scheduledFor(String date) {
+    return 'Scheduled for $date';
+  }
+
+  @override
+  String requestedOn(String date) {
+    return 'Requested $date';
+  }
+
+  @override
+  String get assignedProvider => 'Your provider';
+
+  @override
+  String get rateService => 'Rate this service';
+
+  @override
+  String get reviewTitle => 'How was the service?';
+
+  @override
+  String get reviewCommentHint =>
+      'Tell others about your experience (optional)';
+
+  @override
+  String get reviewSubmit => 'Submit review';
+
+  @override
+  String get reviewThanks => 'Thanks for your review!';
+
+  @override
+  String get yourRating => 'Your rating';
+
+  @override
+  String get milestoneStatusPending => 'Not started';
+
+  @override
+  String get milestoneStatusInProgress => 'In progress';
+
+  @override
+  String get milestoneStatusSubmitted => 'Waiting for approval';
+
+  @override
+  String get milestoneStatusApproved => 'Approved';
+
+  @override
+  String get milestoneStatusPaid => 'Paid';
+
+  @override
+  String get milestoneStart => 'Start work';
+
+  @override
+  String get milestoneSubmit => 'Submit for approval';
+
+  @override
+  String get milestoneApprove => 'Approve';
+
+  @override
+  String get milestoneApproveConfirm => 'Approve this milestone?';
+
+  @override
+  String get milestoneApproveMessage =>
+      'Approving confirms the work for this milestone is done. SAHL then releases the payment.';
+
+  @override
+  String get cancelProject => 'Cancel project';
+
+  @override
+  String get cancelProjectConfirm => 'Cancel this project?';
+
+  @override
+  String get cancelProjectMessage =>
+      'Open bids will be rejected. This can\'t be undone.';
+
+  @override
+  String get walletPending => 'Pending';
+
+  @override
+  String get walletLocked => 'On hold';
+
+  @override
+  String get txStatusPending => 'Pending';
+
+  @override
+  String get txStatusHeld => 'On hold';
+
+  @override
+  String get txStatusSucceeded => 'Completed';
+
+  @override
+  String get txStatusFailed => 'Failed';
+
+  @override
+  String get txStatusReversed => 'Reversed';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get editProfileSaved => 'Profile updated';
+
+  @override
+  String get cityLabel => 'City';
+
+  @override
+  String get addressLabel => 'Address';
+
+  @override
+  String get bioLabel => 'About me';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get passwordChanged =>
+      'Password changed. You were signed out on other devices.';
+
+  @override
+  String get notificationPrefsTitle => 'Notification preferences';
+
+  @override
+  String get prefOrders => 'Orders & requests';
+
+  @override
+  String get prefOrdersHint => 'Status changes on your requests and jobs';
+
+  @override
+  String get prefMessages => 'Messages';
+
+  @override
+  String get prefMessagesHint => 'New messages from customers and providers';
+
+  @override
+  String get prefPromotions => 'Offers & promotions';
+
+  @override
+  String get prefPromotionsHint => 'Discounts and news from SAHL';
+
+  @override
+  String get prefAccount => 'Account & security';
+
+  @override
+  String get prefAccountHint => 'Sign-ins, verification and account changes';
+
+  @override
+  String get helpSupport => 'Help & support';
+
+  @override
+  String get supportNewTicket => 'New support request';
+
+  @override
+  String get supportSubject => 'Subject';
+
+  @override
+  String get supportMessage => 'How can we help?';
+
+  @override
+  String get supportSend => 'Send';
+
+  @override
+  String get supportEmpty =>
+      'No support requests yet. We\'re here if you need us.';
+
+  @override
+  String get supportReplyHint => 'Write a reply…';
+
+  @override
+  String get supportClosedNote => 'This request is closed.';
+
+  @override
+  String get ticketStatusOpen => 'Open';
+
+  @override
+  String get ticketStatusInProgress => 'In progress';
+
+  @override
+  String get ticketStatusResolved => 'Resolved';
+
+  @override
+  String get ticketStatusClosed => 'Closed';
+
+  @override
+  String get errorInvalidCurrentPassword =>
+      'Your current password is incorrect.';
+
+  @override
+  String get errorPasswordUnchanged =>
+      'Choose a password different from your current one.';
+
+  @override
+  String get errorAlreadyReviewed => 'You already reviewed this job.';
+
+  @override
+  String get errorJobNotCompleted =>
+      'You can review a job once it\'s completed.';
+
+  @override
+  String get errorTicketClosed => 'This support request is closed.';
+
+  @override
+  String get errorProjectNotOpen => 'This project is no longer open.';
+
+  @override
+  String get validationDescriptionTooShort =>
+      'Please add a few more details (at least 5 characters).';
+
+  @override
+  String get bookingScheduleInPast => 'Pick a time in the future.';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
+  String get contractStatusInProgress => 'In progress';
+
+  @override
+  String get contractStatusCompleted => 'Completed';
+
+  @override
+  String get contractStatusDisputed => 'In dispute';
+
+  @override
+  String get contractTotal => 'Contract total';
+
+  @override
+  String get viewContract => 'View contract';
+
+  @override
+  String get projectBudget => 'Budget';
+
+  @override
+  String get txTypeDeposit => 'Deposit';
+
+  @override
+  String get txTypeWithdrawal => 'Withdrawal';
+
+  @override
+  String get txTypeTransfer => 'Transfer';
+
+  @override
+  String get txTypeEscrowHold => 'Payment held';
+
+  @override
+  String get txTypeEscrowRelease => 'Payment released';
+
+  @override
+  String get txTypeRefund => 'Refund';
+
+  @override
+  String get txTypeCommission => 'Service fee';
+
+  @override
+  String get txTypeBonus => 'Bonus';
+
+  @override
+  String get txTypeCashback => 'Cashback';
+
+  @override
+  String get txTypeReward => 'Reward';
+
+  @override
+  String get txTypeAdjustment => 'Adjustment';
+
+  @override
+  String get txTypePenalty => 'Penalty';
+
+  @override
+  String get txTypePromotion => 'Promotion';
+
+  @override
+  String get txTypeTax => 'Tax';
+
+  @override
+  String get txTypeProcessingFee => 'Processing fee';
+
+  @override
+  String get walletFrozen => 'Your wallet is frozen. Contact support for help.';
 }

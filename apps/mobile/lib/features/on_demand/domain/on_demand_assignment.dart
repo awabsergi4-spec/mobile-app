@@ -27,6 +27,9 @@ class OnDemandAssignment {
     this.requestDescription,
     this.requestCategoryId,
     this.requestIsEmergency = false,
+    this.providerId,
+    this.providerBusinessName,
+    this.providerRatingAverage,
   });
 
   factory OnDemandAssignment.fromJson(Map<String, dynamic> json) {
@@ -39,6 +42,9 @@ class OnDemandAssignment {
       requestDescription: json['requestDescription'] as String?,
       requestCategoryId: json['requestCategoryId'] as String?,
       requestIsEmergency: json['requestIsEmergency'] as bool? ?? false,
+      providerId: json['providerId'] as String?,
+      providerBusinessName: json['providerBusinessName'] as String?,
+      providerRatingAverage: (json['providerRatingAverage'] as num?)?.toDouble(),
     );
   }
 
@@ -50,4 +56,9 @@ class OnDemandAssignment {
   final String? requestDescription;
   final String? requestCategoryId;
   final bool requestIsEmergency;
+
+  /// Set by `GET /on-demand/{id}/assignments` (customer view of who took the job).
+  final String? providerId;
+  final String? providerBusinessName;
+  final double? providerRatingAverage;
 }

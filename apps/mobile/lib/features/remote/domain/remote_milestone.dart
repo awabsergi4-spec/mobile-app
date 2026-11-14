@@ -32,4 +32,12 @@ class RemoteMilestone {
   final String title;
   final int amount;
   final RemoteMilestoneStatus status;
+
+  String get statusWire => switch (status) {
+        RemoteMilestoneStatus.pending => 'PENDING',
+        RemoteMilestoneStatus.inProgress => 'IN_PROGRESS',
+        RemoteMilestoneStatus.submitted => 'SUBMITTED',
+        RemoteMilestoneStatus.approved => 'APPROVED',
+        RemoteMilestoneStatus.paid => 'PAID',
+      };
 }

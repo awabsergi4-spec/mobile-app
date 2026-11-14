@@ -5,6 +5,8 @@
          template default for hot-reload/VM-service access and does not
          cover release builds. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="sahl_mobile"
         android:name="${applicationName}"

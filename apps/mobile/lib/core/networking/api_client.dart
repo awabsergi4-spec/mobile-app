@@ -62,6 +62,13 @@ class ApiClient {
   }) =>
       _request('PATCH', path, data: data, skipAuth: skipAuth);
 
+  Future<ApiResponseEnvelope> put(
+    String path, {
+    Object? data,
+    bool skipAuth = false,
+  }) =>
+      _request('PUT', path, data: data, skipAuth: skipAuth);
+
   Future<ApiResponseEnvelope> delete(
     String path, {
     Object? data,

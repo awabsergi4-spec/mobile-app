@@ -4,6 +4,7 @@ import '../../../core/networking/providers.dart';
 import '../../../core/utils/result.dart';
 import '../data/on_demand_repository.dart';
 import '../data/on_demand_repository_impl.dart';
+import '../domain/on_demand_assignment.dart';
 import '../domain/on_demand_request.dart';
 
 final onDemandRepositoryProvider = Provider<OnDemandRepository>((ref) {
@@ -23,6 +24,7 @@ class MyOnDemandRequestsController extends AsyncNotifier<List<OnDemandRequest>> 
     required double lat,
     required double lng,
     bool isEmergency = false,
+    DateTime? scheduledFor,
   }) async {
     final result = await ref.read(onDemandRepositoryProvider).createRequest(
           categoryId: categoryId,
@@ -30,6 +32,7 @@ class MyOnDemandRequestsController extends AsyncNotifier<List<OnDemandRequest>> 
           lat: lat,
           lng: lng,
           isEmergency: isEmergency,
+          scheduledFor: scheduledFor,
         );
     if (result.isSuccess) {
       ref.invalidateSelf();
@@ -52,5 +55,12 @@ final myOnDemandRequestsControllerProvider = AsyncNotifierProvider<MyOnDemandReq
 
 final onDemandRequestDetailProvider = FutureProvider.family<OnDemandRequest, String>((ref, id) async {
   final result = await ref.watch(onDemandRepositoryProvider).fetchById(id);
+  return result.when(success: (r) => r, failure: (failure) => throw failure);
+});
+
+/// Offers made for one of the customer's requests (the accepted one is the
+/// assigned provider).
+final onDemandRequestAssignmentsProvider = FutureProvider.autoDispose.family<List<OnDemandAssignment>, String>((ref, id) async {
+  final result = await ref.watch(onDemandRepositoryProvider).listRequestAssignments(id);
   return result.when(success: (r) => r, failure: (failure) => throw failure);
 });

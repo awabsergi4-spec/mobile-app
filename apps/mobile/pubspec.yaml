@@ -76,6 +76,7 @@ dependencies:
   # Refresh token / any credential storage — OS keychain-backed, never
   # SharedPreferences for anything token-shaped.
   flutter_secure_storage: ^9.2.2
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

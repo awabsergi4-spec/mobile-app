@@ -363,7 +363,7 @@
   "serviceTypeLongTermHint": "Contracts & big projects",
   "exploreTitle": "Explore services",
   "exploreEmpty": "No services in this category yet.",
-  "exploreRequestAction": "Request",
+  "exploreRequestAction": "View details",
   "requestsTitle": "My Requests",
   "requestsOnDemandSubtitle": "Instant jobs you requested",
   "requestsShortTermSubtitle": "Remote work you booked",
@@ -401,5 +401,260 @@
   "languageArabic": "العربية",
   "languageEnglish": "English",
   "logoutConfirmTitle": "Log out?",
-  "logoutConfirmMessage": "You'll need to sign in again to use SAHL on this device."
+  "logoutConfirmMessage": "You'll need to sign in again to use SAHL on this device.",
+  "seeAll": "See all",
+  "homeActiveRequest": "Your active request",
+  "homeRecommended": "Top-rated providers",
+  "homePromotions": "Offers for you",
+  "promoPercentOff": "{value}% off",
+  "promoFlatOff": "Save {amount}",
+  "searchCategories": "Services",
+  "searchProviders": "Providers",
+  "searchNoResults": "Nothing matches “{query}”.",
+  "serviceProvidersTitle": "Providers",
+  "serviceProvidersCount": "{count, plural, =1{1 provider} other{{count} providers}}",
+  "priceFrom": "From {amount}",
+  "priceRange": "{min} – {max}",
+  "priceOnRequest": "Price on request",
+  "sortRating": "Top rated",
+  "sortJobs": "Most jobs",
+  "sortNewest": "Newest",
+  "requestServiceAction": "Request this service",
+  "postProjectAction": "Post a project",
+  "serviceNoProviders": "No providers offer this service yet.",
+  "onDemandMatchingNote": "We send your request to the best available provider near you — no need to pick one.",
+  "remotePickProviderNote": "Choose a provider below to book this service.",
+  "verifiedProvider": "Verified",
+  "yearsExperience": "{years, plural, =1{1 yr experience} other{{years} yrs experience}}",
+  "jobsDone": "{count, plural, =1{1 job} other{{count} jobs}}",
+  "reviewsCount": "{count, plural, =0{No reviews} =1{1 review} other{{count} reviews}}",
+  "aboutTitle": "About",
+  "skillsTitle": "Skills",
+  "servicesOffered": "Services",
+  "reviewsTitle": "Reviews",
+  "noReviewsYet": "No reviews yet.",
+  "bookProviderAction": "Book this provider",
+  "memberOfCompany": "Part of {company}",
+  "bookingTitle": "Request a service",
+  "bookingStepOf": "Step {step} of {total}",
+  "bookingStepService": "Which service do you need?",
+  "bookingStepDetails": "Tell us about the job",
+  "bookingStepLocation": "Where should the provider come?",
+  "bookingStepTime": "When do you need it?",
+  "bookingStepReview": "Check your request",
+  "bookingDescribeHint": "Describe what you need, e.g. the kitchen tap is leaking…",
+  "bookingEmergency": "This is an emergency",
+  "bookingEmergencyHint": "Emergency requests are offered to providers first",
+  "bookingUseLocation": "Use my current location",
+  "bookingLocating": "Getting your location…",
+  "bookingLocationSet": "Location set",
+  "bookingLocationDenied": "Location permission was denied. Allow it in your phone settings to continue.",
+  "bookingLocationOff": "Turn on location services to continue.",
+  "bookingLocationFailed": "Couldn't get your location. Please try again.",
+  "bookingAddressHint": "Address or landmark (optional)",
+  "bookingNow": "As soon as possible",
+  "bookingSchedule": "Schedule for later",
+  "bookingPickTime": "Pick date & time",
+  "bookingSubmit": "Send request",
+  "bookingSuccessTitle": "Request sent!",
+  "bookingSuccessMessage": "We're finding the best available provider. Follow updates in My Requests.",
+  "bookingScheduledSuccessMessage": "Your request is scheduled. Follow updates in My Requests.",
+  "viewMyRequests": "View my requests",
+  "addressPrefix": "Address",
+  "requestsBucketAll": "All",
+  "requestsBucketPending": "Pending",
+  "requestsBucketAccepted": "Accepted",
+  "requestsBucketInProgress": "In progress",
+  "requestsBucketCompleted": "Completed",
+  "requestsBucketCancelled": "Cancelled",
+  "requestsEmpty": "Nothing here yet.",
+  "scheduledFor": "Scheduled for {date}",
+  "requestedOn": "Requested {date}",
+  "assignedProvider": "Your provider",
+  "rateService": "Rate this service",
+  "reviewTitle": "How was the service?",
+  "reviewCommentHint": "Tell others about your experience (optional)",
+  "reviewSubmit": "Submit review",
+  "reviewThanks": "Thanks for your review!",
+  "yourRating": "Your rating",
+  "milestoneStatusPending": "Not started",
+  "milestoneStatusInProgress": "In progress",
+  "milestoneStatusSubmitted": "Waiting for approval",
+  "milestoneStatusApproved": "Approved",
+  "milestoneStatusPaid": "Paid",
+  "milestoneStart": "Start work",
+  "milestoneSubmit": "Submit for approval",
+  "milestoneApprove": "Approve",
+  "milestoneApproveConfirm": "Approve this milestone?",
+  "milestoneApproveMessage": "Approving confirms the work for this milestone is done. SAHL then releases the payment.",
+  "cancelProject": "Cancel project",
+  "cancelProjectConfirm": "Cancel this project?",
+  "cancelProjectMessage": "Open bids will be rejected. This can't be undone.",
+  "walletPending": "Pending",
+  "walletLocked": "On hold",
+  "txStatusPending": "Pending",
+  "txStatusHeld": "On hold",
+  "txStatusSucceeded": "Completed",
+  "txStatusFailed": "Failed",
+  "txStatusReversed": "Reversed",
+  "editProfile": "Edit profile",
+  "editProfileSaved": "Profile updated",
+  "cityLabel": "City",
+  "addressLabel": "Address",
+  "bioLabel": "About me",
+  "saveChanges": "Save changes",
+  "security": "Security",
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "newPassword": "New password",
+  "passwordChanged": "Password changed. You were signed out on other devices.",
+  "notificationPrefsTitle": "Notification preferences",
+  "prefOrders": "Orders & requests",
+  "prefOrdersHint": "Status changes on your requests and jobs",
+  "prefMessages": "Messages",
+  "prefMessagesHint": "New messages from customers and providers",
+  "prefPromotions": "Offers & promotions",
+  "prefPromotionsHint": "Discounts and news from SAHL",
+  "prefAccount": "Account & security",
+  "prefAccountHint": "Sign-ins, verification and account changes",
+  "helpSupport": "Help & support",
+  "supportNewTicket": "New support request",
+  "supportSubject": "Subject",
+  "supportMessage": "How can we help?",
+  "supportSend": "Send",
+  "supportEmpty": "No support requests yet. We're here if you need us.",
+  "supportReplyHint": "Write a reply…",
+  "supportClosedNote": "This request is closed.",
+  "ticketStatusOpen": "Open",
+  "ticketStatusInProgress": "In progress",
+  "ticketStatusResolved": "Resolved",
+  "ticketStatusClosed": "Closed",
+  "errorInvalidCurrentPassword": "Your current password is incorrect.",
+  "errorPasswordUnchanged": "Choose a password different from your current one.",
+  "errorAlreadyReviewed": "You already reviewed this job.",
+  "errorJobNotCompleted": "You can review a job once it's completed.",
+  "errorTicketClosed": "This support request is closed.",
+  "errorProjectNotOpen": "This project is no longer open.",
+  "@promoPercentOff": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "@promoFlatOff": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@serviceProvidersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@priceFrom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@priceRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "@yearsExperience": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@jobsDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@reviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@memberOfCompany": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduledFor": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@requestedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@bookingStepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDescriptionTooShort": "Please add a few more details (at least 5 characters).",
+  "bookingScheduleInPast": "Pick a time in the future.",
+  "openSettings": "Open settings",
+  "contractStatusInProgress": "In progress",
+  "contractStatusCompleted": "Completed",
+  "contractStatusDisputed": "In dispute",
+  "contractTotal": "Contract total",
+  "viewContract": "View contract",
+  "projectBudget": "Budget",
+  "txTypeDeposit": "Deposit",
+  "txTypeWithdrawal": "Withdrawal",
+  "txTypeTransfer": "Transfer",
+  "txTypeEscrowHold": "Payment held",
+  "txTypeEscrowRelease": "Payment released",
+  "txTypeRefund": "Refund",
+  "txTypeCommission": "Service fee",
+  "txTypeBonus": "Bonus",
+  "txTypeCashback": "Cashback",
+  "txTypeReward": "Reward",
+  "txTypeAdjustment": "Adjustment",
+  "txTypePenalty": "Penalty",
+  "txTypePromotion": "Promotion",
+  "txTypeTax": "Tax",
+  "txTypeProcessingFee": "Processing fee",
+  "walletFrozen": "Your wallet is frozen. Contact support for help."
 }

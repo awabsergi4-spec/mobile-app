@@ -1,6 +1,7 @@
 """Contract module: projects, bids, award, contracts, milestones."""
 
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field, model_validator
@@ -55,13 +56,66 @@ def create_project(body: CreateProjectBody, user: dict = Depends(current_user), 
               status=201)
 
 
+class MilestoneStatusBody(BaseModel):
+    toStatus: Literal["IN_PROGRESS", "SUBMITTED", "APPROVED"]
+
+
+# Who may move a milestone where. PAID is never set by a party: it follows
+# the escrow release (admin / Financial Core), not a button in the app.
+MILESTONE_TRANSITIONS = {"PENDING": "IN_PROGRESS", "IN_PROGRESS": "SUBMITTED", "SUBMITTED": "APPROVED"}
+PARTY_ALLOWED = {"provider": {"IN_PROGRESS", "SUBMITTED"}, "customer": {"APPROVED"}}
+
+
+@router.post("/contracts/projects/{project_id}/cancel")
+def cancel_project(project_id: str, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
+    project = get_row(conn, "ContractProject", project_id)
+    if not project:
+        raise ApiError(404, "CONTRACT_PROJECT_NOT_FOUND", "Contract project not found")
+    if project["customerId"] != user["id"]:
+        raise ApiError(403, "FORBIDDEN", "Only the posting customer can cancel this project")
+    cp, cb = t("ContractProject"), t("ContractBid")
+    if not update_rows(conn, "ContractProject", (cp.c.id == project_id) & (cp.c.status == "OPEN_FOR_BIDS"),
+                       {"status": "CANCELLED"}):
+        raise ApiError(409, "CONTRACT_PROJECT_NOT_OPEN", "Only projects open for bids can be cancelled")
+    update_rows(conn, "ContractBid", (cb.c.projectId == project_id) & (cb.c.status == "SUBMITTED"), {"status": "REJECTED"})
+    publish(conn, "ContractProjectCancelled", {}, "CONTRACT", project_id)
+    return ok({"status": "CANCELLED"})
+
+
+@router.post("/contracts/milestones/{milestone_id}/status")
+def update_milestone_status(milestone_id: str, body: MilestoneStatusBody, user: dict = Depends(current_user),
+                            conn: Connection = Depends(get_conn)):
+    milestone = get_row(conn, "ContractMilestone", milestone_id)
+    if not milestone:
+        raise ApiError(404, "CONTRACT_MILESTONE_NOT_FOUND", "Contract milestone not found")
+    contract, project = _contract_and_project(conn, milestone["contractId"])
+    party = contract_party(conn, contract, project, user["id"])
+    if body.toStatus not in PARTY_ALLOWED[party]:
+        raise ApiError(403, "FORBIDDEN", f"A {party} cannot move a milestone to {body.toStatus}")
+    if MILESTONE_TRANSITIONS.get(milestone["status"]) != body.toStatus:
+        raise ApiError(409, "INVALID_STATUS_TRANSITION", f"Cannot move from {milestone['status']} to {body.toStatus}")
+    cm = t("ContractMilestone")
+    updated = update_rows(conn, "ContractMilestone", (cm.c.id == milestone_id) & (cm.c.status == milestone["status"]),
+                          {"status": body.toStatus})
+    if not updated:
+        raise ApiError(409, "INVALID_STATUS_TRANSITION", "The milestone changed in the meantime; refresh and retry")
+    if body.toStatus in ("SUBMITTED", "APPROVED"):
+        publish(conn, f"ContractMilestone{body.toStatus.title()}",
+                {"contractId": milestone["contractId"], "amount": milestone["amount"]}, "CONTRACT_MILESTONE", milestone_id)
+    return ok(updated[0])
+
+
 @router.get("/contracts/projects/{project_id}")
 def get_project(project_id: str, conn: Connection = Depends(get_conn)):
     # Public: open projects are guest-browsable; bidding requires auth.
     project = get_row(conn, "ContractProject", project_id)
     if not project:
         raise ApiError(404, "CONTRACT_PROJECT_NOT_FOUND", "Contract project not found")
-    return ok(project)
+    # Lets the posting customer jump from an awarded project to its contract
+    # (the contract itself is still party-only).
+    c = t("Contract")
+    contract_id = conn.execute(select(c.c.id).where(c.c.projectId == project_id)).scalar()
+    return ok({**project, "contractId": contract_id})
 
 
 @router.get("/contracts/projects/{project_id}/bids")

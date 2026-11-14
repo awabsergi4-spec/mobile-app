@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/errors/failure_localizer.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
@@ -7,7 +8,16 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/error_banner.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/utils/formatters.dart';
+import '../../../shared/widgets/milestone_tile.dart';
+import '../../../shared/widgets/sahl_ui.dart';
+import '../../account/domain/account_models.dart';
+import '../../account/presentation/widgets/review_section.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/current_user.dart';
 import '../../dispute/presentation/widgets/open_dispute_sheet.dart';
+import '../application/contract_controller.dart';
 import '../application/contract_milestone_controller.dart';
 import '../domain/contract.dart';
 import '../domain/contract_milestone.dart';
@@ -41,60 +51,90 @@ class _ContractDetailBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final tokens = context.sahl;
     final milestones = ref.watch(contractMilestonesControllerProvider(contract.id));
+    final isCustomer = ref.watch(authControllerProvider).user?.workspace == UserWorkspace.customer;
+    final (statusLabel, statusColor) = switch (contract.status) {
+      ContractStatus.inProgress => (l10n.contractStatusInProgress, tokens.info),
+      ContractStatus.completed => (l10n.contractStatusCompleted, tokens.success),
+      ContractStatus.disputed => (l10n.contractStatusDisputed, tokens.warning),
+      ContractStatus.cancelled => (l10n.contractStatusCancelled, Theme.of(context).colorScheme.error),
+    };
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.base),
-      children: [
-        Text(contract.totalAmount.toString(), style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: AppSpacing.xxl),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.contractMilestones, style: Theme.of(context).textTheme.titleMedium),
-            TextButton.icon(
-              onPressed: () => _showCreateMilestoneSheet(context, ref, contract.id),
-              icon: const Icon(Icons.add),
-              label: Text(l10n.contractNewMilestone),
-            ),
-          ],
-        ),
-        AsyncValueView<List<ContractMilestone>>(
-          value: milestones,
-          onRetry: () => ref.invalidate(contractMilestonesControllerProvider(contract.id)),
-          data: (context, data) {
-            if (data.isEmpty) {
-              return EmptyStateView(message: l10n.contractNoMilestones);
-            }
-            return Column(
-              children: data
-                  .map(
-                    (m) => Card(
-                      child: ListTile(
-                        title: Text(m.title),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(m.amount.toString()),
-                            IconButton(
-                              icon: const Icon(Icons.flag_outlined),
-                              tooltip: l10n.disputeOpenAction,
-                              onPressed: () => showOpenDisputeSheet(
-                                context,
-                                relatedEntityType: 'CONTRACT_MILESTONE',
-                                relatedEntityId: m.id,
-                              ),
-                            ),
-                          ],
-                        ),
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(contractDetailProvider(contract.id));
+        ref.invalidate(contractMilestonesControllerProvider(contract.id));
+      },
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        children: [
+          SahlCard(
+            child: Row(
+              children: [
+                IconBadge(icon: Symbols.handshake, color: statusColor, size: 52),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.contractTotal, style: TextStyle(color: tokens.textMuted, fontSize: 12)),
+                      Text(
+                        Fmt.number(context, contract.totalAmount),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                       ),
+                      const SizedBox(height: 2),
+                      Text(Fmt.date(context, contract.startedAt), style: TextStyle(color: tokens.textMuted, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                Text(statusLabel, style: TextStyle(color: statusColor, fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ),
+          SectionHeader(
+            title: l10n.contractMilestones,
+            actionLabel: isCustomer && contract.status == ContractStatus.inProgress ? l10n.contractNewMilestone : null,
+            onAction: () => _showCreateMilestoneSheet(context, ref, contract.id),
+          ),
+          AsyncValueView<List<ContractMilestone>>(
+            value: milestones,
+            loading: const SizedBox(height: 160, child: SkeletonList(itemCount: 2)),
+            onRetry: () => ref.invalidate(contractMilestonesControllerProvider(contract.id)),
+            data: (context, data) {
+              if (data.isEmpty) {
+                return EmptyStateView(message: l10n.contractNoMilestones);
+              }
+              return Column(
+                children: [
+                  for (final m in data) ...[
+                    MilestoneTile(
+                      title: m.title,
+                      amount: m.amount,
+                      status: m.statusWire,
+                      isCustomer: isCustomer,
+                      onChangeStatus: (to) async {
+                        final result = await ref.read(contractRepositoryProvider).updateMilestoneStatus(m.id, to);
+                        if (result.isSuccess) {
+                          ref.invalidate(contractMilestonesControllerProvider(contract.id));
+                          ref.invalidate(contractDetailProvider(contract.id));
+                        }
+                        return result;
+                      },
+                      onDispute: () => showOpenDisputeSheet(context, relatedEntityType: 'CONTRACT_MILESTONE', relatedEntityId: m.id),
                     ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-      ],
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                ],
+              );
+            },
+          ),
+          if (isCustomer && contract.status == ContractStatus.completed) ...[
+            const SizedBox(height: AppSpacing.lg),
+            ReviewSection(type: ReviewJobType.contract, jobId: contract.id),
+          ],
+        ],
+      ),
     );
   }
 

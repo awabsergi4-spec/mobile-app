@@ -18,4 +18,7 @@ abstract interface class RemoteRepository {
   Future<Result<RemoteMilestone>> createMilestone({required String engagementId, required String title, required int amount});
 
   Future<Result<List<HireableProvider>>> listHireableProviders(String categoryId);
+
+  /// `toStatus`: IN_PROGRESS / SUBMITTED (provider) or APPROVED (customer).
+  Future<Result<RemoteMilestone>> updateMilestoneStatus(String milestoneId, String toStatus);
 }

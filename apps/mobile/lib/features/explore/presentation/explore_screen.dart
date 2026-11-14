@@ -14,7 +14,7 @@ import '../../service_category/domain/service_category.dart';
 
 /// Customer › Explore tab: real service categories for the three service
 /// types (On-Demand / Short-Term = Remote / Long-Term = Contract). Picking a
-/// category opens the matching request flow.
+/// category opens its service details.
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key, this.initialType});
 
@@ -35,6 +35,13 @@ class ExploreScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.exploreTitle),
+          actions: [
+            IconButton(
+              tooltip: l10n.homeSearchHint,
+              icon: const Icon(Symbols.search),
+              onPressed: () => context.push('/search'),
+            ),
+          ],
           bottom: TabBar(
             tabs: [
               Tab(text: l10n.serviceTypeOnDemand),
@@ -53,12 +60,6 @@ class _CategoryGrid extends ConsumerWidget {
   const _CategoryGrid({required this.type});
 
   final ServiceType type;
-
-  String get _requestRoute => switch (type) {
-        ServiceType.onDemand => '/on-demand/new',
-        ServiceType.remote => '/remote/new',
-        ServiceType.contract => '/contracts/new',
-      };
 
   (IconData, Color) _style(BuildContext context) => switch (type) {
         ServiceType.onDemand => (Symbols.bolt, Theme.of(context).colorScheme.primary),
@@ -94,7 +95,7 @@ class _CategoryGrid extends ConsumerWidget {
             itemBuilder: (context, index) {
               final category = items[index];
               return SahlCard(
-                onTap: () => context.push(_requestRoute),
+                onTap: () => context.push('/services/${category.id}'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

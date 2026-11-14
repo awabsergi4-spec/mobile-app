@@ -10,9 +10,15 @@ abstract interface class OnDemandRepository {
     required double lat,
     required double lng,
     bool isEmergency,
+
+    /// When set, the request is SCHEDULED for this time instead of INSTANT.
+    DateTime? scheduledFor,
   });
   Future<Result<OnDemandRequest>> fetchById(String id);
   Future<Result<void>> cancel(String id);
+
+  /// Offers made for one request, with the provider's name/rating.
+  Future<Result<List<OnDemandAssignment>>> listRequestAssignments(String requestId);
 
   Future<Result<List<OnDemandAssignment>>> listMyAssignments();
   Future<Result<void>> acceptAssignment(String assignmentId);

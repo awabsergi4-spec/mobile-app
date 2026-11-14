@@ -161,3 +161,48 @@ database change · **EXT** = needs an external service/credential.
 - Also: session restore retries once on network failure and timeouts allow for Render cold starts.
 - Verified: flutter analyze (31 pre-existing infos, 0 warnings), flutter test 38/38, on-device (Realme, Render API)
   for the provider role in light/dark and ar/en. Customer/company shells verified by router tests only.
+
+## 7. Phase 3 — Customer (done 2026-11-14)
+
+### New API endpoints (`apps/api`, all covered by `tests/test_customer_phase3.py`)
+
+| Endpoint | Purpose |
+|---|---|
+| `PATCH /users/me`, `POST /users/me/password` | Edit profile; change password (signs out other devices, returns a new session) |
+| `GET/PUT /users/me/notification-preferences` | Orders / messages / promotions / account switches |
+| `GET /explore/providers`, `GET /search` | Provider listing (sort, category, remote-only) and combined search |
+| `GET /service-categories/{id}` | Service details with provider count and price range |
+| `GET /providers/{id}/profile`, `GET /providers/{id}/reviews` | Public provider profile (ACTIVE + VERIFIED only) |
+| `GET /promotions` | Active campaigns for Home |
+| `GET /reviews/for-job`, `POST /reviews` | Customer reviews of completed jobs; updates provider rating |
+| `GET/POST /support/tickets`, `GET /support/tickets/{id}`, `POST /support/tickets/{id}/messages` | Help & support |
+| `POST /contracts/projects/{id}/cancel` | Customer cancels an open project |
+| `POST /contracts/milestones/{id}/status`, `POST /remote/milestones/{id}/status` | Provider: IN_PROGRESS/SUBMITTED; customer: APPROVED |
+| `GET /on-demand/{id}/assignments` | Offers for a request, with provider name and rating |
+| `GET /contracts/projects/{id}` now returns `contractId` | Lets the customer open the contract after awarding a bid |
+
+### Screens
+
+| Route | Screen |
+|---|---|
+| `/c/home` | Greeting, search, active request, service types, offers, top-rated providers, admin blocks |
+| `/c/explore` | Categories by type → service details; search action |
+| `/search` | Debounced search across services and providers |
+| `/services/:categoryId` | Service details: type, description, price range, providers (sortable), request/post action |
+| `/providers/:id`, `/providers/:id/reviews` | Public provider profile and all reviews; "Book this provider" for short-term services |
+| `/book?categoryId=` | On-demand booking: service → details → location (geolocator) → now/schedule → review → success. Replaces `/on-demand/new` (now redirects) |
+| `/c/requests` | My Requests: On-Demand / Short-Term / Long-Term with status buckets |
+| `/on-demand/:id` | Status, schedule, assigned provider, cancel (confirm), review when completed |
+| `/remote/:id`, `/contracts/:id` | Milestones with role-based actions (start / submit / approve with confirm), disputes, review when completed |
+| `/contracts/projects/:id` | Budget, bids, award, cancel project (confirm), view contract |
+| `/c/wallet` | Balance card, pending/on-hold, typed transaction history |
+| `/account/edit`, `/account/password`, `/account/notifications` | Edit profile, change password, notification preferences |
+| `/support`, `/support/new`, `/support/:id` | Ticket list, new ticket, conversation with reply |
+
+### Notes and limitations
+
+- The on-demand address is appended to the description as `Address: …` (no address column; no schema change).
+- Booking needs location permission; the browser preview can't grant it, so the full submit was checked through the API.
+- Profile photo upload stays hidden until Cloudinary keys are configured.
+- Amounts are shown as stored integers (open item B-08: minor vs major units).
+- Render does not have these endpoints until the branch is pushed and redeployed.

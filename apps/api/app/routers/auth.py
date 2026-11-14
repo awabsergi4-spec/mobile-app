@@ -138,19 +138,26 @@ def logout(body: LogoutBody, conn: Connection = Depends(get_conn)):
     return ok({"loggedOut": True})
 
 
-@router.get("/users/me")
-def me(user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
+def user_payload(conn: Connection, user: dict) -> dict:
+    """The `/users/me` shape (never includes passwordHash). Role signals come
+    from real relations: company > provider > customer is decided client-side."""
     pp, co, cm = t("ProviderProfile"), t("Company"), t("CompanyMember")
     profile = conn.execute(select(pp.c.id, pp.c.companyId).where(pp.c.userId == user["id"])).mappings().first()
     owned = conn.execute(select(co.c.id).where(co.c.ownerId == user["id"]).limit(1)).scalar()
     membership = conn.execute(
         select(cm.c.companyId, cm.c.role).where(cm.c.userId == user["id"]).limit(1)
     ).mappings().first()
-    return ok({
+    return {
         "id": user["id"], "phone": user["phone"], "email": user["email"], "fullName": user["fullName"],
         "preferredLanguage": user["preferredLanguage"], "status": user["status"],
         "profilePictureUrl": user["profilePictureUrl"], "createdAt": user["createdAt"],
+        "bio": user["bio"], "city": user["city"], "address": user["address"],
         "providerProfile": dict(profile) if profile else None,
         "ownedCompanyId": owned,
         "companyMembership": dict(membership) if membership else None,
-    })
+    }
+
+
+@router.get("/users/me")
+def me(user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
+    return ok(user_payload(conn, user))

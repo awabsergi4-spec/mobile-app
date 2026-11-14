@@ -57,34 +57,50 @@ class AccountScreen extends ConsumerWidget {
               ],
             ),
           ),
-          if (workspace != UserWorkspace.customer) ...[
-            SectionHeader(title: l10n.accountSection),
-            ActionGroup(
-              children: [
-                if (workspace == UserWorkspace.provider) ...[
-                  ActionTile(
-                    icon: Symbols.badge,
-                    color: colorScheme.primary,
-                    title: l10n.providerProfileTitle,
-                    onTap: () => context.push('/provider/profile'),
-                  ),
-                  ActionTile(
-                    icon: Symbols.account_balance,
-                    color: tokens.info,
-                    title: l10n.providerPayoutAccountsTitle,
-                    onTap: () => context.push('/provider/payout-accounts'),
-                  ),
-                ],
-                if (workspace == UserWorkspace.company)
-                  ActionTile(
-                    icon: Symbols.verified_user,
-                    color: tokens.success,
-                    title: l10n.companyDocumentsTitle,
-                    onTap: () => context.push('/company/${user.companyId}/verification'),
-                  ),
+          SectionHeader(title: l10n.accountSection),
+          ActionGroup(
+            children: [
+              ActionTile(
+                icon: Symbols.edit,
+                color: colorScheme.primary,
+                title: l10n.editProfile,
+                onTap: () => context.push('/account/edit'),
+              ),
+              if (workspace == UserWorkspace.provider) ...[
+                ActionTile(
+                  icon: Symbols.badge,
+                  color: tokens.accent,
+                  title: l10n.providerProfileTitle,
+                  onTap: () => context.push('/provider/profile'),
+                ),
+                ActionTile(
+                  icon: Symbols.account_balance,
+                  color: tokens.info,
+                  title: l10n.providerPayoutAccountsTitle,
+                  onTap: () => context.push('/provider/payout-accounts'),
+                ),
               ],
-            ),
-          ],
+              if (workspace == UserWorkspace.company)
+                ActionTile(
+                  icon: Symbols.verified_user,
+                  color: tokens.success,
+                  title: l10n.companyDocumentsTitle,
+                  onTap: () => context.push('/company/${user.companyId}/verification'),
+                ),
+              ActionTile(
+                icon: Symbols.lock,
+                color: tokens.warning,
+                title: l10n.changePassword,
+                onTap: () => context.push('/account/password'),
+              ),
+              ActionTile(
+                icon: Symbols.notifications_active,
+                color: tokens.info,
+                title: l10n.notificationPrefsTitle,
+                onTap: () => context.push('/account/notifications'),
+              ),
+            ],
+          ),
           SectionHeader(title: l10n.activitySection),
           ActionGroup(
             children: [
@@ -107,6 +123,12 @@ class AccountScreen extends ConsumerWidget {
                   title: l10n.companyMyInvitationsTitle,
                   onTap: () => context.push('/company/invitations'),
                 ),
+              ActionTile(
+                icon: Symbols.support_agent,
+                color: tokens.success,
+                title: l10n.helpSupport,
+                onTap: () => context.push('/support'),
+              ),
             ],
           ),
           SectionHeader(title: l10n.settingsSection),

@@ -1,3 +1,4 @@
+import '../../../core/networking/api_call.dart';
 import '../../../core/networking/api_client.dart';
 import '../../../core/networking/app_failure_exception.dart';
 import '../../../core/utils/result.dart';
@@ -28,6 +29,7 @@ class OnDemandRepositoryImpl implements OnDemandRepository {
     required double lat,
     required double lng,
     bool isEmergency = false,
+    DateTime? scheduledFor,
   }) async {
     try {
       final response = await _apiClient.post(
@@ -38,6 +40,8 @@ class OnDemandRepositoryImpl implements OnDemandRepository {
           'lat': lat,
           'lng': lng,
           'isEmergency': isEmergency,
+          if (scheduledFor != null) 'fulfillmentMode': 'SCHEDULED',
+          if (scheduledFor != null) 'scheduledFor': scheduledFor.toUtc().toIso8601String(),
         },
       );
       return Result.success(OnDemandRequest.fromJson(response.dataAsMap));
@@ -96,4 +100,10 @@ class OnDemandRepositoryImpl implements OnDemandRepository {
       return Result.failure(e.failure);
     }
   }
+
+  @override
+  Future<Result<List<OnDemandAssignment>>> listRequestAssignments(String requestId) => apiCall(() async {
+        final response = await _apiClient.get('/on-demand/$requestId/assignments');
+        return response.dataAsList.cast<Map<String, dynamic>>().map(OnDemandAssignment.fromJson).toList();
+      });
 }

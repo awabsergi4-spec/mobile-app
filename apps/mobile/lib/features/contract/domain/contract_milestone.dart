@@ -40,5 +40,13 @@ class ContractMilestone {
   final String title;
   final int amount;
   final ContractMilestoneStatus status;
+
+  String get statusWire => switch (status) {
+        ContractMilestoneStatus.pending => 'PENDING',
+        ContractMilestoneStatus.inProgress => 'IN_PROGRESS',
+        ContractMilestoneStatus.submitted => 'SUBMITTED',
+        ContractMilestoneStatus.approved => 'APPROVED',
+        ContractMilestoneStatus.paid => 'PAID',
+      };
   final DateTime? dueDate;
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../../features/account/presentation/account_settings_screens.dart';
+import '../../features/account/presentation/support_screens.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/current_user.dart';
@@ -10,6 +12,9 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/session_restoring_screen.dart';
 import '../../features/auth/presentation/welcome_screen.dart';
+import '../../features/catalog/presentation/provider_profile_public_screen.dart';
+import '../../features/catalog/presentation/search_screen.dart';
+import '../../features/catalog/presentation/service_details_screen.dart';
 import '../../features/company/presentation/company_members_screen.dart';
 import '../../features/company/presentation/company_verification_screen.dart';
 import '../../features/company/presentation/my_company_invitations_screen.dart';
@@ -27,7 +32,7 @@ import '../../features/home/presentation/customer_requests_screen.dart';
 import '../../features/home/presentation/provider_home_screen.dart';
 import '../../features/home/presentation/provider_hub_screens.dart';
 import '../../features/notification/presentation/notifications_screen.dart';
-import '../../features/on_demand/presentation/create_on_demand_request_screen.dart';
+import '../../features/on_demand/presentation/booking_screen.dart';
 import '../../features/on_demand/presentation/on_demand_request_detail_screen.dart';
 import '../../features/on_demand/presentation/on_demand_request_list_screen.dart';
 import '../../features/on_demand/presentation/provider_assignment_list_screen.dart';
@@ -218,14 +223,31 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // ── Detail screens (pushed full-screen over the shells) ───────────
       GoRoute(path: '/on-demand', builder: (context, state) => const OnDemandRequestListScreen()),
-      GoRoute(path: '/on-demand/new', builder: (context, state) => const CreateOnDemandRequestScreen()),
+      GoRoute(path: '/search', builder: (context, state) => const SearchScreen()),
+      GoRoute(
+        path: '/services/:categoryId',
+        builder: (context, state) => ServiceDetailsScreen(categoryId: state.pathParameters['categoryId']!),
+      ),
+      GoRoute(
+        path: '/providers/:id',
+        builder: (context, state) => ProviderProfilePublicScreen(providerId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/providers/:id/reviews',
+        builder: (context, state) => ProviderReviewsScreen(providerId: state.pathParameters['id']!),
+      ),
+      GoRoute(path: '/book', builder: (context, state) => BookingScreen(categoryId: state.uri.queryParameters['categoryId'])),
+      GoRoute(path: '/on-demand/new', redirect: (context, state) => '/book'),
       GoRoute(path: '/on-demand/offers', builder: (context, state) => const ProviderAssignmentListScreen()),
       GoRoute(
         path: '/on-demand/:id',
         builder: (context, state) => OnDemandRequestDetailScreen(requestId: state.pathParameters['id']!),
       ),
       GoRoute(path: '/contracts', builder: (context, state) => const MyContractProjectsScreen()),
-      GoRoute(path: '/contracts/new', builder: (context, state) => const CreateContractProjectScreen()),
+      GoRoute(
+        path: '/contracts/new',
+        builder: (context, state) => CreateContractProjectScreen(initialCategoryId: state.uri.queryParameters['categoryId']),
+      ),
       GoRoute(path: '/contracts/browse', builder: (context, state) => const BrowseContractProjectsScreen()),
       GoRoute(path: '/contracts/my-bids', builder: (context, state) => const MyContractBidsScreen()),
       GoRoute(
@@ -237,7 +259,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ContractDetailScreen(contractId: state.pathParameters['id']!),
       ),
       GoRoute(path: '/remote', builder: (context, state) => const MyRemoteEngagementsScreen(asProvider: false)),
-      GoRoute(path: '/remote/new', builder: (context, state) => const CreateRemoteEngagementScreen()),
+      GoRoute(
+        path: '/remote/new',
+        builder: (context, state) => CreateRemoteEngagementScreen(
+          initialCategoryId: state.uri.queryParameters['categoryId'],
+          initialProviderId: state.uri.queryParameters['providerId'],
+        ),
+      ),
       GoRoute(path: '/remote/bookings', builder: (context, state) => const MyRemoteEngagementsScreen(asProvider: true)),
       GoRoute(
         path: '/remote/:id',
@@ -247,6 +275,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/wallet/withdrawals', builder: (context, state) => const WithdrawalsScreen()),
       GoRoute(path: '/disputes', builder: (context, state) => const MyDisputesScreen()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
+      GoRoute(path: '/account/edit', builder: (context, state) => const EditProfileScreen()),
+      GoRoute(path: '/account/password', builder: (context, state) => const ChangePasswordScreen()),
+      GoRoute(path: '/account/notifications', builder: (context, state) => const NotificationPrefsScreen()),
+      GoRoute(path: '/support', builder: (context, state) => const SupportTicketsScreen()),
+      GoRoute(path: '/support/new', builder: (context, state) => const NewSupportTicketScreen()),
+      GoRoute(
+        path: '/support/:id',
+        builder: (context, state) => SupportTicketScreen(ticketId: state.pathParameters['id']!),
+      ),
       GoRoute(path: '/company/invitations', builder: (context, state) => const MyCompanyInvitationsScreen()),
       GoRoute(
         path: '/company/:id/members',

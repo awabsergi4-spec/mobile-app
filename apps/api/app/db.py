@@ -24,11 +24,11 @@ TABLES = [
     "AuditLog", "Company", "CompanyDocument", "CompanyInvitation", "CompanyMember", "Contract",
     "ContractBid", "ContractMilestone", "ContractProject", "Dispute", "DomainEvent", "Escrow",
     "HomeLayoutBlock", "MatchingScoreLog", "Notification", "OnDemandAssignment", "OnDemandRequest",
-    "PaymentTransaction", "Permission", "ProviderCategory", "ProviderDocument", "ProviderPayoutAccount",
-    "ProviderPortfolioItem", "ProviderProfile", "ProviderServiceArea", "RefreshToken", "Region",
-    "RemoteConfigEntry", "RemoteEngagement", "RemoteMilestone", "ServiceCategory",
-    "ServiceCategoryTranslation", "StaffRole", "StaffRolePermission", "User", "UserStaffRole", "Wallet",
-    "WalletBalance", "Withdrawal",
+    "PaymentTransaction", "Permission", "PromotionalCampaign", "ProviderCategory", "ProviderDocument",
+    "ProviderPayoutAccount", "ProviderPortfolioItem", "ProviderProfile", "ProviderServiceArea", "RefreshToken",
+    "Region", "RemoteConfigEntry", "RemoteEngagement", "RemoteMilestone", "Review", "ReviewCategoryScore",
+    "ServiceCategory", "ServiceCategoryTranslation", "StaffRole", "StaffRolePermission", "SupportTicket",
+    "SupportTicketMessage", "User", "UserStaffRole", "Wallet", "WalletBalance", "Withdrawal",
 ]
 
 # Columns Prisma fills with now() on create (@default(now())) or on every write (@updatedAt).

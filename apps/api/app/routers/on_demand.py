@@ -188,6 +188,20 @@ def get_request(request_id: str, user: dict = Depends(current_user), conn: Conne
     return ok(request)
 
 
+@router.get("/on-demand/{request_id}/assignments")
+def request_assignments(request_id: str, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
+    request = get_row(conn, "OnDemandRequest", request_id)
+    if not request:
+        raise ApiError(404, "ON_DEMAND_REQUEST_NOT_FOUND", "On-demand request not found")
+    _require_party(conn, request, user["id"])
+    oda, pp = t("OnDemandAssignment"), t("ProviderProfile")
+    return ok(rows(conn, select(oda, pp.c.businessName.label("providerBusinessName"),
+                                pp.c.ratingAverage.label("providerRatingAverage"),
+                                pp.c.ratingCount.label("providerRatingCount"))
+                   .join(pp, pp.c.id == oda.c.providerId)
+                   .where(oda.c.requestId == request_id).order_by(oda.c.offeredAt.asc())))
+
+
 @router.post("/on-demand/{request_id}/cancel")
 def cancel_request(request_id: str, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
     request = get_row(conn, "OnDemandRequest", request_id)

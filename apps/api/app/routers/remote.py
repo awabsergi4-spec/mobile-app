@@ -8,7 +8,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import Connection, select
 
 from ..common import get_row, is_eligible_provider, remote_party, require_provider, rows
-from ..db import get_conn, insert_row, t, to_naive_utc
+from ..db import get_conn, insert_row, t, to_naive_utc, update_rows
+from ..events import publish
 from ..responses import ApiError, ok
 from ..security import current_user
 
@@ -27,6 +28,39 @@ class MilestoneBody(BaseModel):
     title: str = Field(min_length=2, max_length=150)
     amount: int = Field(gt=0)
     dueDate: datetime | None = None
+
+
+class MilestoneStatusBody(BaseModel):
+    toStatus: Literal["IN_PROGRESS", "SUBMITTED", "APPROVED"]
+
+
+# Same rules as contract milestones: provider drives IN_PROGRESS/SUBMITTED,
+# customer drives APPROVED; PAID follows the escrow release only.
+MILESTONE_TRANSITIONS = {"PENDING": "IN_PROGRESS", "IN_PROGRESS": "SUBMITTED", "SUBMITTED": "APPROVED"}
+PARTY_ALLOWED = {"provider": {"IN_PROGRESS", "SUBMITTED"}, "customer": {"APPROVED"}}
+
+
+@router.post("/remote/milestones/{milestone_id}/status")
+def update_milestone_status(milestone_id: str, body: MilestoneStatusBody, user: dict = Depends(current_user),
+                            conn: Connection = Depends(get_conn)):
+    milestone = get_row(conn, "RemoteMilestone", milestone_id)
+    if not milestone:
+        raise ApiError(404, "REMOTE_MILESTONE_NOT_FOUND", "Remote milestone not found")
+    engagement = _engagement(conn, milestone["engagementId"])
+    party = remote_party(conn, engagement, user["id"])
+    if body.toStatus not in PARTY_ALLOWED[party]:
+        raise ApiError(403, "FORBIDDEN", f"A {party} cannot move a milestone to {body.toStatus}")
+    if MILESTONE_TRANSITIONS.get(milestone["status"]) != body.toStatus:
+        raise ApiError(409, "INVALID_STATUS_TRANSITION", f"Cannot move from {milestone['status']} to {body.toStatus}")
+    rm = t("RemoteMilestone")
+    updated = update_rows(conn, "RemoteMilestone", (rm.c.id == milestone_id) & (rm.c.status == milestone["status"]),
+                          {"status": body.toStatus})
+    if not updated:
+        raise ApiError(409, "INVALID_STATUS_TRANSITION", "The milestone changed in the meantime; refresh and retry")
+    if body.toStatus in ("SUBMITTED", "APPROVED"):
+        publish(conn, f"RemoteMilestone{body.toStatus.title()}",
+                {"engagementId": milestone["engagementId"], "amount": milestone["amount"]}, "REMOTE_MILESTONE", milestone_id)
+    return ok(updated[0])
 
 
 @router.get("/remote")

@@ -7,12 +7,20 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/remote_config/remote_config_providers.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/utils/formatters.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../catalog/application/catalog_providers.dart';
+import '../../catalog/domain/catalog_models.dart';
+import '../../catalog/presentation/widgets/provider_card.dart';
 import '../../notification/presentation/widgets/notification_bell_button.dart';
+import '../../on_demand/application/on_demand_controller.dart';
+import '../../on_demand/domain/on_demand_request.dart';
+import '../../on_demand/presentation/widgets/on_demand_status_label.dart';
 import 'widgets/home_layout_block_list.dart';
 
-/// Customer › Home tab: greeting, search, the three service types and the
+/// Customer › Home tab: greeting, search, the active request (if any), the
+/// three service types, live offers, top-rated providers and the
 /// admin-published "For you" blocks.
 class CustomerHomeScreen extends ConsumerWidget {
   const CustomerHomeScreen({super.key});
@@ -33,7 +41,12 @@ class CustomerHomeScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async => ref.invalidate(homeLayoutProvider),
+          onRefresh: () async {
+            ref.invalidate(homeLayoutProvider);
+            ref.invalidate(myOnDemandRequestsControllerProvider);
+            ref.invalidate(activePromotionsProvider);
+            ref.invalidate(recommendedProvidersProvider);
+          },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.md, AppSpacing.base, AppSpacing.xl),
             children: [
@@ -53,7 +66,8 @@ class CustomerHomeScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              SearchBarButton(hint: l10n.homeSearchHint, onTap: () => context.go('/c/explore')),
+              SearchBarButton(hint: l10n.homeSearchHint, onTap: () => context.push('/search')),
+              const _ActiveRequestSection(),
               SectionHeader(title: l10n.homeServiceTypesTitle),
               for (final (icon, color, title, hint, type) in serviceTypes) ...[
                 SahlCard(
@@ -78,11 +92,139 @@ class CustomerHomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
               ],
+              const _PromotionsSection(),
+              const _RecommendedSection(),
               const HomeLayoutBlockList(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Most recent on-demand request that's still running.
+class _ActiveRequestSection extends ConsumerWidget {
+  const _ActiveRequestSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final requests = ref.watch(myOnDemandRequestsControllerProvider).valueOrNull ?? const <OnDemandRequest>[];
+    final active = requests.where((r) => r.status.isActive).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    if (active.isEmpty) return const SizedBox.shrink();
+    final request = active.first;
+    final color = onDemandStatusColor(context, request.status);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: l10n.homeActiveRequest),
+        SahlCard(
+          onTap: () => context.push('/on-demand/${request.id}'),
+          child: Row(
+            children: [
+              IconBadge(icon: Symbols.bolt, color: color),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(request.description, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(
+                      request.scheduledFor != null
+                          ? l10n.scheduledFor(Fmt.dateTime(context, request.scheduledFor!))
+                          : l10n.requestedOn(Fmt.dateTime(context, request.createdAt)),
+                      style: TextStyle(color: context.sahl.textMuted, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(onDemandStatusText(l10n, request.status), style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PromotionsSection extends ConsumerWidget {
+  const _PromotionsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final promos = ref.watch(activePromotionsProvider).valueOrNull ?? const <Promotion>[];
+    if (promos.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: l10n.homePromotions),
+        SizedBox(
+          height: 132,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: promos.length,
+            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
+            itemBuilder: (context, i) {
+              final p = promos[i];
+              final badge = p.discountType == 'PERCENTAGE'
+                  ? l10n.promoPercentOff(p.discountValue)
+                  : l10n.promoFlatOff(p.discountValue);
+              final card = GradientCard(
+                padding: const EdgeInsets.all(AppSpacing.base),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(badge, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                    const SizedBox(height: 4),
+                    Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    if (p.description != null)
+                      Opacity(
+                        opacity: 0.8,
+                        child: Text(p.description!, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+                      ),
+                  ],
+                ),
+              );
+              return SizedBox(
+                width: 260,
+                child: p.categoryId == null
+                    ? card
+                    : GestureDetector(onTap: () => context.push('/services/${p.categoryId}'), child: card),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RecommendedSection extends ConsumerWidget {
+  const _RecommendedSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final providers = ref.watch(recommendedProvidersProvider).valueOrNull ?? const <ProviderSummary>[];
+    if (providers.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: l10n.homeRecommended, actionLabel: l10n.seeAll, onAction: () => context.push('/search')),
+        SizedBox(
+          height: 160,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: providers.length,
+            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
+            itemBuilder: (_, i) => ProviderMiniCard(provider: providers[i]),
+          ),
+        ),
+      ],
     );
   }
 }

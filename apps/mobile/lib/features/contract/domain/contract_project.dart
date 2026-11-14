@@ -22,6 +22,7 @@ class ContractProject {
     required this.createdAt,
     this.budgetMin,
     this.budgetMax,
+    this.contractId,
   });
 
   factory ContractProject.fromJson(Map<String, dynamic> json) {
@@ -35,6 +36,7 @@ class ContractProject {
       createdAt: DateTime.parse(json['createdAt'] as String),
       budgetMin: (json['budgetMin'] as num?)?.toInt(),
       budgetMax: (json['budgetMax'] as num?)?.toInt(),
+      contractId: json['contractId'] as String?,
     );
   }
 
@@ -47,4 +49,7 @@ class ContractProject {
   final DateTime createdAt;
   final int? budgetMin;
   final int? budgetMax;
+
+  /// Set on `GET /contracts/projects/{id}` once a bid was awarded.
+  final String? contractId;
 }

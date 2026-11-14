@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/errors/failure_localizer.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
@@ -7,6 +8,14 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/error_banner.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../shared/utils/formatters.dart';
+import '../../../shared/widgets/milestone_tile.dart';
+import '../../../shared/widgets/sahl_ui.dart';
+import '../../account/domain/account_models.dart';
+import '../../account/presentation/widgets/review_section.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/current_user.dart';
 import '../../dispute/presentation/widgets/open_dispute_sheet.dart';
 import '../application/remote_controller.dart';
 import '../application/remote_milestone_controller.dart';
@@ -44,68 +53,84 @@ class _EngagementDetailBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final milestones = ref.watch(remoteMilestonesControllerProvider(engagement.id));
+    final isCustomer = ref.watch(authControllerProvider).user?.workspace == UserWorkspace.customer;
+    final color = remoteEngagementStatusColor(context, engagement.status);
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.base),
-      children: [
-        Chip(
-          label: Text(remoteEngagementStatusText(l10n, engagement.status)),
-          backgroundColor: remoteEngagementStatusColor(context, engagement.status).withValues(alpha: 0.15),
-          labelStyle: TextStyle(color: remoteEngagementStatusColor(context, engagement.status)),
-          side: BorderSide.none,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(engagement.title, style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: AppSpacing.sm),
-        Text(engagement.amount.toString(), style: Theme.of(context).textTheme.bodyLarge),
-        const SizedBox(height: AppSpacing.xxl),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.remoteMilestones, style: Theme.of(context).textTheme.titleMedium),
-            TextButton.icon(
-              onPressed: () => _showCreateMilestoneSheet(context, ref, engagement.id),
-              icon: const Icon(Icons.add),
-              label: Text(l10n.remoteNewMilestone),
-            ),
-          ],
-        ),
-        AsyncValueView<List<RemoteMilestone>>(
-          value: milestones,
-          onRetry: () => ref.invalidate(remoteMilestonesControllerProvider(engagement.id)),
-          data: (context, data) {
-            if (data.isEmpty) {
-              return EmptyStateView(message: l10n.remoteNoMilestones);
-            }
-            return Column(
-              children: data
-                  .map(
-                    (m) => Card(
-                      child: ListTile(
-                        title: Text(m.title),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(m.amount.toString()),
-                            IconButton(
-                              icon: const Icon(Icons.flag_outlined),
-                              tooltip: l10n.disputeOpenAction,
-                              onPressed: () => showOpenDisputeSheet(
-                                context,
-                                relatedEntityType: 'REMOTE_MILESTONE',
-                                relatedEntityId: m.id,
-                              ),
-                            ),
-                          ],
-                        ),
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(remoteEngagementDetailProvider(engagement.id));
+        ref.invalidate(remoteMilestonesControllerProvider(engagement.id));
+      },
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        children: [
+          SahlCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconBadge(icon: Symbols.laptop_mac, color: color),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        remoteEngagementStatusText(l10n, engagement.status),
+                        style: TextStyle(color: color, fontWeight: FontWeight.w800),
                       ),
                     ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-      ],
+                    Text(Fmt.date(context, engagement.createdAt), style: TextStyle(color: context.sahl.textMuted, fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(engagement.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: AppSpacing.xs),
+                Text(Fmt.number(context, engagement.amount), style: Theme.of(context).textTheme.titleMedium),
+              ],
+            ),
+          ),
+          SectionHeader(
+            title: l10n.remoteMilestones,
+            actionLabel: isCustomer && engagement.status == RemoteEngagementStatus.active ? l10n.remoteNewMilestone : null,
+            onAction: () => _showCreateMilestoneSheet(context, ref, engagement.id),
+          ),
+          AsyncValueView<List<RemoteMilestone>>(
+            value: milestones,
+            loading: const SizedBox(height: 160, child: SkeletonList(itemCount: 2)),
+            onRetry: () => ref.invalidate(remoteMilestonesControllerProvider(engagement.id)),
+            data: (context, data) {
+              if (data.isEmpty) {
+                return EmptyStateView(message: l10n.remoteNoMilestones);
+              }
+              return Column(
+                children: [
+                  for (final m in data) ...[
+                    MilestoneTile(
+                      title: m.title,
+                      amount: m.amount,
+                      status: m.statusWire,
+                      isCustomer: isCustomer,
+                      onChangeStatus: (to) async {
+                        final result = await ref.read(remoteRepositoryProvider).updateMilestoneStatus(m.id, to);
+                        if (result.isSuccess) {
+                          ref.invalidate(remoteMilestonesControllerProvider(engagement.id));
+                          ref.invalidate(remoteEngagementDetailProvider(engagement.id));
+                        }
+                        return result;
+                      },
+                      onDispute: () => showOpenDisputeSheet(context, relatedEntityType: 'REMOTE_MILESTONE', relatedEntityId: m.id),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                ],
+              );
+            },
+          ),
+          if (isCustomer && engagement.status == RemoteEngagementStatus.completed) ...[
+            const SizedBox(height: AppSpacing.lg),
+            ReviewSection(type: ReviewJobType.remote, jobId: engagement.id),
+          ],
+        ],
+      ),
     );
   }
 

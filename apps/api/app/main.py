@@ -10,7 +10,10 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .config import get_settings
 from .responses import ApiError, fail
-from .routers import admin_users, auth, companies, contracts, engagement, on_demand, providers, reference, remote, wallet
+from .routers import (
+    account, admin_users, auth, catalog, companies, contracts, engagement, feedback, on_demand, providers, reference,
+    remote, wallet,
+)
 
 API_PREFIX = "/api/v1"
 
@@ -20,11 +23,12 @@ if get_settings().cors_origins:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=get_settings().cors_origins,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
     )
 
-for module in (reference, auth, providers, companies, on_demand, contracts, remote, wallet, engagement, admin_users):
+for module in (reference, auth, account, catalog, providers, companies, on_demand, contracts, remote, wallet, engagement,
+               feedback, admin_users):
     app.include_router(module.router, prefix=API_PREFIX)
 
 

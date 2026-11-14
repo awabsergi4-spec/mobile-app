@@ -21,7 +21,7 @@ class OnDemandRequestListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.onDemandMyRequests)),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/on-demand/new'),
+        onPressed: () => context.push('/book'),
         icon: const Icon(Icons.add),
         label: Text(l10n.onDemandNewRequest),
       ),

@@ -1,3 +1,4 @@
+import '../../../core/networking/api_call.dart';
 import '../../../core/networking/api_client.dart';
 import '../../../core/networking/app_failure_exception.dart';
 import '../../../core/utils/result.dart';
@@ -85,4 +86,10 @@ class RemoteRepositoryImpl implements RemoteRepository {
       return Result.failure(e.failure);
     }
   }
+
+  @override
+  Future<Result<RemoteMilestone>> updateMilestoneStatus(String milestoneId, String toStatus) => apiCall(() async {
+        final response = await _apiClient.post('/remote/milestones/$milestoneId/status', data: {'toStatus': toStatus});
+        return RemoteMilestone.fromJson(response.dataAsMap);
+      });
 }

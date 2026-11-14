@@ -19,6 +19,9 @@ class CurrentUser {
     this.profilePictureUrl,
     this.providerProfileId,
     this.companyId,
+    this.bio,
+    this.city,
+    this.address,
   });
 
   factory CurrentUser.fromJson(Map<String, dynamic> json) {
@@ -36,6 +39,9 @@ class CurrentUser {
       profilePictureUrl: json['profilePictureUrl'] as String?,
       providerProfileId: providerProfile?['id'] as String?,
       companyId: ownedCompanyId ?? companyMembership?['companyId'] as String?,
+      bio: json['bio'] as String?,
+      city: json['city'] as String?,
+      address: json['address'] as String?,
     );
   }
 
@@ -48,6 +54,9 @@ class CurrentUser {
   final String? profilePictureUrl;
   final String? providerProfileId;
   final String? companyId;
+  final String? bio;
+  final String? city;
+  final String? address;
 
   UserWorkspace get workspace {
     if (companyId != null) return UserWorkspace.company;

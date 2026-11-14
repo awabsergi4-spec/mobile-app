@@ -1,3 +1,4 @@
+import '../../../core/networking/api_call.dart';
 import '../../../core/networking/api_client.dart';
 import '../../../core/networking/app_failure_exception.dart';
 import '../../../core/utils/result.dart';
@@ -149,4 +150,15 @@ class ContractRepositoryImpl implements ContractRepository {
       return Result.failure(e.failure);
     }
   }
+
+  @override
+  Future<Result<void>> cancelProject(String projectId) => apiCall(() async {
+        await _apiClient.post('/contracts/projects/$projectId/cancel');
+      });
+
+  @override
+  Future<Result<ContractMilestone>> updateMilestoneStatus(String milestoneId, String toStatus) => apiCall(() async {
+        final response = await _apiClient.post('/contracts/milestones/$milestoneId/status', data: {'toStatus': toStatus});
+        return ContractMilestone.fromJson(response.dataAsMap);
+      });
 }

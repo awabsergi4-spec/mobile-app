@@ -17,7 +17,11 @@ import '../domain/hireable_provider.dart';
 import '../domain/remote_engagement.dart';
 
 class CreateRemoteEngagementScreen extends ConsumerStatefulWidget {
-  const CreateRemoteEngagementScreen({super.key});
+  const CreateRemoteEngagementScreen({super.key, this.initialCategoryId, this.initialProviderId});
+
+  /// Preselected from a service page or a provider profile ("Book").
+  final String? initialCategoryId;
+  final String? initialProviderId;
 
   @override
   ConsumerState<CreateRemoteEngagementScreen> createState() => _CreateRemoteEngagementScreenState();
@@ -27,8 +31,8 @@ class _CreateRemoteEngagementScreenState extends ConsumerState<CreateRemoteEngag
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
-  String? _categoryId;
-  String? _providerId;
+  late String? _categoryId = widget.initialCategoryId;
+  late String? _providerId = widget.initialProviderId;
   PriceType _priceType = PriceType.fixed;
   bool _isSubmitting = false;
   AppFailure? _failure;

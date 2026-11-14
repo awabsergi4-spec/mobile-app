@@ -15,7 +15,10 @@ import '../application/contract_controller.dart';
 import '../domain/contract_project.dart';
 
 class CreateContractProjectScreen extends ConsumerStatefulWidget {
-  const CreateContractProjectScreen({super.key});
+  const CreateContractProjectScreen({super.key, this.initialCategoryId});
+
+  /// Preselected from a service page.
+  final String? initialCategoryId;
 
   @override
   ConsumerState<CreateContractProjectScreen> createState() => _CreateContractProjectScreenState();
@@ -27,7 +30,7 @@ class _CreateContractProjectScreenState extends ConsumerState<CreateContractProj
   final _descriptionController = TextEditingController();
   final _budgetMinController = TextEditingController();
   final _budgetMaxController = TextEditingController();
-  String? _categoryId;
+  late String? _categoryId = widget.initialCategoryId;
   bool _isSubmitting = false;
   AppFailure? _failure;
 
