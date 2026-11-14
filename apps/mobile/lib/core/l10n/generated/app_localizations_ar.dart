@@ -1,0 +1,895 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Arabic (`ar`).
+class AppLocalizationsAr extends AppLocalizations {
+  AppLocalizationsAr([String locale = 'ar']) : super(locale);
+
+  @override
+  String get appName => 'سهل';
+
+  @override
+  String get getStarted => 'ابدأ الآن';
+
+  @override
+  String get login => 'تسجيل الدخول';
+
+  @override
+  String get register => 'إنشاء حساب';
+
+  @override
+  String get phoneNumber => 'رقم الهاتف';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get fullName => 'الاسم الكامل';
+
+  @override
+  String get serviceTypeOnDemand => 'فوري';
+
+  @override
+  String get serviceTypeContract => 'عقود';
+
+  @override
+  String get serviceTypeRemote => 'عن بُعد';
+
+  @override
+  String get roleCustomer => 'عميل';
+
+  @override
+  String get roleProvider => 'مزود خدمة';
+
+  @override
+  String get switchToProvider => 'التبديل إلى مزود خدمة';
+
+  @override
+  String get switchToCustomer => 'التبديل إلى عميل';
+
+  @override
+  String get requestStatusSearching => 'جاري البحث عن مزود خدمة…';
+
+  @override
+  String get requestStatusAssigned => 'تم تعيين مزود الخدمة';
+
+  @override
+  String get requestStatusEnRoute => 'مزود الخدمة في الطريق';
+
+  @override
+  String get requestStatusInProgress => 'قيد التنفيذ';
+
+  @override
+  String get requestStatusCompleted => 'مكتمل';
+
+  @override
+  String get requestStatusCancelled => 'ملغي';
+
+  @override
+  String get errorGeneric => 'حدث خطأ ما. الرجاء المحاولة مرة أخرى.';
+
+  @override
+  String get errorNoConnection => 'لا يوجد اتصال بالإنترنت.';
+
+  @override
+  String get errorTimeout =>
+      'استغرق الطلب وقتًا طويلاً. الرجاء المحاولة مرة أخرى.';
+
+  @override
+  String get errorServerUnavailable =>
+      'الخادم غير متاح مؤقتًا. الرجاء المحاولة بعد قليل.';
+
+  @override
+  String get errorValidation => 'الرجاء التحقق من المعلومات التي أدخلتها.';
+
+  @override
+  String get errorSessionExpired =>
+      'انتهت صلاحية جلستك. الرجاء تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get errorForbidden => 'ليس لديك صلاحية للقيام بذلك.';
+
+  @override
+  String get errorNotFound => 'لم نتمكن من العثور على ما تبحث عنه.';
+
+  @override
+  String get errorConflict => 'لا يمكن إتمام هذا الإجراء الآن.';
+
+  @override
+  String get errorTooManyRequests =>
+      'محاولات كثيرة جدًا. الرجاء الانتظار قليلاً ثم المحاولة مرة أخرى.';
+
+  @override
+  String get errorInvalidCredentials => 'رقم الهاتف أو كلمة المرور غير صحيحة.';
+
+  @override
+  String get errorAccountNotActive =>
+      'هذا الحساب غير مفعّل. يرجى التواصل مع الدعم.';
+
+  @override
+  String get errorUserNotFound => 'لم يتم العثور على حساب بهذا الرقم.';
+
+  @override
+  String get errorPhoneAlreadyRegistered => 'يوجد حساب مسجل بهذا الرقم بالفعل.';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get confirm => 'تأكيد';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get next => 'التالي';
+
+  @override
+  String get back => 'رجوع';
+
+  @override
+  String get done => 'تم';
+
+  @override
+  String get loading => 'جارٍ التحميل…';
+
+  @override
+  String get validationRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get validationPhoneInvalid => 'أدخل رقم هاتف صحيح';
+
+  @override
+  String get validationPasswordTooShort =>
+      'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل';
+
+  @override
+  String get validationFullNameTooShort => 'أدخل اسمك الكامل';
+
+  @override
+  String get loginTitle => 'مرحباً بعودتك';
+
+  @override
+  String get loginSubtitle => 'سهل يربطك بالخدمات التي تحتاجها';
+
+  @override
+  String get registerTitle => 'أنشئ حسابك';
+
+  @override
+  String get registerSubtitle => 'الأمر لا يستغرق سوى دقيقة';
+
+  @override
+  String get dontHaveAccount => 'ليس لديك حساب؟';
+
+  @override
+  String get alreadyHaveAccount => 'لديك حساب بالفعل؟';
+
+  @override
+  String get homePlaceholderTitle => 'الرئيسية';
+
+  @override
+  String loggedInAs(String name) {
+    return 'تم تسجيل الدخول باسم $name';
+  }
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get sessionRestoring => 'جارٍ استعادة جلستك…';
+
+  @override
+  String homeGreeting(String name) {
+    return 'مرحبًا، $name';
+  }
+
+  @override
+  String get homeNoContent =>
+      'لا يوجد شيء لعرضه هنا حاليًا — تحقق مرة أخرى قريبًا.';
+
+  @override
+  String get availabilityLabel => 'التوفر';
+
+  @override
+  String get availabilityOnline => 'متاح لاستقبال الطلبات';
+
+  @override
+  String get availabilityOffline => 'غير متاح';
+
+  @override
+  String get availabilityVacation => 'في إجازة';
+
+  @override
+  String get availabilityTemporarilyUnavailable => 'غير متاح مؤقتًا';
+
+  @override
+  String get availabilityEmergencyOffline => 'غير متصل (حالة طارئة)';
+
+  @override
+  String providerJobsCompleted(int count) {
+    return '$count مهمة مكتملة';
+  }
+
+  @override
+  String get companyDashboardTitle => 'الشركة';
+
+  @override
+  String companyVerificationStatus(String status) {
+    return 'حالة التحقق: $status';
+  }
+
+  @override
+  String get onDemandRequestDetailsTitle => 'تفاصيل الطلب';
+
+  @override
+  String get onDemandMyRequests => 'طلباتي';
+
+  @override
+  String get onDemandNewRequest => 'طلب جديد';
+
+  @override
+  String get onDemandCategory => 'الفئة';
+
+  @override
+  String get onDemandDescription => 'ما الذي تحتاجه؟';
+
+  @override
+  String get onDemandLatitude => 'خط العرض';
+
+  @override
+  String get onDemandLongitude => 'خط الطول';
+
+  @override
+  String get onDemandLocationHint => 'أدخل إحداثيات موقعك';
+
+  @override
+  String get onDemandEmergency => 'هذه حالة طارئة';
+
+  @override
+  String get onDemandSubmit => 'طلب الخدمة';
+
+  @override
+  String get onDemandCancelRequest => 'إلغاء الطلب';
+
+  @override
+  String get onDemandCancelConfirmTitle => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get onDemandCancelConfirmBody => 'لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get onDemandNoRequests => 'لم تطلب أي خدمات بعد.';
+
+  @override
+  String get onDemandJobOffers => 'عروض العمل';
+
+  @override
+  String get onDemandAccept => 'قبول';
+
+  @override
+  String get onDemandDecline => 'رفض';
+
+  @override
+  String get onDemandNoOffers => 'لا توجد عروض عمل حاليًا.';
+
+  @override
+  String onDemandQuotedPrice(String amount) {
+    return 'السعر المقترح: $amount';
+  }
+
+  @override
+  String get onDemandEmergencyBadge => 'طارئ';
+
+  @override
+  String get contractMyProjects => 'مشاريعي';
+
+  @override
+  String get contractBrowseProjects => 'تصفح المشاريع';
+
+  @override
+  String get contractMyBids => 'عروضي';
+
+  @override
+  String get contractNewProject => 'مشروع جديد';
+
+  @override
+  String get contractTitle => 'العنوان';
+
+  @override
+  String get contractDescription => 'الوصف';
+
+  @override
+  String get contractCategory => 'الفئة';
+
+  @override
+  String get contractBudgetMin => 'الحد الأدنى للميزانية (اختياري)';
+
+  @override
+  String get contractBudgetMax => 'الحد الأقصى للميزانية (اختياري)';
+
+  @override
+  String get contractSubmit => 'نشر المشروع';
+
+  @override
+  String get contractNoProjects => 'لم تنشر أي مشاريع بعد.';
+
+  @override
+  String get contractNoOpenProjects => 'لا توجد مشاريع مفتوحة حاليًا.';
+
+  @override
+  String get contractNoBids => 'لا توجد عروض بعد.';
+
+  @override
+  String get contractSubmitBid => 'تقديم عرض';
+
+  @override
+  String get contractBidAmount => 'قيمة عرضك';
+
+  @override
+  String get contractBidMessage => 'رسالة (اختياري)';
+
+  @override
+  String get contractWithdrawBid => 'سحب العرض';
+
+  @override
+  String get contractAwardBid => 'ترسية هذا العرض';
+
+  @override
+  String get contractStatusOpenForBids => 'مفتوح للعروض';
+
+  @override
+  String get contractStatusAwarded => 'تمت الترسية';
+
+  @override
+  String get contractStatusCancelled => 'ملغى';
+
+  @override
+  String get contractBidStatusSubmitted => 'مُقدَّم';
+
+  @override
+  String get contractBidStatusAccepted => 'مقبول';
+
+  @override
+  String get contractBidStatusRejected => 'مرفوض';
+
+  @override
+  String get contractBidStatusWithdrawn => 'مسحوب';
+
+  @override
+  String get contractMilestones => 'مراحل الإنجاز';
+
+  @override
+  String get contractNewMilestone => 'مرحلة جديدة';
+
+  @override
+  String get contractMilestoneTitle => 'عنوان المرحلة';
+
+  @override
+  String get contractMilestoneAmount => 'المبلغ';
+
+  @override
+  String get contractNoMilestones => 'لا توجد مراحل بعد.';
+
+  @override
+  String get contractDetailsTitle => 'تفاصيل المشروع';
+
+  @override
+  String get remoteMyEngagements => 'مشاريعي عن بُعد';
+
+  @override
+  String get remoteMyBookings => 'حجوزاتي';
+
+  @override
+  String get remoteNewEngagement => 'تعاقد جديد';
+
+  @override
+  String get remoteTitle => 'العنوان';
+
+  @override
+  String get remoteCategory => 'الفئة';
+
+  @override
+  String get remoteSelectCategoryFirst => 'اختر فئة لعرض مزودي الخدمة المتاحين';
+
+  @override
+  String get remoteProvider => 'مزود الخدمة';
+
+  @override
+  String get remoteNoProvidersForCategory =>
+      'لا يوجد مزودو خدمة متاحون لهذه الفئة بعد.';
+
+  @override
+  String get remotePriceType => 'نوع السعر';
+
+  @override
+  String get remotePriceFixed => 'سعر ثابت';
+
+  @override
+  String get remotePriceHourly => 'سعر بالساعة';
+
+  @override
+  String get remoteAmount => 'المبلغ';
+
+  @override
+  String get remoteSubmit => 'التعاقد مع المزود';
+
+  @override
+  String get remoteNoEngagements => 'لا توجد تعاقدات بعد.';
+
+  @override
+  String get remoteStatusActive => 'نشط';
+
+  @override
+  String get remoteStatusDelivered => 'تم التسليم';
+
+  @override
+  String get remoteStatusCompleted => 'مكتمل';
+
+  @override
+  String get remoteStatusCancelled => 'ملغى';
+
+  @override
+  String get remoteDetailsTitle => 'تفاصيل التعاقد';
+
+  @override
+  String get remoteMilestones => 'مراحل الإنجاز';
+
+  @override
+  String get remoteNewMilestone => 'مرحلة جديدة';
+
+  @override
+  String get remoteNoMilestones => 'لا توجد مراحل بعد.';
+
+  @override
+  String get walletTitle => 'المحفظة';
+
+  @override
+  String get walletAvailableBalance => 'الرصيد المتاح';
+
+  @override
+  String get walletTransactions => 'المعاملات';
+
+  @override
+  String get walletNoTransactions => 'لا توجد معاملات بعد.';
+
+  @override
+  String get walletWithdrawals => 'طلبات السحب';
+
+  @override
+  String get walletRequestWithdrawal => 'طلب سحب';
+
+  @override
+  String get walletWithdrawalAmount => 'المبلغ';
+
+  @override
+  String get walletWithdrawalMethod => 'طريقة الدفع';
+
+  @override
+  String get walletMethodBankTransfer => 'تحويل بنكي';
+
+  @override
+  String get walletMethodWalletTransfer => 'تحويل بين المحافظ';
+
+  @override
+  String get walletMethodMobileMoney => 'محفظة الهاتف المحمول';
+
+  @override
+  String get walletNoWithdrawals => 'لا توجد طلبات سحب بعد.';
+
+  @override
+  String get walletSubmitWithdrawal => 'إرسال الطلب';
+
+  @override
+  String get withdrawalStatusRequested => 'تم الطلب';
+
+  @override
+  String get withdrawalStatusPendingApproval => 'بانتظار الموافقة';
+
+  @override
+  String get withdrawalStatusApproved => 'تمت الموافقة';
+
+  @override
+  String get withdrawalStatusRejected => 'مرفوض';
+
+  @override
+  String get withdrawalStatusProcessing => 'قيد المعالجة';
+
+  @override
+  String get withdrawalStatusPaid => 'تم الدفع';
+
+  @override
+  String get withdrawalStatusFailed => 'فشل';
+
+  @override
+  String get disputeMyDisputes => 'نزاعاتي';
+
+  @override
+  String get disputeNoDisputes => 'لم تفتح أي نزاعات.';
+
+  @override
+  String get disputeOpenAction => 'فتح نزاع';
+
+  @override
+  String get disputeReason => 'ما الذي حدث؟';
+
+  @override
+  String get disputeSubmit => 'إرسال النزاع';
+
+  @override
+  String get disputeStatusOpen => 'مفتوح';
+
+  @override
+  String get disputeStatusUnderReview => 'قيد المراجعة';
+
+  @override
+  String get disputeStatusResolved => 'تم الحل';
+
+  @override
+  String get disputeStatusRejected => 'مرفوض';
+
+  @override
+  String disputeResolutionNotes(String notes) {
+    return 'الحل: $notes';
+  }
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsMarkAllRead => 'تحديد الكل كمقروء';
+
+  @override
+  String get notificationsNoNotifications => 'لا توجد إشعارات بعد.';
+
+  @override
+  String get companyMembersTitle => 'الأعضاء';
+
+  @override
+  String get companyPendingInvitations => 'الدعوات المعلقة';
+
+  @override
+  String get companyNoMembers => 'لا يوجد أعضاء بعد.';
+
+  @override
+  String get companyNoPendingInvitations => 'لا توجد دعوات معلقة.';
+
+  @override
+  String get companyInviteMember => 'دعوة عضو';
+
+  @override
+  String get companyInvitedPhone => 'رقم الهاتف';
+
+  @override
+  String get companyRole => 'الدور';
+
+  @override
+  String get companyRoleOwner => 'المالك';
+
+  @override
+  String get companyRoleManager => 'مدير';
+
+  @override
+  String get companyRoleStaff => 'موظف';
+
+  @override
+  String get companySendInvite => 'إرسال الدعوة';
+
+  @override
+  String get companyRemoveMember => 'إزالة';
+
+  @override
+  String get companyRemoveMemberConfirmTitle => 'إزالة هذا العضو؟';
+
+  @override
+  String get companyRemoveMemberConfirmBody => 'سيفقد الوصول إلى هذه الشركة.';
+
+  @override
+  String get companyCancelInvitation => 'إلغاء';
+
+  @override
+  String get companyInvitationStatusPending => 'معلقة';
+
+  @override
+  String get companyInvitationStatusAccepted => 'مقبولة';
+
+  @override
+  String get companyInvitationStatusRejected => 'مرفوضة';
+
+  @override
+  String get companyInvitationStatusExpired => 'منتهية';
+
+  @override
+  String get companyInvitationStatusCancelled => 'ملغاة';
+
+  @override
+  String get companyDocumentsTitle => 'مستندات التحقق';
+
+  @override
+  String get companyNoDocuments => 'لم يتم رفع أي مستندات بعد.';
+
+  @override
+  String get companyAddDocument => 'إضافة مستند';
+
+  @override
+  String get companyDocumentType => 'نوع المستند';
+
+  @override
+  String get companyDocumentFileUrl => 'رابط الملف';
+
+  @override
+  String get companyDocumentStatusPending => 'قيد المراجعة';
+
+  @override
+  String get companyDocumentStatusApproved => 'مقبول';
+
+  @override
+  String get companyDocumentStatusRejected => 'مرفوض';
+
+  @override
+  String get companySubmitVerification => 'إرسال للتحقق';
+
+  @override
+  String get companyVerificationSubmitted => 'تم الإرسال للمراجعة.';
+
+  @override
+  String get companyMyInvitationsTitle => 'دعواتي';
+
+  @override
+  String get companyNoInvitations => 'ليس لديك دعوات معلقة.';
+
+  @override
+  String companyInvitedToJoin(String companyName, String role) {
+    return 'تمت دعوتك للانضمام إلى $companyName كـ $role';
+  }
+
+  @override
+  String get companyAccept => 'قبول';
+
+  @override
+  String get providerProfileTitle => 'الملف الشخصي لمزود الخدمة';
+
+  @override
+  String get providerEditProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get providerBusinessName => 'اسم النشاط التجاري';
+
+  @override
+  String get providerBio => 'نبذة';
+
+  @override
+  String get providerYearsOfExperience => 'سنوات الخبرة';
+
+  @override
+  String get providerSkills => 'المهارات (مفصولة بفواصل)';
+
+  @override
+  String get providerTravelDistanceKm => 'مسافة التنقل (كم)';
+
+  @override
+  String get providerRemoteAvailable => 'متاح للعمل عن بُعد';
+
+  @override
+  String get providerEmergencyAvailable => 'متاح للمهام الطارئة';
+
+  @override
+  String get providerEmergencyContactName => 'اسم جهة الاتصال في الطوارئ';
+
+  @override
+  String get providerEmergencyContactPhone => 'هاتف جهة الاتصال في الطوارئ';
+
+  @override
+  String get providerSaveProfile => 'حفظ';
+
+  @override
+  String get providerDocumentsTitle => 'مستندات التحقق';
+
+  @override
+  String get providerNoDocuments => 'لم يتم رفع أي مستندات بعد.';
+
+  @override
+  String get providerAddDocument => 'إضافة مستند';
+
+  @override
+  String get providerDocumentType => 'نوع المستند';
+
+  @override
+  String get providerDocumentFileUrl => 'رابط الملف';
+
+  @override
+  String get providerDocumentStatusPending => 'قيد المراجعة';
+
+  @override
+  String get providerDocumentStatusApproved => 'مقبول';
+
+  @override
+  String get providerDocumentStatusRejected => 'مرفوض';
+
+  @override
+  String get providerSubmitVerification => 'إرسال للتحقق';
+
+  @override
+  String get providerVerificationSubmitted => 'تم الإرسال للمراجعة.';
+
+  @override
+  String get providerPortfolioTitle => 'معرض الأعمال';
+
+  @override
+  String get providerNoPortfolioItems => 'لا توجد عناصر في معرض الأعمال بعد.';
+
+  @override
+  String get providerAddPortfolioItem => 'إضافة عنصر';
+
+  @override
+  String get providerPortfolioMediaUrl => 'رابط الوسائط';
+
+  @override
+  String get providerPortfolioItemTitle => 'العنوان (اختياري)';
+
+  @override
+  String get providerPortfolioItemDescription => 'الوصف (اختياري)';
+
+  @override
+  String get providerDeleteItem => 'حذف';
+
+  @override
+  String get providerPayoutAccountsTitle => 'حسابات الدفع';
+
+  @override
+  String get providerNoPayoutAccounts => 'لا توجد حسابات دفع بعد.';
+
+  @override
+  String get providerAddPayoutAccount => 'إضافة حساب دفع';
+
+  @override
+  String get providerSetDefault => 'تعيين كافتراضي';
+
+  @override
+  String get providerDefaultBadge => 'افتراضي';
+
+  @override
+  String get providerBankName => 'اسم البنك';
+
+  @override
+  String get providerAccountNumber => 'رقم الحساب';
+
+  @override
+  String get providerAccountHolderName => 'اسم صاحب الحساب';
+
+  @override
+  String get providerWalletPhone => 'رقم هاتف المحفظة';
+
+  @override
+  String get providerMobileMoneyProvider => 'مزود المحفظة النقدية';
+
+  @override
+  String get providerPhoneNumber => 'رقم الهاتف';
+
+  @override
+  String get onboardingTitle1 => 'كل خدماتك';
+
+  @override
+  String get onboardingHighlight1 => 'في مكان واحد';
+
+  @override
+  String get onboardingBody1 =>
+      'من الخدمات الفورية إلى المشاريع طويلة الأمد بكل سهولة وأمان';
+
+  @override
+  String get onboardingTitle2 => 'مزودون موثوقون';
+
+  @override
+  String get onboardingHighlight2 => 'بالقرب منك';
+
+  @override
+  String get onboardingBody2 => 'نراجع كل مقدم خدمة قبل انضمامه إلى سهل';
+
+  @override
+  String get onboardingTitle3 => 'ادفع بأمان';
+
+  @override
+  String get onboardingHighlight3 => 'وتابع كل مرحلة';
+
+  @override
+  String get onboardingBody3 =>
+      'تبقى دفعتك محفوظة حتى تكتمل المهمة وتوافق عليها';
+
+  @override
+  String get alreadyHaveAccountLogin => 'لدي حساب بالفعل';
+
+  @override
+  String get switchLanguage => 'English';
+
+  @override
+  String get showPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get hidePassword => 'إخفاء كلمة المرور';
+
+  @override
+  String get createAccountLink => 'إنشاء حساب';
+
+  @override
+  String get registerChooseTitle => 'إنشاء حساب جديد';
+
+  @override
+  String get registerChooseSubtitle => 'اختر نوع الحساب للمتابعة';
+
+  @override
+  String get accountTypeCustomer => 'عميل';
+
+  @override
+  String get accountTypeCustomerHint => 'اطلب الخدمات بسهولة';
+
+  @override
+  String get accountTypeProvider => 'مقدم خدمة';
+
+  @override
+  String get accountTypeProviderHint => 'قدّم خدماتك وحقق دخلك';
+
+  @override
+  String get accountTypeCompany => 'شركة';
+
+  @override
+  String get accountTypeCompanyHint => 'إدارة خدمات شركتك';
+
+  @override
+  String get continueAction => 'متابعة';
+
+  @override
+  String get registerDetailsTitleCustomer => 'إنشاء حساب عميل';
+
+  @override
+  String get registerDetailsTitleProvider => 'إنشاء حساب مقدم خدمة';
+
+  @override
+  String get registerDetailsTitleCompany => 'إنشاء حساب شركة';
+
+  @override
+  String get registerDetailsSubtitle => 'أدخل بياناتك للمتابعة';
+
+  @override
+  String get emailOptional => 'البريد الإلكتروني (اختياري)';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get businessName => 'اسم النشاط التجاري';
+
+  @override
+  String get companyName => 'اسم الشركة';
+
+  @override
+  String get validationPasswordsDontMatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get validationEmailInvalid => 'أدخل بريداً إلكترونياً صحيحاً';
+
+  @override
+  String get termsNotice => 'بمتابعتك، أنت توافق على الشروط والأحكام';
+
+  @override
+  String get registerSuccessTitle => 'تم إنشاء حسابك بنجاح!';
+
+  @override
+  String get registerPendingBody =>
+      'حسابك قيد المراجعة. يمكنك تسجيل الدخول بمجرد موافقة الإدارة عليه.';
+
+  @override
+  String get backToLogin => 'العودة لتسجيل الدخول';
+
+  @override
+  String get errorAccountPendingApproval =>
+      'حسابك بانتظار موافقة الإدارة. يمكنك تسجيل الدخول بعد الموافقة.';
+
+  @override
+  String get errorEmailAlreadyRegistered =>
+      'يوجد حساب مسجّل بهذا البريد الإلكتروني.';
+}

@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Next.js
+apps/backend/.next/
+apps/backend/out/
+apps/backend/next-env.d.ts
+
+# Env & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.jks
+*.keystore
+key.properties
+
+# Python (apps/api)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Build caches
+*.tsbuildinfo
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Prisma
+apps/backend/prisma/*.db
+
+# Flutter
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/build/
+apps/mobile/.pub-cache/
+apps/mobile/.pub/
+apps/mobile/**/generated_plugin_registrant.dart
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,2411 @@
+// SAHL — Prisma schema draft v1
+// See docs/03-database-schema.md for rationale behind each modeling decision.
+// This is a planning-phase draft: expect migrations before first deploy.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Platform config — multi-country/currency/language/gateway (ADR-001)
+// ─────────────────────────────────────────────────────────────
+
+model Region {
+  id              String   @id @default(cuid())
+  code            String   @unique // ISO 3166-1 alpha-2
+  name            String
+  defaultCurrency String // ISO 4217
+  defaultLanguage String // "en" | "ar"
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  users                User[]
+  paymentGatewayConfigs PaymentGatewayConfig[]
+  companies             Company[]
+  remoteConfigEntries    RemoteConfigEntry[]
+}
+
+model PaymentGatewayConfig {
+  id         String   @id @default(cuid())
+  regionId   String
+  region     Region   @relation(fields: [regionId], references: [id])
+  provider   String // e.g. "stripe", "mock" — resolved to a PaymentProvider implementation at runtime
+  config     Json // gateway-specific credentials/config, encrypted at rest
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@index([regionId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Identity & Access
+// ─────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNSPECIFIED
+}
+
+model User {
+  id                String     @id @default(cuid())
+  phone             String     @unique
+  email             String?    @unique
+  passwordHash      String
+  fullName          String
+  preferredLanguage String     @default("ar")
+  status            UserStatus @default(PENDING_VERIFICATION)
+  regionId          String
+  region            Region     @relation(fields: [regionId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  suspendedAt       DateTime?
+
+  // Profile — docs/00-functional-requirements.md "User Profile". Verification
+  // status/wallet balance/ratings/completed orders/activity history are NOT
+  // duplicated here: they're already queryable from ProviderProfile, Wallet,
+  // Review, and AuditLog respectively — storing them again would be
+  // denormalization with no use case yet.
+  profilePictureUrl String?
+  bio               String?
+  gender            Gender?
+  languagesSpoken   String[]
+  country           String? // free-text address, distinct from Region (platform-level country config)
+  state             String?
+  city              String?
+  address           String?
+  lat               Float?
+  lng               Float?
+  notificationPreferences Json? // per-category opt-in/out, see docs/04-api-modules.md notifications module
+  privacySettings         Json?
+
+  // Trust & safety — "Risk Scores", "Fraud Flags", "Blacklists/Whitelists"
+  // (docs/00-admin-panel-spec.md "User & Provider Management"). riskScore
+  // is written by FraudSignalProvider (ADR-005) once that's implemented, or
+  // by moderation staff manually until then — the column doesn't care which.
+  riskScore     Float?
+  isBlacklisted Boolean @default(false)
+
+  providerProfile ProviderProfile?
+  otpCodes        OtpCode[]
+  refreshTokens   RefreshToken[]
+  staffRoles      UserStaffRole[]
+  deviceTokens    DeviceToken[]
+  notifications   Notification[]
+  wallet          Wallet?
+
+  onDemandRequestsAsCustomer OnDemandRequest[]     @relation("OnDemandCustomer")
+  contractProjectsAsCustomer ContractProject[]     @relation("ContractCustomer")
+  remoteEngagementsAsCustomer RemoteEngagement[]   @relation("RemoteCustomer")
+  reviewsWritten             Review[]              @relation("ReviewAuthor")
+  reviewsReceived            Review[]              @relation("ReviewSubject")
+  messagesSent                Message[]
+  auditLogEntries             AuditLog[]
+  favorites                   Favorite[]
+  supportTickets              SupportTicket[]
+  disputesRaised               Dispute[]
+  reportsFiled                 Report[]
+  referralCode                  ReferralCode?
+  referralRedemption             ReferralRedemption?
+  couponRedemptions               CouponRedemption[]
+  companiesOwned                   Company[]
+  companyMemberships                CompanyMember[]
+  searchQueries                      SearchQueryLog[]
+  remoteConfigUpdates                 RemoteConfigEntry[]
+  notificationBroadcastsCreated        NotificationBroadcast[]
+  subscriptions                         Subscription[]
+  companyInvitationsSent                 CompanyInvitation[]
+
+  @@index([regionId])
+}
+
+enum OtpPurpose {
+  PHONE_VERIFICATION
+  EMAIL_VERIFICATION
+  LOGIN
+  PASSWORD_RESET
+  SENSITIVE_ACTION
+}
+
+model OtpCode {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  codeHash   String
+  purpose    OtpPurpose
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int        @default(0)
+  createdAt  DateTime   @default(now())
+
+  @@index([userId, purpose])
+}
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  tokenHash  String    @unique
+  deviceInfo String?
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Internal operational roles — distinct from the Customer/Provider duality above.
+model StaffRole {
+  id          String           @id @default(cuid())
+  key         String           @unique // SUPER_ADMIN | ADMIN | SUPPORT | MODERATOR | VERIFICATION_OFFICER | FINANCE_OFFICER
+  name        String
+  permissions StaffRolePermission[]
+  users       UserStaffRole[]
+  dashboardWidgetPreferences AdminDashboardWidgetPreference[]
+}
+
+model Permission {
+  id    String @id @default(cuid())
+  key   String @unique // e.g. "provider.verify", "payout.approve"
+  roles StaffRolePermission[]
+}
+
+model StaffRolePermission {
+  staffRoleId  String
+  staffRole    StaffRole  @relation(fields: [staffRoleId], references: [id])
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([staffRoleId, permissionId])
+}
+
+model UserStaffRole {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  staffRoleId String
+  staffRole   StaffRole @relation(fields: [staffRoleId], references: [id])
+  grantedAt   DateTime  @default(now())
+
+  @@id([userId, staffRoleId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Company / Business Accounts — see ADR-004 in docs/02-architecture.md.
+// Wraps existing Users rather than forking identity: a Company is an
+// organizational umbrella that individually-authenticated Users join as
+// members, not a second auth system.
+// ─────────────────────────────────────────────────────────────
+
+enum CompanyRole {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  name        String
+  description String?
+  logoUrl     String?
+  regionId    String
+  region      Region   @relation(fields: [regionId], references: [id])
+  // Verification/lifecycle — same enums as ProviderProfile (VerificationStatus,
+  // AccountLifecycleStatus above), not a parallel pair, since the meaning is
+  // identical: is this account trusted, and is it currently allowed to operate.
+  verificationStatus VerificationStatus     @default(UNVERIFIED)
+  verifiedAt         DateTime?
+  status             AccountLifecycleStatus @default(ACTIVE)
+  suspendedAt        DateTime?
+  suspendedReason    String?
+  deletedAt          DateTime?
+  createdAt   DateTime @default(now())
+
+  members          CompanyMember[]
+  providerProfiles ProviderProfile[]
+  wallet           Wallet?
+  onDemandRequests OnDemandRequest[]
+  contractProjects ContractProject[]
+  remoteEngagements RemoteEngagement[]
+  subscriptions     Subscription[]
+  branches           CompanyBranch[]
+  departments        CompanyDepartment[]
+  documents          CompanyDocument[]
+  contacts           CompanyContact[]
+  invitations        CompanyInvitation[]
+
+  @@index([regionId])
+  @@index([status])
+}
+
+// Company-internal role — independent of platform StaffRole (which governs
+// admin-console access) and independent of the Customer/Provider duality.
+// What a MANAGER vs STAFF member may do to a company-owned ProviderProfile
+// (e.g. edit pricing vs. only execute assigned jobs) is an application-layer
+// authorization rule keyed off this role, not additional schema.
+model CompanyMember {
+  id           String             @id @default(cuid())
+  companyId    String
+  company      Company            @relation(fields: [companyId], references: [id])
+  userId       String
+  user         User               @relation(fields: [userId], references: [id])
+  role         CompanyRole        @default(STAFF)
+  branchId     String?
+  branch       CompanyBranch?     @relation(fields: [branchId], references: [id])
+  departmentId String?
+  department   CompanyDepartment? @relation(fields: [departmentId], references: [id])
+  joinedAt     DateTime           @default(now())
+
+  @@unique([companyId, userId])
+  @@index([branchId])
+  @@index([departmentId])
+}
+
+// A company can have multiple physical locations — "Branches" in the spec.
+// Not modeled as a specialization of ProviderServiceArea: that's a
+// provider-level geo-radius for dispatch, this is an organizational unit a
+// CompanyMember/CompanyDepartment belongs to — different concepts that
+// happen to both carry a lat/lng.
+model CompanyBranch {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  name      String
+  address   String?
+  lat       Float?
+  lng       Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  departments CompanyDepartment[]
+  members     CompanyMember[]
+
+  @@index([companyId])
+}
+
+model CompanyDepartment {
+  id        String         @id @default(cuid())
+  companyId String
+  company   Company        @relation(fields: [companyId], references: [id])
+  branchId  String?
+  branch    CompanyBranch? @relation(fields: [branchId], references: [id])
+  name      String
+  createdAt DateTime       @default(now())
+
+  members CompanyMember[]
+
+  @@index([companyId])
+  @@index([branchId])
+}
+
+// Same shape as ProviderDocument deliberately mirrored, not unified behind
+// a polymorphic table — Company and ProviderProfile are different
+// aggregate roots with independent verification workflows; a shared
+// polymorphic document table would be more invasive than this small
+// duplication, not less.
+model CompanyDocument {
+  id         String         @id @default(cuid())
+  companyId  String
+  company    Company        @relation(fields: [companyId], references: [id])
+  type       String // e.g. "trade_license", "tax_certificate" — same free-string convention as ProviderDocument.type
+  fileUrl    String
+  status     DocumentStatus @default(PENDING)
+  reviewedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@index([companyId])
+}
+
+model CompanyContact {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  name      String
+  role      String? // e.g. "Billing", "Operations", "Legal" — free text, not an enum, since this varies per company
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+}
+
+enum CompanyInvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+// A company invites a phone number (which may not have a User account yet)
+// to join with a given role — accepted by the invited person once they
+// register/log in, per ProviderTeamSupportUseCase. Distinct from
+// CompanyMember: an invitation is a proposal, CompanyMember is the
+// resulting membership.
+model CompanyInvitation {
+  id           String                  @id @default(cuid())
+  companyId    String
+  company      Company                 @relation(fields: [companyId], references: [id])
+  invitedPhone String
+  role         CompanyRole             @default(STAFF)
+  status       CompanyInvitationStatus @default(PENDING)
+  invitedById  String
+  invitedBy    User                    @relation(fields: [invitedById], references: [id])
+  expiresAt    DateTime
+  respondedAt  DateTime?
+  createdAt    DateTime                @default(now())
+
+  @@index([companyId, status])
+  @@index([invitedPhone, status])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Provider
+// ─────────────────────────────────────────────────────────────
+
+// Extended (Production Phase 1.2) with NEEDS_MORE_INFO/EXPIRED/REVOKED to
+// match the verification workflow spec — shared by ProviderProfile and
+// Company (below) rather than one enum per entity, since the lifecycle is
+// identical for both.
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+  NEEDS_MORE_INFO
+  EXPIRED
+  REVOKED
+}
+
+// Shared account lifecycle — ProviderProfile and Company both need
+// Activate/Suspend/Reactivate/Soft-Delete; one enum, not two.
+enum AccountLifecycleStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model ProviderProfile {
+  id                   String              @id @default(cuid())
+  userId               String              @unique
+  user                 User                @relation(fields: [userId], references: [id])
+  // Set when this is a "Business Provider" operated by company staff rather
+  // than the individual `user` alone — see ADR-004. `user` remains the
+  // profile's original registrant/primary contact either way.
+  companyId            String?
+  company              Company?            @relation(fields: [companyId], references: [id])
+  businessName         String
+  bio                  String?
+  businessLogoUrl       String?
+  taxNumber              String? // national ID / business license / other verification docs go through ProviderDocument
+  yearsOfExperience       Int?
+  skills                    String[] // freeform tags, distinct from the formal ProviderCategory assignment
+  travelDistanceKm            Float?
+  remoteAvailable                Boolean  @default(false)
+  emergencyAvailable                Boolean  @default(false)
+  verificationStatus   VerificationStatus  @default(UNVERIFIED)
+  verifiedAt           DateTime?
+  ratingAverage        Float               @default(0)
+  ratingCount          Int                 @default(0)
+  completedJobsCount   Int                 @default(0)
+  cancellationRate     Float               @default(0)
+  avgResponseSeconds   Int?
+  // isAvailable stays the fast-path boolean the matching engine's Redis
+  // cache reads (docs/06-smart-matching.md §5); availabilityMode is the
+  // richer "why" for UI/admin display. Both are written together, in the
+  // same use case (SetProviderAvailabilityUseCase), so they never drift —
+  // the same "write both together, don't rely on a DB trigger to
+  // reconcile" discipline used for WalletBalance/ledger control accounts.
+  isAvailable          Boolean             @default(false)
+  availabilityMode     AvailabilityMode    @default(OFFLINE)
+  // Account lifecycle (Activate/Suspend/Reactivate/Soft Delete) — distinct
+  // from verificationStatus (identity trust) and isAvailable (real-time
+  // dispatch eligibility). A SUSPENDED or DELETED provider is excluded from
+  // matching regardless of isAvailable/verificationStatus.
+  status               AccountLifecycleStatus @default(ACTIVE)
+  suspendedAt          DateTime?
+  suspendedReason      String?
+  deletedAt            DateTime?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  createdAt            DateTime            @default(now())
+
+  documents      ProviderDocument[]
+  serviceAreas   ProviderServiceArea[]
+  categories     ProviderCategory[]
+  onDemandAssignments OnDemandAssignment[]
+  contractBids   ContractBid[]
+  contracts      Contract[]
+  remoteEngagements RemoteEngagement[]
+  matchingScores MatchingScoreLog[]
+  withdrawals    Withdrawal[]
+  availabilitySlots ProviderAvailabilitySlot[]
+  favoritedBy       Favorite[]
+  advertisements    Advertisement[]
+  workingHours      ProviderWorkingHours[]
+  portfolioItems    ProviderPortfolioItem[]
+  commissionRules   CommissionRule[]
+  payoutAccounts    ProviderPayoutAccount[]
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum AvailabilityMode {
+  ONLINE
+  OFFLINE
+  VACATION
+  TEMPORARILY_UNAVAILABLE
+  EMERGENCY_OFFLINE
+}
+
+// Bank/mobile-money/wallet payout destination — "Bank / Wallet Information"
+// in the Provider Module spec. accountDetails is encrypted at rest, same
+// convention as PaymentGatewayConfig.config/AiProviderConfig.config — see
+// docs/05-security.md §4. Reuses WithdrawalMethod (ADR-008) rather than a
+// parallel enum.
+model ProviderPayoutAccount {
+  id             String           @id @default(cuid())
+  providerId     String
+  provider       ProviderProfile  @relation(fields: [providerId], references: [id])
+  method         WithdrawalMethod
+  accountDetails Json
+  isDefault      Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+
+  @@index([providerId])
+}
+
+// Recurring weekly schedule template — distinct from ProviderAvailabilitySlot
+// (specific bookable future instances for Scheduled fulfillment, ADR-003).
+// Stored as minutes-from-midnight rather than a Time type for portability
+// and to make "open now" search filtering a simple range query.
+model ProviderWorkingHours {
+  id          String          @id @default(cuid())
+  providerId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  dayOfWeek   Int // 0 = Sunday .. 6 = Saturday
+  startMinute Int
+  endMinute   Int
+
+  @@index([providerId, dayOfWeek])
+}
+
+// Covers both "Portfolio" and "Gallery" from docs/00-functional-requirements.md
+// — same shape (media + optional caption), no reason to model them separately.
+// Certificates go through ProviderDocument instead: they're a verification
+// concern (reviewed/approved by staff), not a showcase concern.
+model ProviderPortfolioItem {
+  id          String          @id @default(cuid())
+  providerId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  title       String?
+  description String?
+  mediaUrl    String
+  createdAt   DateTime        @default(now())
+
+  @@index([providerId])
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ProviderDocument {
+  id         String         @id @default(cuid())
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  type       String // e.g. "national_id", "trade_license"
+  fileUrl    String // Cloudinary URL
+  status     DocumentStatus @default(PENDING)
+  reviewedAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@index([providerId])
+}
+
+model ProviderServiceArea {
+  id         String          @id @default(cuid())
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  centerLat  Float
+  centerLng  Float
+  radiusKm   Float
+
+  @@index([providerId])
+}
+
+model ProviderCategory {
+  id         String          @id @default(cuid())
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  categoryId String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id])
+  priceMin   Int? // minor units
+  priceMax   Int?
+
+  @@unique([providerId, categoryId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Taxonomy
+// ─────────────────────────────────────────────────────────────
+
+enum ServiceType {
+  ON_DEMAND
+  CONTRACT
+  REMOTE
+}
+
+// Taxonomy attributes per docs/00-business-requirements.md "Service
+// Categorization": Primary/Secondary Category is the parent/children
+// hierarchy below, not a separate field. Service Duration, Location
+// Requirement, Skill Level, and Verification Level are per-category
+// classification used by search/filtering and by matching pre-filters
+// (see docs/06-smart-matching.md §4).
+
+enum SkillLevel {
+  BASIC
+  SKILLED
+  PROFESSIONAL
+  EXPERT
+}
+
+enum VerificationLevel {
+  NONE
+  BASIC
+  ENHANCED
+}
+
+enum LocationRequirement {
+  ON_SITE
+  REMOTE
+  EITHER
+}
+
+enum DurationClass {
+  HOURS
+  DAYS
+  WEEKS
+  MONTHS
+  ONGOING
+}
+
+model ServiceCategory {
+  id                  String              @id @default(cuid())
+  type                ServiceType
+  parentId            String?
+  parent              ServiceCategory?    @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children            ServiceCategory[]   @relation("CategoryHierarchy")
+  skillLevel          SkillLevel?
+  verificationLevel   VerificationLevel   @default(NONE)
+  locationRequirement LocationRequirement?
+  durationClass       DurationClass?
+  requiredDocumentTypes String[] // ProviderDocument.type values required before a provider may offer this category — "Required Documents" / "Verification Rules" (docs/00-admin-panel-spec.md), admin-editable, no code change to add a new required type
+  isActive            Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+
+  translations       ServiceCategoryTranslation[]
+  providerCategories ProviderCategory[]
+  onDemandRequests   OnDemandRequest[]
+  contractProjects   ContractProject[]
+  remoteEngagements  RemoteEngagement[]
+  promotionalCampaigns PromotionalCampaign[]
+  advertisements       Advertisement[]
+}
+
+model ServiceCategoryTranslation {
+  id         String          @id @default(cuid())
+  categoryId String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id])
+  locale     String // "en" | "ar"
+  name       String
+  description String?
+
+  @@unique([categoryId, locale])
+}
+
+// ─────────────────────────────────────────────────────────────
+// On-Demand
+// ─────────────────────────────────────────────────────────────
+
+enum OnDemandStatus {
+  SEARCHING
+  ASSIGNED
+  EN_ROUTE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// INSTANT dispatches immediately; SCHEDULED reserves a future
+// ProviderAvailabilitySlot instead. See ADR-003 in docs/02-architecture.md —
+// "Scheduled" is a mode of On-Demand, not a separate bounded context.
+enum FulfillmentMode {
+  INSTANT
+  SCHEDULED
+}
+
+model OnDemandRequest {
+  id              String          @id @default(cuid())
+  customerId      String // the acting individual — always set, even for company-attributed requests
+  customer        User            @relation("OnDemandCustomer", fields: [customerId], references: [id])
+  companyId       String? // set for "Bulk Requests"/"Company Projects" (ADR-004); billing/ownership routes here when present
+  company         Company?        @relation(fields: [companyId], references: [id])
+  categoryId      String
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  description     String
+  lat             Float
+  lng             Float
+  status          OnDemandStatus  @default(SEARCHING)
+  fulfillmentMode FulfillmentMode @default(INSTANT)
+  scheduledFor    DateTime? // required when fulfillmentMode is SCHEDULED; validated at the application layer
+  isEmergency     Boolean         @default(false) // priority signal for matching — see docs/06-smart-matching.md
+  createdAt       DateTime        @default(now())
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+
+  assignments    OnDemandAssignment[]
+  trackingPings  OnDemandTrackingPing[]
+  conversation   Conversation?
+  reviews        Review[]
+  matchingScores MatchingScoreLog[]
+
+  @@index([customerId])
+  @@index([categoryId, status])
+  @@index([companyId])
+}
+
+enum AssignmentStatus {
+  OFFERED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model OnDemandAssignment {
+  id         String            @id @default(cuid())
+  requestId  String
+  request    OnDemandRequest   @relation(fields: [requestId], references: [id])
+  providerId String
+  provider   ProviderProfile   @relation(fields: [providerId], references: [id])
+  status     AssignmentStatus  @default(OFFERED)
+  offeredAt  DateTime          @default(now())
+  respondedAt DateTime?
+  quotedPrice Int? // minor units
+
+  @@index([requestId])
+  @@index([providerId])
+}
+
+model OnDemandTrackingPing {
+  id        String          @id @default(cuid())
+  requestId String
+  request   OnDemandRequest @relation(fields: [requestId], references: [id])
+  lat       Float
+  lng       Float
+  recordedAt DateTime       @default(now())
+
+  @@index([requestId, recordedAt])
+}
+
+// Future-time availability, checked by the matching engine for
+// FulfillmentMode.SCHEDULED requests instead of the live isBooked flag
+// used for INSTANT dispatch. See ADR-003.
+model ProviderAvailabilitySlot {
+  id         String          @id @default(cuid())
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  startAt    DateTime
+  endAt      DateTime
+  isBooked   Boolean         @default(false)
+
+  @@index([providerId, startAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Contract
+// ─────────────────────────────────────────────────────────────
+
+enum ContractProjectStatus {
+  OPEN_FOR_BIDS
+  AWARDED
+  CANCELLED
+}
+
+model ContractProject {
+  id          String                 @id @default(cuid())
+  customerId  String
+  customer    User                   @relation("ContractCustomer", fields: [customerId], references: [id])
+  companyId   String? // "Company Projects" (ADR-004)
+  company     Company?               @relation(fields: [companyId], references: [id])
+  categoryId  String
+  category    ServiceCategory        @relation(fields: [categoryId], references: [id])
+  title       String
+  description String
+  budgetMin   Int? // minor units
+  budgetMax   Int?
+  status      ContractProjectStatus  @default(OPEN_FOR_BIDS)
+  createdAt   DateTime               @default(now())
+
+  bids     ContractBid[]
+  contract Contract?
+
+  @@index([customerId])
+  @@index([categoryId, status])
+  @@index([companyId])
+}
+
+enum BidStatus {
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+model ContractBid {
+  id         String          @id @default(cuid())
+  projectId  String
+  project    ContractProject @relation(fields: [projectId], references: [id])
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  amount     Int // minor units
+  message    String?
+  status     BidStatus       @default(SUBMITTED)
+  submittedAt DateTime       @default(now())
+
+  @@index([projectId])
+  @@index([providerId])
+}
+
+enum ContractStatus {
+  IN_PROGRESS
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+model Contract {
+  id          String          @id @default(cuid())
+  projectId   String          @unique
+  project     ContractProject @relation(fields: [projectId], references: [id])
+  providerId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id])
+  totalAmount Int // minor units
+  status      ContractStatus  @default(IN_PROGRESS)
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+
+  milestones ContractMilestone[]
+  documents  ContractDocument[]
+  conversation Conversation?
+  reviews    Review[]
+
+  @@index([providerId])
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  PAID
+}
+
+model ContractMilestone {
+  id         String          @id @default(cuid())
+  contractId String
+  contract   Contract        @relation(fields: [contractId], references: [id])
+  title      String
+  amount     Int // minor units
+  status     MilestoneStatus @default(PENDING)
+  dueDate    DateTime?
+
+  @@index([contractId])
+}
+
+model ContractDocument {
+  id         String   @id @default(cuid())
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id])
+  uploaderId String
+  fileUrl    String
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+
+  @@index([contractId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Remote
+// ─────────────────────────────────────────────────────────────
+
+enum PriceType {
+  FIXED
+  HOURLY
+}
+
+enum RemoteEngagementStatus {
+  ACTIVE
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+model RemoteEngagement {
+  id         String                  @id @default(cuid())
+  customerId String
+  customer   User                    @relation("RemoteCustomer", fields: [customerId], references: [id])
+  companyId  String? // "Company Projects" (ADR-004)
+  company    Company?                @relation(fields: [companyId], references: [id])
+  providerId String
+  provider   ProviderProfile         @relation(fields: [providerId], references: [id])
+  categoryId String
+  category   ServiceCategory         @relation(fields: [categoryId], references: [id])
+  title      String
+  priceType  PriceType
+  amount     Int // minor units (fixed price or hourly rate)
+  status     RemoteEngagementStatus  @default(ACTIVE)
+  createdAt  DateTime                @default(now())
+  completedAt DateTime?
+
+  milestones RemoteMilestone[]
+  revisions  RemoteRevision[]
+  meetings   RemoteMeeting[]
+  conversation Conversation?
+  reviews    Review[]
+
+  @@index([customerId])
+  @@index([providerId])
+  @@index([companyId])
+}
+
+model RemoteMilestone {
+  id           String            @id @default(cuid())
+  engagementId String
+  engagement   RemoteEngagement  @relation(fields: [engagementId], references: [id])
+  title        String
+  amount       Int
+  status       MilestoneStatus   @default(PENDING)
+  dueDate      DateTime?
+
+  @@index([engagementId])
+}
+
+enum RevisionStatus {
+  REQUESTED
+  IN_PROGRESS
+  RESOLVED
+}
+
+model RemoteRevision {
+  id           String            @id @default(cuid())
+  engagementId String
+  engagement   RemoteEngagement  @relation(fields: [engagementId], references: [id])
+  requestedBy  String
+  notes        String
+  status       RevisionStatus    @default(REQUESTED)
+  createdAt    DateTime          @default(now())
+
+  @@index([engagementId])
+}
+
+model RemoteMeeting {
+  id           String            @id @default(cuid())
+  engagementId String
+  engagement   RemoteEngagement  @relation(fields: [engagementId], references: [id])
+  scheduledAt  DateTime
+  joinUrl      String?
+
+  @@index([engagementId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Financial Core — see ADR-008 in docs/02-architecture.md. LedgerAccount +
+// JournalEntry + JournalLine (double-entry, debits = credits per currency,
+// enforced at the application layer) is the source of truth. WalletBalance
+// is a subsidiary ledger rolling up into the CUSTOMER_WALLETS_PAYABLE /
+// PROVIDER_WALLETS_PAYABLE control accounts, not a second source of truth.
+// PaymentTransaction is the customer/provider-facing record, linked 1:1 to
+// the JournalEntry that actually moved the money.
+// ─────────────────────────────────────────────────────────────
+
+// Exactly one of userId/companyId is set — a personal wallet or a company
+// wallet (ADR-004), never both. Same app-validated-not-DB-enforced
+// convention as PaymentTransaction's polymorphic reference; see
+// docs/03-database-schema.md. No `balance` column — see ADR-008: balances
+// live in WalletBalance, not a directly-mutated field on Wallet.
+model Wallet {
+  id           String    @id @default(cuid())
+  userId       String?   @unique
+  user         User?     @relation(fields: [userId], references: [id])
+  companyId    String?   @unique
+  company      Company?  @relation(fields: [companyId], references: [id])
+  currency     String
+  isFrozen     Boolean   @default(false)
+  frozenReason String?
+  frozenAt     DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  balances WalletBalance[]
+  transactionsAsSource      PaymentTransaction[] @relation("TransactionSourceWallet")
+  transactionsAsDestination PaymentTransaction[] @relation("TransactionDestinationWallet")
+  withdrawals               Withdrawal[]
+}
+
+// One enum shared by customer and provider wallets — which buckets are
+// meaningful for a given owner is an application-layer concern, not a
+// schema distinction (ADR-008). "Withdrawable balance" is AVAILABLE when
+// the wallet isn't frozen, computed at read time — not its own bucket.
+enum WalletBucket {
+  AVAILABLE
+  PENDING
+  LOCKED
+  REWARD // customer
+  CASHBACK // customer
+  BONUS // provider
+  INCENTIVE // provider
+}
+
+model WalletBalance {
+  id        String       @id @default(cuid())
+  walletId  String
+  wallet    Wallet       @relation(fields: [walletId], references: [id])
+  bucket    WalletBucket
+  amount    Int          @default(0) // minor units
+  updatedAt DateTime     @updatedAt
+
+  @@unique([walletId, bucket])
+}
+
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+// Small, admin-configured chart of accounts (dozens of rows, not millions)
+// — e.g. PLATFORM_REVENUE, COMMISSION_REVENUE, TAX_PAYABLE,
+// PROCESSING_FEE_EXPENSE, ESCROW_HOLDING, CUSTOMER_WALLETS_PAYABLE,
+// PROVIDER_WALLETS_PAYABLE, CASH_AT_PAYMENT_PROVIDER. See ADR-008.
+model LedgerAccount {
+  id        String            @id @default(cuid())
+  code      String            @unique
+  name      String
+  type      LedgerAccountType
+  currency  String
+  regionId  String?
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+
+  lines JournalLine[]
+
+  @@index([type, currency])
+}
+
+// One balanced double-entry record per financial event. `relatedEntityType`/
+// `relatedEntityId` point at the business event that caused it (an
+// OnDemandRequest completion, a Withdrawal, a Subscription renewal, ...) —
+// same polymorphic, app-validated convention as PaymentTransaction.
+model JournalEntry {
+  id                String             @id @default(cuid())
+  description       String
+  relatedEntityType RelatedEntityType?
+  relatedEntityId   String?
+  createdAt         DateTime           @default(now())
+  // Corrections happen via a reversal entry, never by editing a posted
+  // entry (Financial Core Phase 1) — reversalOfId is unique so an entry
+  // can be reversed at most once; reverse-the-reversal (if ever needed)
+  // is a new, separate JournalEntry pointing at the reversal, not a
+  // second reversalOf edge back to the original.
+  reversalOfId      String?            @unique
+  reversalOf        JournalEntry?      @relation("JournalEntryReversal", fields: [reversalOfId], references: [id])
+  reversedBy        JournalEntry?      @relation("JournalEntryReversal")
+  // Ledger-level idempotent posting (Financial Core Phase 1) — distinct
+  // from PaymentTransaction.idempotencyKey (Phase 11): this one protects
+  // postJournalEntry itself, so a retried post of the exact same entry
+  // returns the existing journalEntryId instead of double-posting, even
+  // before a PaymentTransaction is ever recorded around it.
+  idempotencyKey    String?            @unique
+
+  lines              JournalLine[]
+  paymentTransaction PaymentTransaction?
+
+  @@index([relatedEntityType, relatedEntityId])
+}
+
+enum JournalLineDirection {
+  DEBIT
+  CREDIT
+}
+
+// Invariant (application-layer, not a DB trigger — see ADR-008): for every
+// JournalEntry, sum(DEBIT lines) == sum(CREDIT lines) per currency.
+model JournalLine {
+  id              String               @id @default(cuid())
+  journalEntryId  String
+  journalEntry    JournalEntry         @relation(fields: [journalEntryId], references: [id])
+  ledgerAccountId String
+  ledgerAccount   LedgerAccount        @relation(fields: [ledgerAccountId], references: [id])
+  direction       JournalLineDirection
+  amount          Int // minor units
+  currency        String
+
+  @@index([journalEntryId])
+  @@index([ledgerAccountId])
+}
+
+enum EscrowStatus {
+  HELD
+  PARTIALLY_RELEASED
+  RELEASED
+  PARTIALLY_REFUNDED
+  REFUNDED
+  DISPUTED
+  EXPIRED
+  CANCELLED
+}
+
+// One Escrow per holding — "multiple escrow accounts per contract" falls
+// out of the polymorphic reference: a milestone-based Contract gets one
+// Escrow per ContractMilestone, not one big escrow per contract (ADR-008).
+// Individual release/refund movements are ordinary ESCROW_RELEASE/REFUND
+// PaymentTransaction rows referencing this escrow — status here reflects
+// the aggregate outcome, not a duplicate movement ledger.
+model Escrow {
+  id                String            @id @default(cuid())
+  relatedEntityType RelatedEntityType
+  relatedEntityId   String
+  amount            Int // minor units — original held amount, immutable once funded
+  currency          String
+  status            EscrowStatus      @default(HELD)
+  // Cumulative amounts already moved out of this escrow — needed because
+  // PARTIALLY_RELEASED/PARTIALLY_REFUNDED are reachable more than once
+  // (a milestone-based Contract can release in several installments), so
+  // "how much is left" can't be derived from `amount` and `status` alone.
+  // remaining = amount - releasedAmount - refundedAmount, enforced at the
+  // application layer on every release/refund.
+  releasedAmount    Int               @default(0)
+  refundedAmount    Int               @default(0)
+  heldAt            DateTime          @default(now())
+  expiresAt         DateTime?
+  releasedAt        DateTime?
+  refundedAt        DateTime?
+  disputedAt        DateTime?
+
+  // At most one escrow per business transaction — a DB-level guarantee,
+  // not just an application-layer check, that two concurrent "fund this
+  // milestone's escrow" calls can't both create a row (Financial Core
+  // Phase 12: don't rely on application checks alone for money safety).
+  @@unique([relatedEntityType, relatedEntityId])
+  @@index([status])
+}
+
+// Consolidated from the 19-item source list to 17 real types — "Partial
+// Refund" is a REFUND for less than the original amount, not a separate
+// type; "Settlement" is a batch entity (below) grouping WITHDRAWAL
+// transactions, not a transaction type itself. See ADR-008.
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  REFUND
+  COMMISSION
+  BONUS
+  CASHBACK
+  REWARD
+  ADJUSTMENT
+  PENALTY
+  PROMOTION
+  TAX
+  PROCESSING_FEE
+  SUBSCRIPTION_CHARGE
+  SUBSCRIPTION_RENEWAL
+}
+
+// HELD represents escrow: funds captured but not yet released (the Payment
+// Flow in docs/00-functional-requirements.md — "funds held securely" →
+// work completes → "funds released"). The release is a status transition
+// HELD -> SUCCEEDED on the same transaction, not a second transaction, so
+// the ledger shows one charge with its held/released history rather than
+// two rows that have to be reconciled against each other.
+enum TransactionStatus {
+  PENDING
+  HELD
+  SUCCEEDED
+  FAILED
+  REVERSED
+}
+
+enum RelatedEntityType {
+  ON_DEMAND_REQUEST
+  CONTRACT
+  CONTRACT_MILESTONE
+  REMOTE_ENGAGEMENT
+  REMOTE_MILESTONE // Financial Core — Remote's milestone-level escrow needed the same granularity CONTRACT_MILESTONE already gives Contract
+  WITHDRAWAL
+  ESCROW
+  SETTLEMENT // Financial Core — SettlementCreated/Completed DomainEvents and AuditLog entries reference the batch itself
+  SUBSCRIPTION
+  WORKFLOW_INSTANCE // ADR-009 — lets a DomainEvent, Dispute, AuditLog, etc. reference a workflow instance the same way they reference any other entity
+  PROVIDER_PROFILE // Production Phase 1.2 — verification-workflow DomainEvents reference the ProviderProfile they're about
+  COMPANY // Production Phase 1.2 — verification-workflow DomainEvents reference the Company they're about
+  PAYOUT // deprecated alias kept only so existing polymorphic rows written before the Payout->Withdrawal rename (ADR-008) still resolve; new rows use WITHDRAWAL
+  USER // Admin Platform — SuspendUserUseCase/ReactivateUserUseCase's DomainEvents and AuditLog entries reference the User account itself, distinct from PROVIDER_PROFILE/COMPANY
+}
+
+// Immutable once written — see ADR-008: no update/delete use case exists
+// beyond a narrow PENDING -> SUCCEEDED-style status transition. A
+// correction is always a new, offsetting ADJUSTMENT transaction, never an
+// edit to history.
+model PaymentTransaction {
+  id                    String             @id @default(cuid())
+  type                  TransactionType
+  amount                Int // minor units
+  currency              String
+  exchangeRate          Float? // rate captured at transaction time if currency conversion occurred — never recomputed later, see ExchangeRate
+  feeMinorUnits         Int?
+  taxMinorUnits         Int?
+  gatewayProvider       String
+  gatewayRef            String?
+  status                TransactionStatus  @default(PENDING)
+  sourceWalletId        String?
+  sourceWallet          Wallet?            @relation("TransactionSourceWallet", fields: [sourceWalletId], references: [id])
+  destinationWalletId   String?
+  destinationWallet     Wallet?            @relation("TransactionDestinationWallet", fields: [destinationWalletId], references: [id])
+  journalEntryId        String?            @unique
+  journalEntry          JournalEntry?      @relation(fields: [journalEntryId], references: [id])
+  reason                String? // required by convention for ADJUSTMENT/PENALTY — enforced at the application layer
+  relatedEntityType     RelatedEntityType
+  relatedEntityId       String // polymorphic reference — no DB-level FK (Postgres/Prisma can't enforce a single FK across multiple target tables); validated at the application layer, see docs/03-database-schema.md
+  // Caller-supplied dedupe key (Financial Core Phase 11) — a retried
+  // request (double-click, network retry, webhook redelivery, queue
+  // retry) that reuses the same key hits the unique constraint instead
+  // of recording money movement twice. Nullable: only operations that
+  // need idempotency protection set it: payment initiation, escrow
+  // release/refund, withdrawal processing. One column on the one table
+  // every financial movement already passes through (TransactionRecorder),
+  // not a second idempotency-tracking mechanism.
+  idempotencyKey        String?            @unique
+  createdAt             DateTime           @default(now())
+
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([sourceWalletId])
+  @@index([destinationWalletId])
+}
+
+enum WithdrawalMethod {
+  BANK_TRANSFER
+  WALLET_TRANSFER
+  MOBILE_MONEY
+}
+
+enum WithdrawalStatus {
+  REQUESTED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  PROCESSING
+  PAID
+  FAILED
+}
+
+// Renamed from Payout (ADR-008) and extended with the approval workflow,
+// method, and fee the Withdrawal Engine requires. No live data existed at
+// rename time — a clean rename, not a migration designed around.
+model Withdrawal {
+  id             String            @id @default(cuid())
+  providerId     String
+  provider       ProviderProfile   @relation(fields: [providerId], references: [id])
+  // Which wallet the requested amount was locked out of — needed so
+  // approve/reject/mark-paid can release or debit the right wallet
+  // without re-deriving it via ProviderProfile.userId every time.
+  walletId       String
+  wallet         Wallet            @relation(fields: [walletId], references: [id])
+  amount         Int // minor units
+  feeMinorUnits  Int               @default(0)
+  currency       String
+  method         WithdrawalMethod
+  status         WithdrawalStatus  @default(REQUESTED)
+  approvedById   String?
+  approvedAt     DateTime?
+  rejectedReason String?
+  settlementId   String?
+  settlement     Settlement?       @relation(fields: [settlementId], references: [id])
+  requestedAt    DateTime          @default(now())
+  paidAt         DateTime?
+
+  @@index([providerId])
+  @@index([status])
+  @@index([settlementId])
+}
+
+enum SettlementSchedule {
+  INSTANT
+  DAILY
+  WEEKLY
+  MONTHLY
+  MANUAL
+}
+
+enum SettlementStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// A batch run that groups many Withdrawal rows for platform-side
+// processing — "Settlement" is this batch entity, not its own
+// TransactionType (ADR-008). Settlement reports are a read over
+// `withdrawals` + their PaymentTransaction rows, not separately modeled.
+model Settlement {
+  id             String             @id @default(cuid())
+  schedule       SettlementSchedule
+  status         SettlementStatus   @default(PENDING)
+  totalAmount    Int // minor units, sum of included withdrawals
+  currency       String
+  scheduledFor   DateTime?
+  processedAt    DateTime?
+  createdAt      DateTime           @default(now())
+
+  withdrawals Withdrawal[]
+
+  @@index([status, scheduledFor])
+}
+
+// Commission is relationally shaped (category/provider/plan FKs), so it
+// stays its own table rather than a RemoteConfigEntry row — per ADR-007 §3
+// and reaffirmed in ADR-008. providerId/subscriptionPlanId are additional
+// optional scope dimensions layered onto the existing categoryId scope,
+// not new tables — "Category Commission," "Provider Commission," and
+// "Subscription Commission" from the source spec are all the same
+// CommissionRule shape with a different scope column set.
+model CommissionRule {
+  id                 String          @id @default(cuid())
+  categoryId         String?         // null = platform-wide default
+  providerId         String?         // provider-specific override
+  provider           ProviderProfile? @relation(fields: [providerId], references: [id])
+  subscriptionPlanId String?
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  percentage         Float
+  flatFee            Int             @default(0) // minor units
+  minFeeMinorUnits   Int?
+  maxFeeMinorUnits   Int?
+  isActive           Boolean         @default(false) // off by default per Phase 1 business model
+  createdAt          DateTime        @default(now())
+
+  @@index([providerId])
+  @@index([subscriptionPlanId])
+}
+
+// Source of the `exchangeRate` PaymentTransaction captures at transaction
+// time — a transaction's recorded rate never changes even if the current
+// rate later does, because PaymentTransaction is immutable (ADR-008).
+model ExchangeRate {
+  id            String   @id @default(cuid())
+  baseCurrency  String
+  quoteCurrency String
+  rate          Float
+  effectiveAt   DateTime @default(now())
+
+  @@unique([baseCurrency, quoteCurrency, effectiveAt])
+  @@index([baseCurrency, quoteCurrency])
+}
+
+// Relationally shaped (region/category FKs) — not a RemoteConfigEntry row,
+// same reasoning as CommissionRule (ADR-007 §3, ADR-008).
+model TaxRule {
+  id             String   @id @default(cuid())
+  regionId       String?
+  categoryId     String?
+  name           String // e.g. "VAT"
+  ratePercentage Float
+  isInclusive    Boolean  @default(false) // true = amount already includes tax; false = tax added on top
+  isActive       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([regionId])
+  @@index([categoryId])
+}
+
+// Category-scoped refund window/percentage — gates whether Refund Engine
+// approval is even required, distinct from the individual refund
+// PaymentTransaction rows themselves.
+model RefundPolicy {
+  id                String   @id @default(cuid())
+  categoryId        String?
+  windowMinutes      Int // refund eligibility window from order creation/completion
+  refundPercentage    Float // e.g. 100 = full refund within window, 50 = partial after
+  isActive             Boolean  @default(false)
+  createdAt            DateTime @default(now())
+
+  @@index([categoryId])
+}
+
+enum SubscriptionBillingPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+model SubscriptionPlan {
+  id            String                    @id @default(cuid())
+  key           String                    @unique // e.g. "provider_premium_monthly"
+  name          String
+  billingPeriod SubscriptionBillingPeriod
+  priceMinorUnits Int
+  currency        String
+  trialDays       Int                       @default(0)
+  features        Json? // plan feature flags/limits — admin-configurable, see ADR-007
+  isActive        Boolean                   @default(false)
+  createdAt       DateTime                  @default(now())
+
+  subscriptions   Subscription[]
+  commissionRules CommissionRule[]
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  GRACE_PERIOD
+  CANCELLED
+  EXPIRED
+}
+
+// Exactly one of userId/companyId is set — same convention as Wallet
+// (ADR-004/ADR-008), a subscription belongs to a personal account or a
+// company, never both.
+model Subscription {
+  id                 String              @id @default(cuid())
+  userId             String?
+  user               User?               @relation(fields: [userId], references: [id])
+  companyId          String?
+  company            Company?            @relation(fields: [companyId], references: [id])
+  planId             String
+  plan               SubscriptionPlan    @relation(fields: [planId], references: [id])
+  status             SubscriptionStatus  @default(TRIALING)
+  currentPeriodStart DateTime            @default(now())
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean             @default(false)
+  trialEndsAt        DateTime?
+  createdAt          DateTime            @default(now())
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────────────────────────
+
+enum ConversationContext {
+  ON_DEMAND
+  CONTRACT
+  REMOTE
+}
+
+model Conversation {
+  id          String               @id @default(cuid())
+  contextType ConversationContext
+  onDemandRequestId String?         @unique
+  onDemandRequest   OnDemandRequest? @relation(fields: [onDemandRequestId], references: [id])
+  contractId        String?         @unique
+  contract          Contract?       @relation(fields: [contractId], references: [id])
+  remoteEngagementId String?        @unique
+  remoteEngagement   RemoteEngagement? @relation(fields: [remoteEngagementId], references: [id])
+  createdAt   DateTime             @default(now())
+
+  messages Message[]
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VOICE
+  FILE
+  LOCATION
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  type           MessageType  @default(TEXT)
+  body           String? // text content for TEXT; caption/filename for other types
+  attachmentUrl  String? // Cloudinary URL for IMAGE/VOICE/FILE
+  lat            Float? // set for LOCATION
+  lng            Float? // set for LOCATION
+  sentAt         DateTime     @default(now())
+  readAt         DateTime?
+
+  @@index([conversationId, sentAt])
+}
+
+// Read receipts beyond the single Message.readAt (e.g. "seen by" in a group
+// support ticket context) and typing indicators are ephemeral realtime state
+// broadcast over the Socket.IO layer (ADR-002), not persisted here — they
+// have no durability requirement and persisting them would just be write
+// load with no read use case.
+
+// ─────────────────────────────────────────────────────────────
+// Review
+// ─────────────────────────────────────────────────────────────
+
+model Review {
+  id          String   @id @default(cuid())
+  authorId    String
+  author      User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subjectId   String
+  subject     User     @relation("ReviewSubject", fields: [subjectId], references: [id])
+  rating      Int // 1-5, overall rating
+  comment     String?
+  photoUrls   String[]
+  createdAt   DateTime @default(now())
+
+  onDemandRequestId String?
+  onDemandRequest   OnDemandRequest? @relation(fields: [onDemandRequestId], references: [id])
+  contractId        String?
+  contract          Contract?        @relation(fields: [contractId], references: [id])
+  remoteEngagementId String?
+  remoteEngagement   RemoteEngagement? @relation(fields: [remoteEngagementId], references: [id])
+
+  categoryScores ReviewCategoryScore[]
+
+  @@index([subjectId])
+}
+
+// Fixed dimensions per docs/00-functional-requirements.md — a small
+// enum-keyed table (not JSON) because these are queried/aggregated
+// per-dimension (e.g. average "Punctuality" across a provider's reviews),
+// which JSON doesn't index or aggregate cleanly in Postgres.
+enum ReviewCategory {
+  PROFESSIONALISM
+  COMMUNICATION
+  QUALITY
+  PUNCTUALITY
+  VALUE
+}
+
+model ReviewCategoryScore {
+  id       String         @id @default(cuid())
+  reviewId String
+  review   Review         @relation(fields: [reviewId], references: [id])
+  category ReviewCategory
+  score    Int // 1-5
+
+  @@unique([reviewId, category])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Notification
+// ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt])
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  fcmToken  String   @unique
+  platform  String // "ios" | "android"
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Search — docs/00-system-architecture.md "Search Engine": recent/popular
+// searches. Keyword/category/provider/nearby search itself is a query
+// against existing tables (ServiceCategory, ProviderProfile, etc.), not
+// new domain state — this log exists only to power "recent searches"
+// (per-user, from `userId`) and "popular searches" (aggregate over
+// `queryText`), which need a persisted history to compute from.
+// ─────────────────────────────────────────────────────────────
+
+model SearchQueryLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  queryText   String
+  resultCount Int
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([queryText])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Matching
+// ─────────────────────────────────────────────────────────────
+
+model MatchingScoreLog {
+  id         String          @id @default(cuid())
+  requestId  String // polymorphic-ish: on-demand request id today; extend when contract/remote matching is scored too
+  onDemandRequest OnDemandRequest? @relation(fields: [requestId], references: [id])
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  score      Float
+  factors    Json // breakdown: distance, rating, responseTime, etc. — see docs/06-smart-matching.md
+  computedAt DateTime        @default(now())
+
+  @@index([requestId])
+  @@index([providerId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI Integration Layer — see ADR-005 in docs/02-architecture.md and
+// src/domain/ai/. Nine independently-toggleable capabilities even though
+// they consolidate to six domain interfaces: an operator may want
+// FRAUD_DETECTION on while ASSISTANT_ADMIN stays off, even though the
+// three ASSISTANT_* capabilities share one ConversationalAssistant shape.
+// ─────────────────────────────────────────────────────────────
+
+enum AiCapability {
+  INTENT_CLASSIFICATION
+  RANKING_ADJUSTMENT
+  RECOMMENDATION
+  FRAUD_DETECTION
+  DEMAND_FORECAST
+  PRICING_SUGGESTION
+  ASSISTANT_CUSTOMER
+  ASSISTANT_PROVIDER
+  ASSISTANT_ADMIN
+}
+
+// isEnabled: false (or no row at all) always falls back to the
+// infrastructure/ai/rule-based/* default — a disabled/unconfigured
+// capability degrades gracefully, it never breaks its caller.
+model AiFeatureToggle {
+  id         String       @id @default(cuid())
+  capability AiCapability @unique
+  isEnabled  Boolean      @default(false)
+  provider   String       @default("rule-based") // resolves to an infrastructure/ai/<provider> implementation
+  config     Json?
+  updatedAt  DateTime     @updatedAt
+}
+
+// Vendor-agnostic AI provider config, resolved into an AIProvider failover
+// chain by infrastructure/ai/providers/ai-provider-registry.ts — see ADR-006
+// in docs/02-architecture.md. Distinct from AiFeatureToggle above: a toggle
+// says "is this business capability AI-backed at all"; this table says
+// "which vendor(s), in what failover order, with which default model" when
+// it is. `provider` is a free string, not an enum — same convention as
+// PaymentGatewayConfig.provider — so a new vendor adapter is a data row +
+// a registry case, never a schema migration.
+model AiProviderConfig {
+  id        String   @id @default(cuid())
+  provider  String   // "openai-compatible" | "anthropic" | "gemini" | "ollama" | ...
+  priority  Int      @default(0) // lower tried first; failover walks ascending
+  model     String   // default model id for this entry, e.g. "gpt-4o-mini"
+  config    Json     // adapter-specific: baseUrl, apiKey, etc. — encrypted at rest, never logged, same as PaymentGatewayConfig.config
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isActive, priority])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Security
+// ─────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Trust & Safety — favorites, support, disputes, reports
+// (docs/00-business-requirements.md "Core Business Features")
+// ─────────────────────────────────────────────────────────────
+
+model Favorite {
+  id         String          @id @default(cuid())
+  customerId String
+  customer   User            @relation(fields: [customerId], references: [id])
+  providerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  createdAt  DateTime        @default(now())
+
+  @@unique([customerId, providerId])
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// General customer-service tickets — distinct from Dispute (transactional,
+// tied to a specific order/contract/engagement and financially consequential).
+model SupportTicket {
+  id         String              @id @default(cuid())
+  userId     String
+  user       User                @relation(fields: [userId], references: [id])
+  subject    String
+  status     SupportTicketStatus @default(OPEN)
+  createdAt  DateTime            @default(now())
+  resolvedAt DateTime?
+
+  messages SupportTicketMessage[]
+
+  @@index([userId, status])
+}
+
+model SupportTicketMessage {
+  id       String        @id @default(cuid())
+  ticketId String
+  ticket   SupportTicket @relation(fields: [ticketId], references: [id])
+  senderId String
+  body     String
+  sentAt   DateTime      @default(now())
+
+  @@index([ticketId])
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+// Raised against a specific transaction/engagement — polymorphic reference,
+// same convention (and same caveat: no DB-level FK) as PaymentTransaction.
+model Dispute {
+  id                String            @id @default(cuid())
+  raisedById        String
+  raisedBy          User              @relation(fields: [raisedById], references: [id])
+  relatedEntityType RelatedEntityType
+  relatedEntityId   String
+  reason            String
+  status            DisputeStatus     @default(OPEN)
+  resolutionNotes   String?
+  createdAt         DateTime          @default(now())
+  resolvedAt        DateTime?
+
+  evidence DisputeEvidence[]
+
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([raisedById])
+}
+
+// Both parties (customer and provider) can upload evidence — uploaderId is
+// not constrained to `Dispute.raisedById` since the counterparty responds
+// with their own evidence per the workflow in docs/00-functional-requirements.md.
+model DisputeEvidence {
+  id           String   @id @default(cuid())
+  disputeId    String
+  dispute      Dispute  @relation(fields: [disputeId], references: [id])
+  uploadedById String
+  fileUrl      String
+  uploadedAt   DateTime @default(now())
+
+  @@index([disputeId])
+}
+
+enum ReportTargetType {
+  PROVIDER
+  REVIEW
+  MESSAGE
+  SERVICE_CATEGORY_LISTING
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWED
+  DISMISSED
+  ACTIONED
+}
+
+// Trust & safety flagging (e.g. "this provider/review/message is abusive or
+// fraudulent") — separate from Dispute, which is about a transaction outcome.
+model Report {
+  id         String           @id @default(cuid())
+  reporterId String
+  reporter   User             @relation(fields: [reporterId], references: [id])
+  targetType ReportTargetType
+  targetId   String
+  reason     String
+  status     ReportStatus     @default(OPEN)
+  createdAt  DateTime         @default(now())
+
+  @@index([targetType, targetId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Growth — referrals, promotions, advertisements
+// (docs/00-business-requirements.md Revenue Streams / Core Business Features)
+// ─────────────────────────────────────────────────────────────
+
+enum ReferralRewardStatus {
+  PENDING
+  GRANTED
+  EXPIRED
+}
+
+model ReferralCode {
+  id        String   @id @default(cuid())
+  ownerId   String   @unique
+  owner     User     @relation(fields: [ownerId], references: [id])
+  code      String   @unique
+  createdAt DateTime @default(now())
+
+  redemptions ReferralRedemption[]
+}
+
+model ReferralRedemption {
+  id             String               @id @default(cuid())
+  referralCodeId String
+  referralCode   ReferralCode         @relation(fields: [referralCodeId], references: [id])
+  redeemedById   String               @unique // a user can be referred at most once
+  redeemedBy     User                 @relation(fields: [redeemedById], references: [id])
+  rewardStatus   ReferralRewardStatus @default(PENDING)
+  redeemedAt     DateTime             @default(now())
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FLAT
+}
+
+// Off by default: launch phase is free/low-friction per
+// docs/01-product-overview.md §8; promotions are a growth-phase lever.
+model PromotionalCampaign {
+  id            String           @id @default(cuid())
+  name          String
+  description   String?
+  discountType  DiscountType
+  discountValue Int // percentage points, or minor currency units if FLAT
+  categoryId    String?
+  category      ServiceCategory? @relation(fields: [categoryId], references: [id])
+  startsAt      DateTime
+  endsAt        DateTime
+  isActive      Boolean          @default(false)
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+enum AdPlacement {
+  SEARCH_TOP
+  CATEGORY_BANNER
+  PROVIDER_FEATURED
+}
+
+// Extended per docs/00-admin-panel-spec.md "Advertisement Management" —
+// see ADR-007. providerId/categoryId are both optional because an ad can
+// sponsor a provider, a service, a whole category (platform wants to boost
+// "Cleaning" generally), or be a pure banner/native placement tied to
+// neither.
+enum AdType {
+  BANNER
+  NATIVE
+  SPONSORED_PROVIDER
+  SPONSORED_SERVICE
+  SPONSORED_CATEGORY
+}
+
+model Advertisement {
+  id               String           @id @default(cuid())
+  adType           AdType
+  placement        AdPlacement
+  providerId       String?
+  provider         ProviderProfile? @relation(fields: [providerId], references: [id])
+  categoryId       String?
+  category         ServiceCategory? @relation(fields: [categoryId], references: [id])
+  // Admin-authored ad content — additive fields (Admin Platform P1): a
+  // sponsored-ranking-boost ad (creativeUrl null) still needs no title if
+  // it renders nothing itself, so title stays required for the common
+  // BANNER/NATIVE case but description/CTA/destination stay optional.
+  title            String           @default("")
+  description      String?
+  ctaText          String?
+  destinationUrl   String?
+  creativeUrl      String? // banner/native creative — null for a pure sponsored-ranking-boost ad
+  budgetMinorUnits Int?
+  currency         String?
+  targetingRules   Json? // country/city/category/language — shared shape, see ADR-007 §1 and packages/shared/schemas/targeting.schema.ts
+  priority         Int              @default(0)
+  startsAt         DateTime
+  endsAt           DateTime
+  isActive         Boolean          @default(false)
+
+  events AdEvent[]
+
+  @@index([placement, isActive, startsAt, endsAt])
+  @@index([providerId])
+  @@index([categoryId])
+}
+
+enum AdEventType {
+  IMPRESSION
+  CLICK
+  CONVERSION
+}
+
+// Click/conversion tracking per docs/00-admin-panel-spec.md. High-volume,
+// append-only — aggregated into Advertisement analytics by the application
+// layer, not queried row-by-row in the admin UI.
+model AdEvent {
+  id              String        @id @default(cuid())
+  advertisementId String
+  advertisement   Advertisement @relation(fields: [advertisementId], references: [id])
+  type            AdEventType
+  userId          String?
+  createdAt       DateTime      @default(now())
+
+  @@index([advertisementId, type, createdAt])
+}
+
+// Code-redeemed, per-user discount — distinct from PromotionalCampaign
+// (automatic, category-wide, no code). Same off-by-default convention.
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Int // percentage points, or minor currency units if FLAT
+  usageLimit    Int? // null = unlimited total redemptions
+  perUserLimit  Int          @default(1)
+  startsAt      DateTime
+  endsAt        DateTime
+  isActive      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+
+  redemptions CouponRedemption[]
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+model CouponRedemption {
+  id                String             @id @default(cuid())
+  couponId          String
+  coupon            Coupon             @relation(fields: [couponId], references: [id])
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  relatedEntityType RelatedEntityType? // which order it was applied to — polymorphic, app-validated, same convention as PaymentTransaction
+  relatedEntityId   String?
+  redeemedAt        DateTime           @default(now())
+
+  @@index([couponId, userId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Admin Panel — Platform Control Center. See ADR-007 in
+// docs/02-architecture.md: five reusable primitives (shared targeting
+// shape, shared publish lifecycle, one remote-config store, one template
+// model, plugin-as-existing-adapter-pattern) instead of thirteen bespoke
+// systems. PublishStatus and the targetingRules Json convention are reused
+// across CmsPage, HomeLayoutBlock, PopupCampaign, and NotificationBroadcast
+// below — one shape, not four.
+// ─────────────────────────────────────────────────────────────
+
+enum PublishStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED // the soft-delete state for every entity using this enum — no separate deletedAt needed
+}
+
+enum RemoteConfigValueType {
+  BOOLEAN
+  NUMBER
+  STRING
+  JSON
+}
+
+// Typed key-value store for settings with no natural relational shape:
+// OTP expiry, session timeouts, rate/upload/file-size limits, maintenance
+// mode, min/max supported app version, feature-availability flags not
+// already covered by AiFeatureToggle. Deliberately NOT used for settings
+// that already have a proper relational shape — CommissionRule (needs a
+// categoryId FK), PromotionalCampaign/Coupon (need their own discount
+// fields), AiFeatureToggle (ADR-005) — those stay first-class tables. See
+// ADR-007 §3.
+model RemoteConfigEntry {
+  id             String                @id @default(cuid())
+  key            String // e.g. "otp.expiry_seconds", "app.min_supported_version", "upload.max_file_size_mb"
+  valueType      RemoteConfigValueType
+  value          Json // typed per valueType; validated against valueType at the application layer on write
+  regionId       String? // null = global default; a region-scoped row overrides the global one for that region
+  region         Region?               @relation(fields: [regionId], references: [id])
+  targetingRules Json? // finer-grained targeting beyond region (e.g. platform, app version range) — same shared shape as ADR-007 §1
+  description    String? // shown in the admin UI so operators know what a key controls
+  deletedAt      DateTime? // no PublishStatus on this entity — explicit soft delete instead, see ADR-007
+  updatedAt      DateTime              @updatedAt
+  updatedById    String?
+  updatedBy      User?                 @relation(fields: [updatedById], references: [id])
+
+  @@unique([key, regionId])
+  @@index([key])
+}
+
+enum CmsPageType {
+  HOME
+  LANDING
+  ABOUT
+  CONTACT
+  FAQ
+  TERMS
+  PRIVACY
+  HELP_CENTER
+  TUTORIAL
+  BLOG
+  ANNOUNCEMENT
+  MARKETING
+}
+
+// Covers Home Page/Landing/About/Contact/FAQ/Terms/Privacy/Help
+// Center/Tutorials/Blog/Announcements/Marketing Pages — one content model
+// with a `type` discriminator, not twelve page tables. FAQ content is a
+// single rich body for now (bodyHtml can contain structured markup); a
+// dedicated FaqItem model (question/answer pairs) is a reasonable future
+// refinement if FAQ search/filtering becomes a real requirement — not
+// built speculatively.
+model CmsPage {
+  id             String        @id @default(cuid())
+  type           CmsPageType
+  slug           String        @unique
+  status         PublishStatus @default(DRAFT)
+  targetingRules Json?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  translations CmsPageTranslation[]
+
+  @@index([type, status])
+}
+
+model CmsPageTranslation {
+  id       String  @id @default(cuid())
+  pageId   String
+  page     CmsPage @relation(fields: [pageId], references: [id])
+  locale   String
+  title    String
+  bodyHtml String // CMS-authored rich content, never app-code-rendered — see ADR-007
+
+  @@unique([pageId, locale])
+}
+
+enum HomeBlockType {
+  HERO_BANNER
+  IMAGE_SLIDER
+  CATEGORIES
+  FEATURED_CATEGORIES
+  FEATURED_PROVIDERS
+  FEATURED_SERVICES
+  EMERGENCY_SERVICES
+  NEARBY_SERVICES
+  RECOMMENDED_SERVICES
+  RECENTLY_VIEWED
+  TRENDING_SERVICES
+  PROMOTIONS
+  ADVERTISEMENTS
+  SEASONAL_CAMPAIGN
+  NEWS
+  CUSTOM_HTML // web only — the Flutter client skips blocks of this type rather than rendering raw HTML natively, see ADR-007
+}
+
+// The Dynamic Home Builder — one ordered list of typed, configurable
+// blocks, not a hardcoded home screen. `config` holds block-specific props
+// (e.g. HERO_BANNER: imageUrl/ctaText/ctaLink; CATEGORIES: categoryIds).
+// abTestGroup is a label, not a statistical testing engine — see ADR-007's
+// revisit trigger if real A/B significance tracking becomes a requirement.
+model HomeLayoutBlock {
+  id             String        @id @default(cuid())
+  type           HomeBlockType
+  position       Int
+  config         Json
+  status         PublishStatus @default(DRAFT)
+  isVisible      Boolean       @default(true)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  targetingRules Json?
+  abTestGroup    String? // e.g. "control" | "variant_a" — null means no test running, shown to everyone matching targetingRules
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status, position])
+}
+
+enum MessageChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+// Unifies "Email Templates", "SMS Templates", and "Notification Templates"
+// (listed separately in the source specs) — same shape: a keyed template
+// with per-locale subject/body and {{variable}} placeholders rendered by
+// the application layer. See ADR-007 §4.
+model MessageTemplate {
+  id        String         @id @default(cuid())
+  key       String         @unique // e.g. "otp.login", "order.completed", "welcome.provider"
+  channel   MessageChannel
+  deletedAt DateTime? // no PublishStatus on this entity — explicit soft delete instead
+  createdAt DateTime       @default(now())
+
+  translations MessageTemplateTranslation[]
+}
+
+model MessageTemplateTranslation {
+  id         String          @id @default(cuid())
+  templateId String
+  template   MessageTemplate @relation(fields: [templateId], references: [id])
+  locale     String
+  subject    String? // EMAIL only
+  body       String // supports {{variable}} placeholders
+
+  @@unique([templateId, locale])
+}
+
+enum NotificationChannel {
+  PUSH
+  IN_APP
+  POPUP
+  FULL_SCREEN_ALERT
+  EMERGENCY_BROADCAST
+}
+
+// A broadcast is upstream of the per-user Notification rows already
+// modeled — when sent, the application layer fans this out into one
+// Notification row per user matched by targetingRules. Distinct from
+// MessageTemplate: a broadcast is one specific send (or scheduled send),
+// optionally built from a template (`templateKey`) or with inline
+// title/body for a one-off announcement.
+model NotificationBroadcast {
+  id             String              @id @default(cuid())
+  channel        NotificationChannel
+  templateKey    String? // references MessageTemplate.key when built from a template
+  title          String
+  body           String
+  targetingRules Json?
+  scheduledFor   DateTime?
+  sentAt         DateTime?
+  status         PublishStatus       @default(DRAFT)
+  createdById    String
+  createdBy      User                @relation(fields: [createdById], references: [id])
+  createdAt      DateTime            @default(now())
+
+  @@index([status, scheduledFor])
+}
+
+enum PopupType {
+  WELCOME
+  MAINTENANCE
+  PROMOTION
+  EMERGENCY
+  UPDATE_REMINDER
+  SURVEY
+  COUPON
+}
+
+model PopupCampaign {
+  id               String        @id @default(cuid())
+  type             PopupType
+  title            String
+  bodyHtml         String?
+  imageUrl         String?
+  videoUrl         String?
+  buttons          Json? // [{ label, actionKey }]
+  countdownSeconds Int?
+  startsAt         DateTime?
+  endsAt           DateTime?
+  targetingRules   Json?
+  frequencyCap     String? // e.g. "once_per_user" | "once_per_session" | "unlimited" — application-layer enforced
+  status           PublishStatus @default(DRAFT)
+  createdAt        DateTime      @default(now())
+
+  @@index([status, type])
+}
+
+// AI Management module ("View AI Logs/Costs/Usage") + the Dashboard's "AI
+// Usage" widget — closes the observability gap left open in ADR-005/006.
+model AiUsageLog {
+  id                String             @id @default(cuid())
+  capability        AiCapability
+  provider          String // matches the AiProviderConfig.provider that served this call
+  model             String
+  promptTokens      Int?
+  completionTokens  Int?
+  costMinorUnits    Int?
+  currency          String?
+  latencyMs         Int?
+  succeeded         Boolean            @default(true)
+  relatedEntityType RelatedEntityType?
+  relatedEntityId   String?
+  createdAt         DateTime           @default(now())
+
+  @@index([capability, createdAt])
+  @@index([provider, model, createdAt])
+}
+
+enum DashboardWidgetKey {
+  REVENUE
+  ORDERS
+  ACTIVE_PROVIDERS
+  ACTIVE_CUSTOMERS
+  PENDING_REQUESTS
+  PENDING_VERIFICATIONS
+  OPEN_DISPUTES
+  WALLET_BALANCE
+  AI_USAGE
+  SEARCH_TRENDS
+  LIVE_MAP
+  NOTIFICATIONS
+  SYSTEM_HEALTH
+  API_HEALTH
+  QUEUE_STATUS
+}
+
+// "Dashboard widgets should be configurable per administrator role" — scoped
+// to StaffRole, not per-individual-admin, matching the spec's wording exactly.
+model AdminDashboardWidgetPreference {
+  id          String             @id @default(cuid())
+  staffRoleId String
+  staffRole   StaffRole          @relation(fields: [staffRoleId], references: [id])
+  widget      DashboardWidgetKey
+  position    Int
+  isVisible   Boolean            @default(true)
+
+  @@unique([staffRoleId, widget])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Workflow Engine — see ADR-009 in docs/02-architecture.md. Orchestrates
+// cross-entity, multi-step business processes via events; it does NOT
+// replace the status enums already on OnDemandRequest, Contract, Escrow,
+// Withdrawal, Subscription, Dispute, ProviderProfile, etc. — those stay
+// exactly as built. `type`/`triggerEventType` are free strings (not closed
+// enums), same convention as PaymentGatewayConfig.provider, because the
+// event/workflow vocabulary is expected to keep growing without a
+// migration each time.
+// ─────────────────────────────────────────────────────────────
+
+// Append-only — an event is a fact that occurred, never edited. See
+// ADR-009 "every event must be immutable."
+model DomainEvent {
+  id                String             @id @default(cuid())
+  type              String // e.g. "BookingCreated", "EscrowReleased", "MilestoneCompleted"
+  payload           Json
+  relatedEntityType RelatedEntityType?
+  relatedEntityId   String?
+  occurredAt        DateTime           @default(now())
+  processedAt       DateTime? // set once every subscribed WorkflowDefinition/AutomationRule has been evaluated against it
+
+  triggeredInstances WorkflowInstance[]
+
+  @@index([type, occurredAt])
+  @@index([relatedEntityType, relatedEntityId])
+}
+
+// Consolidated from the source spec's 17 action types to 14 — see ADR-009:
+// SEND_NOTIFICATION+SEND_EMAIL -> SEND_MESSAGE (parameterized by the
+// existing MessageChannel enum, ADR-007); TRIGGER_WEBHOOK+CALL_EXTERNAL_API
+// -> CALL_EXTERNAL_API (same outbound-HTTP mechanism).
+enum WorkflowActionType {
+  SEND_MESSAGE
+  CREATE_ESCROW
+  RELEASE_ESCROW
+  CREATE_WALLET_TRANSACTION
+  GENERATE_INVOICE
+  GENERATE_CONTRACT
+  ASSIGN_PROVIDER
+  AI_EVALUATION
+  FRAUD_CHECK
+  CREATE_AUDIT_LOG
+  SCHEDULE_JOB
+  CALL_EXTERNAL_API
+  CREATE_ADMIN_TASK
+  ESCALATE_CASE
+  GENERATE_REPORT
+}
+
+// Reuses PublishStatus (ADR-007) — DRAFT/SCHEDULED/PUBLISHED/ARCHIVED map
+// directly onto the spec's Draft/Published/Disabled, same admin
+// CRUD-plus-publish-lifecycle pattern as CmsPage/HomeLayoutBlock, not new
+// admin architecture. `version` + a running WorkflowInstance's own
+// `definitionVersion` snapshot mean republishing never changes instances
+// already in flight.
+model WorkflowDefinition {
+  id               String        @id @default(cuid())
+  key              String // stable identifier across versions, e.g. "milestone-completion"
+  name             String
+  triggerEventType String // a DomainEvent.type value
+  version          Int           @default(1)
+  status           PublishStatus @default(DRAFT)
+  priority         Int           @default(0)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  steps     WorkflowStep[]
+  instances WorkflowInstance[]
+
+  @@unique([key, version])
+  @@index([triggerEventType, status])
+}
+
+// Ordered steps within one WorkflowDefinition version. conditionExpression
+// is a Json rule blob evaluated at the application layer — same posture as
+// targetingRules (ADR-007), applied to business conditions instead of
+// audience targeting; the evaluator is built per docs/10-workflow-engine.md
+// §7, not included as parser code in this schema round.
+model WorkflowStep {
+  id                   String              @id @default(cuid())
+  workflowDefinitionId String
+  workflowDefinition   WorkflowDefinition  @relation(fields: [workflowDefinitionId], references: [id])
+  stepKey              String // stable within the definition, e.g. "wait-for-approval", "release-funds"
+  order                Int
+  actionType           WorkflowActionType
+  actionConfig         Json // action-specific parameters
+  conditionExpression  Json? // null = always runs
+  timeoutSeconds       Int?
+  maxRetries           Int                 @default(0)
+  retryBackoffSeconds  Int?
+  compensationActionType WorkflowActionType?
+  compensationConfig     Json?
+
+  executions WorkflowStepExecution[]
+
+  @@unique([workflowDefinitionId, stepKey])
+  @@index([workflowDefinitionId, order])
+}
+
+enum WorkflowInstanceStatus {
+  PENDING
+  RUNNING
+  WAITING // paused on a step's timeout/external event
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+  COMPENSATING
+  COMPENSATED
+}
+
+// One run of a WorkflowDefinition (version-pinned — see the model comment
+// above) for a specific triggering entity/event. `priority` matches the
+// spec's requirement directly; higher-priority instances are dequeued
+// first by the BullMQ workflowQueue worker (docs/10-workflow-engine.md §2).
+model WorkflowInstance {
+  id                    String                 @id @default(cuid())
+  workflowDefinitionId  String
+  workflowDefinition    WorkflowDefinition     @relation(fields: [workflowDefinitionId], references: [id])
+  definitionVersion     Int // snapshot at start time — see model comment on WorkflowDefinition
+  triggeringEventId     String?
+  triggeringEvent       DomainEvent?           @relation(fields: [triggeringEventId], references: [id])
+  relatedEntityType     RelatedEntityType
+  relatedEntityId       String
+  status                WorkflowInstanceStatus @default(PENDING)
+  currentStepKey        String?
+  priority              Int                    @default(0)
+  startedAt             DateTime               @default(now())
+  completedAt           DateTime?
+  cancelledAt            DateTime?
+  cancelReason            String?
+
+  stepExecutions WorkflowStepExecution[]
+
+  @@index([workflowDefinitionId, status])
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([status, priority])
+}
+
+enum WorkflowStepExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+  RETRYING
+  SKIPPED // conditionExpression evaluated false
+  COMPENSATED
+}
+
+// Immutable execution history — the audit trail for "what did this
+// workflow instance actually do." A retried step gets a new row per
+// attempt (see `attempt`), never an update to the previous attempt's row.
+model WorkflowStepExecution {
+  id                 String                      @id @default(cuid())
+  workflowInstanceId String
+  workflowInstance   WorkflowInstance            @relation(fields: [workflowInstanceId], references: [id])
+  stepId             String
+  step               WorkflowStep                @relation(fields: [stepId], references: [id])
+  status             WorkflowStepExecutionStatus @default(PENDING)
+  attempt            Int                         @default(1)
+  startedAt          DateTime                    @default(now())
+  completedAt        DateTime?
+  errorMessage       String?
+  result             Json?
+
+  @@index([workflowInstanceId, startedAt])
+  @@index([stepId])
+}
+
+// Simpler than WorkflowDefinition by design (no multi-step orchestration,
+// no compensation) — matches the spec's own framing of "Automation Engine"
+// as distinct from the Workflow Builder. Shares WorkflowActionType so the
+// two mechanisms don't duplicate an action vocabulary. Exactly one of
+// triggerEventType/scheduleCron is set (app-validated, same convention as
+// Wallet's userId/companyId exclusivity) — event-reactive rules
+// ("IF withdrawal > limit") vs. periodic scans ("IF provider inactive 90
+// days"), see docs/10-workflow-engine.md §7 for which scanning jobs exist.
+model AutomationRule {
+  id                  String              @id @default(cuid())
+  name                String
+  triggerEventType    String?
+  scheduleCron        String?
+  conditionExpression Json
+  actionType          WorkflowActionType
+  actionConfig        Json
+  isActive            Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+
+  @@index([triggerEventType])
+  @@index([isActive])
+}
