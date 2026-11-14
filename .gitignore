@@ -53,3 +53,6 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Database dumps (contain user data and password hashes)
+database/*.sql
