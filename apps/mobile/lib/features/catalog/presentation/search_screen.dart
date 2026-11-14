@@ -9,6 +9,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/category_art.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../application/catalog_providers.dart';
@@ -141,6 +142,13 @@ class _Results extends ConsumerWidget {
                         'CONTRACT' => tokens.success,
                         _ => Theme.of(context).colorScheme.primary,
                       },
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox.square(
+                          dimension: 44,
+                          child: CategoryArt(categoryKey: c.key, type: c.type, iconSize: 22),
+                        ),
+                      ),
                       title: c.name,
                       subtitle: switch (c.type) {
                         'REMOTE' => l10n.serviceTypeShortTerm,

@@ -69,6 +69,7 @@ class CategoryDetail {
     this.description,
     this.priceMin,
     this.priceMax,
+    this.key,
   });
 
   factory CategoryDetail.fromJson(Map<String, dynamic> json) => CategoryDetail(
@@ -79,6 +80,7 @@ class CategoryDetail {
         providerCount: _int(json['providerCount']) ?? 0,
         priceMin: _int(json['priceMin']),
         priceMax: _int(json['priceMax']),
+        key: json['key'] as String?,
       );
 
   final String id;
@@ -90,17 +92,19 @@ class CategoryDetail {
   final int providerCount;
   final int? priceMin;
   final int? priceMax;
+  final String? key;
 }
 
 class SearchCategoryHit {
-  const SearchCategoryHit({required this.id, required this.type, required this.name});
+  const SearchCategoryHit({required this.id, required this.type, required this.name, this.key});
 
   factory SearchCategoryHit.fromJson(Map<String, dynamic> json) =>
-      SearchCategoryHit(id: json['id'] as String, type: json['type'] as String, name: json['name'] as String);
+      SearchCategoryHit(id: json['id'] as String, type: json['type'] as String, name: json['name'] as String, key: json['key'] as String?);
 
   final String id;
   final String type;
   final String name;
+  final String? key;
 }
 
 /// `GET /search`.
@@ -119,7 +123,7 @@ class SearchResults {
 }
 
 class ProviderService {
-  const ProviderService({required this.categoryId, required this.type, required this.name, this.priceMin, this.priceMax});
+  const ProviderService({required this.categoryId, required this.type, required this.name, this.priceMin, this.priceMax, this.key});
 
   factory ProviderService.fromJson(Map<String, dynamic> json) => ProviderService(
         categoryId: json['categoryId'] as String,
@@ -127,6 +131,7 @@ class ProviderService {
         name: json['name'] as String,
         priceMin: _int(json['priceMin']),
         priceMax: _int(json['priceMax']),
+        key: json['key'] as String?,
       );
 
   final String categoryId;
@@ -134,6 +139,7 @@ class ProviderService {
   final String name;
   final int? priceMin;
   final int? priceMax;
+  final String? key;
 }
 
 class PortfolioEntry {

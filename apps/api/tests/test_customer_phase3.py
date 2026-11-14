@@ -2,6 +2,7 @@
 
 from sqlalchemy import select
 
+from app.common import category_key
 from app.db import insert_row, t, update_rows
 
 API = "/api/v1"
@@ -43,12 +44,18 @@ def test_explore_category_detail_search_and_public_profile(client, admin_headers
 
     detail = client.get(f"{API}/service-categories/{cat}?locale=ar", headers=h).json()["data"]
     assert detail["providerCount"] >= 1 and detail["priceMin"] is not None and detail["name"]
+    # The locale-independent key is derived from the English name, even for ?locale=ar.
+    en_name = client.get(f"{API}/service-categories/{cat}?locale=en", headers=h).json()["data"]["name"]
+    assert detail["key"] == category_key(en_name)
+    listing = client.get(f"{API}/service-categories?type=ON_DEMAND&locale=ar", headers=h).json()["data"]
+    assert next(c for c in listing if c["id"] == cat)["key"] == detail["key"]
 
     found = client.get(f"{API}/search?q=heaters", headers=h).json()["data"]
     assert any(p["id"] == provider_id for p in found["providers"])
 
     profile = client.get(f"{API}/providers/{provider_id}/profile?locale=en", headers=h).json()["data"]
     assert profile["businessName"] == "Nile Plumbing" and profile["services"][0]["name"]
+    assert profile["services"][0]["key"] == detail["key"]
     assert profile["portfolio"] == [] and profile["recentReviews"] == []
 
     assert client.get(f"{API}/providers/nope/profile", headers=h).json()["errorCode"] == "PROVIDER_NOT_FOUND"
@@ -163,3 +170,9 @@ def test_promotions_only_active_window(client, admin_headers, conn):
                                              "isActive": True})
     names = [p["id"] for p in client.get(f"{API}/promotions", headers=h).json()["data"]]
     assert live["id"] in names and len([n for n in names if n == live["id"]]) == 1
+
+
+def test_category_key_slug():
+    assert category_key("Legal Consultation") == "legal-consultation"
+    assert category_key("  Graphic   Design ") == "graphic-design"
+    assert category_key(None) is None and category_key("") is None

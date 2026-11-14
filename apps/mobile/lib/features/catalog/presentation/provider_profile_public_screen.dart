@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/formatters.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/category_art.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../application/catalog_providers.dart';
@@ -39,7 +40,9 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(AppSpacing.base, 0, AppSpacing.base, 120),
               children: [
-                Center(child: SahlAvatar(name: s.businessName, imageUrl: s.businessLogoUrl ?? p.profilePictureUrl, size: 96)),
+                Center(
+                  child: SahlAvatar(name: s.businessName, imageUrl: s.businessLogoUrl ?? p.profilePictureUrl, size: 96),
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -63,22 +66,39 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
                 ),
                 if (p.companyName != null) ...[
                   const SizedBox(height: AppSpacing.sm),
-                  Center(child: StatusChip(label: l10n.memberOfCompany(p.companyName!), icon: Symbols.apartment)),
+                  Center(
+                    child: StatusChip(label: l10n.memberOfCompany(p.companyName!), icon: Symbols.apartment),
+                  ),
                 ],
                 const SizedBox(height: AppSpacing.lg),
                 Row(
                   children: [
                     Expanded(
-                      child: StatTile(icon: Symbols.star, color: tokens.accent, value: s.ratingAverage.toStringAsFixed(1), label: l10n.reviewsCount(s.ratingCount)),
+                      child: StatTile(
+                        icon: Symbols.star,
+                        color: tokens.accent,
+                        value: s.ratingAverage.toStringAsFixed(1),
+                        label: l10n.reviewsCount(s.ratingCount),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: StatTile(icon: Symbols.task_alt, color: tokens.success, value: '${s.completedJobsCount}', label: l10n.providerStatCompleted),
+                      child: StatTile(
+                        icon: Symbols.task_alt,
+                        color: tokens.success,
+                        value: '${s.completedJobsCount}',
+                        label: l10n.providerStatCompleted,
+                      ),
                     ),
                     if (s.yearsOfExperience != null) ...[
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
-                        child: StatTile(icon: Symbols.workspace_premium, color: tokens.info, value: '${s.yearsOfExperience}', label: l10n.yearsExperience(s.yearsOfExperience!)),
+                        child: StatTile(
+                          icon: Symbols.workspace_premium,
+                          color: tokens.info,
+                          value: '${s.yearsOfExperience}',
+                          label: l10n.yearsExperience(s.yearsOfExperience!),
+                        ),
                       ),
                     ],
                   ],
@@ -89,7 +109,11 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
                 ],
                 if (s.skills.isNotEmpty) ...[
                   SectionHeader(title: l10n.skillsTitle),
-                  Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final skill in s.skills) Chip(label: Text(skill))]),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [for (final skill in s.skills) Chip(label: Text(skill))],
+                  ),
                 ],
                 SectionHeader(title: l10n.servicesOffered),
                 if (p.services.isEmpty)
@@ -109,6 +133,13 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
                             'CONTRACT' => tokens.success,
                             _ => Theme.of(context).colorScheme.primary,
                           },
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox.square(
+                              dimension: 44,
+                              child: CategoryArt(categoryKey: service.key, type: service.type, iconSize: 22),
+                            ),
+                          ),
                           title: service.name,
                           subtitle: Fmt.priceRange(context, service.priceMin, service.priceMax),
                           onTap: () => context.push('/services/${service.categoryId}'),
@@ -199,8 +230,11 @@ class ReviewTile extends StatelessWidget {
             children: [
               SahlAvatar(name: review.authorName, size: 34),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text(review.authorName, style: const TextStyle(fontWeight: FontWeight.w700))),
-              if (review.createdAt != null) Text(Fmt.date(context, review.createdAt!), style: TextStyle(color: tokens.textMuted, fontSize: 12)),
+              Expanded(
+                child: Text(review.authorName, style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+              if (review.createdAt != null)
+                Text(Fmt.date(context, review.createdAt!), style: TextStyle(color: tokens.textMuted, fontSize: 12)),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

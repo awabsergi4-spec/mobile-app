@@ -143,10 +143,14 @@ class ActionTile extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.trailing,
+    this.leading,
     this.destructive = false,
   });
 
   final IconData icon;
+
+  /// Replaces the icon badge (e.g. a category thumbnail).
+  final Widget? leading;
   final Color color;
   final String title;
   final String? subtitle;
@@ -160,7 +164,7 @@ class ActionTile extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.base, vertical: 2),
-      leading: IconBadge(icon: icon, color: destructive ? colorScheme.error : color, size: 40),
+      leading: leading ?? IconBadge(icon: icon, color: destructive ? colorScheme.error : color, size: 40),
       title: Text(
         title,
         style: TextStyle(fontWeight: FontWeight.w600, color: destructive ? colorScheme.error : null),

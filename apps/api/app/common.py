@@ -68,3 +68,21 @@ def region_for_user(conn: Connection, user: dict[str, Any]) -> dict[str, Any]:
     if not region:
         raise ApiError(500, "REGION_NOT_FOUND", "Region not found for this account")
     return region
+
+
+def category_key(english_name: str | None) -> str | None:
+    """Stable, locale-independent key for a category (its English name as a
+    slug, e.g. "Legal Consultation" -> "legal-consultation"). The app maps
+    it to bundled artwork; there is no image column on ServiceCategory."""
+    if not english_name:
+        return None
+    return "-".join("".join(ch if ch.isalnum() else " " for ch in english_name.lower()).split()) or None
+
+
+def category_keys(conn: Connection, category_ids: list[str]) -> dict[str, str | None]:
+    if not category_ids:
+        return {}
+    sct = t("ServiceCategoryTranslation")
+    found = conn.execute(select(sct.c.categoryId, sct.c.name)
+                         .where(sct.c.categoryId.in_(category_ids), sct.c.locale == "en")).all()
+    return {cid: category_key(name) for cid, name in found}

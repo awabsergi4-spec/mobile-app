@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/utils/formatters.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/category_art.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../application/catalog_providers.dart';
@@ -74,10 +75,7 @@ class _ServiceDetailsScreenState extends ConsumerState<ServiceDetailsScreen> {
                       ? EmptyStateView(icon: Symbols.engineering, message: l10n.serviceNoProviders)
                       : Column(
                           children: [
-                            for (final p in items) ...[
-                              ProviderCard(provider: p, showPrice: true),
-                              const SizedBox(height: AppSpacing.md),
-                            ],
+                            for (final p in items) ...[ProviderCard(provider: p, showPrice: true), const SizedBox(height: AppSpacing.md)],
                           ],
                         ),
                 ),
@@ -106,54 +104,71 @@ class _Header extends StatelessWidget {
       _ => (Symbols.bolt, Theme.of(context).colorScheme.primary, l10n.serviceTypeOnDemand),
     };
     return SahlCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              IconBadge(icon: icon, color: color, size: 56),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(category.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 4),
-                    StatusChip(label: typeLabel, tone: StatusTone.brand),
-                  ],
-                ),
-              ),
-            ],
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: CategoryArt(categoryKey: category.key, type: category.type, iconSize: 56),
           ),
-          if (category.description != null && category.description!.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            Text(category.description!, style: TextStyle(color: tokens.textMuted, height: 1.5)),
-          ],
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              StatusChip(label: Fmt.priceRange(context, category.priceMin, category.priceMax), icon: Symbols.sell, tone: StatusTone.success),
-              StatusChip(label: l10n.serviceProvidersCount(category.providerCount), icon: Symbols.groups),
-            ],
-          ),
-          if (category.type == 'ON_DEMAND' || category.type == 'REMOTE') ...[
-            const SizedBox(height: AppSpacing.md),
-            Row(
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.base),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Symbols.info, size: 18, color: tokens.info),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    category.type == 'ON_DEMAND' ? l10n.onDemandMatchingNote : l10n.remotePickProviderNote,
-                    style: TextStyle(color: tokens.textMuted, fontSize: 13),
-                  ),
+                Row(
+                  children: [
+                    IconBadge(icon: icon, color: color),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(category.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                          const SizedBox(height: 4),
+                          StatusChip(label: typeLabel, tone: StatusTone.brand),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+                if (category.description != null && category.description!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(category.description!, style: TextStyle(color: tokens.textMuted, height: 1.5)),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    StatusChip(
+                      label: Fmt.priceRange(context, category.priceMin, category.priceMax),
+                      icon: Symbols.sell,
+                      tone: StatusTone.success,
+                    ),
+                    StatusChip(label: l10n.serviceProvidersCount(category.providerCount), icon: Symbols.groups),
+                  ],
+                ),
+                if (category.type == 'ON_DEMAND' || category.type == 'REMOTE') ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Symbols.info, size: 18, color: tokens.info),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          category.type == 'ON_DEMAND' ? l10n.onDemandMatchingNote : l10n.remotePickProviderNote,
+                          style: TextStyle(color: tokens.textMuted, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -178,11 +193,7 @@ class _ActionBar extends StatelessWidget {
     if (label == null) return const SizedBox.shrink();
     return SafeArea(
       minimum: const EdgeInsets.all(AppSpacing.base),
-      child: FilledButton.icon(
-        onPressed: () => context.push(route!),
-        icon: const Icon(Symbols.arrow_forward),
-        label: Text(label),
-      ),
+      child: FilledButton.icon(onPressed: () => context.push(route!), icon: const Icon(Symbols.arrow_forward), label: Text(label)),
     );
   }
 }

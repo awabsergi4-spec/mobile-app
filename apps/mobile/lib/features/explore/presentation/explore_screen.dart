@@ -5,8 +5,8 @@ import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/category_art.dart';
 import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../../service_category/application/service_category_controller.dart';
@@ -61,17 +61,10 @@ class _CategoryGrid extends ConsumerWidget {
 
   final ServiceType type;
 
-  (IconData, Color) _style(BuildContext context) => switch (type) {
-        ServiceType.onDemand => (Symbols.bolt, Theme.of(context).colorScheme.primary),
-        ServiceType.remote => (Symbols.laptop_mac, context.sahl.info),
-        ServiceType.contract => (Symbols.handshake, context.sahl.success),
-      };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final categories = ref.watch(serviceCategoriesProvider(type));
-    final (icon, color) = _style(context);
 
     return AsyncValueView<List<ServiceCategory>>(
       value: categories,
@@ -87,32 +80,45 @@ class _CategoryGrid extends ConsumerWidget {
             padding: const EdgeInsets.all(AppSpacing.base),
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 220,
-              mainAxisExtent: 168,
+              mainAxisExtent: 196,
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.md,
             ),
             itemCount: items.length,
             itemBuilder: (context, index) {
               final category = items[index];
-              return SahlCard(
-                onTap: () => context.push('/services/${category.id}'),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IconBadge(icon: icon, color: color),
-                    const Spacer(),
-                    Text(
-                      category.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.exploreRequestAction,
-                      style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w700),
-                    ),
-                  ],
+              return Semantics(
+                button: true,
+                label: category.name,
+                excludeSemantics: true,
+                child: SahlCard(
+                  onTap: () => context.push('/services/${category.id}'),
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: CategoryArt(categoryKey: category.key, type: type.wireValue)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              category.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l10n.exploreRequestAction,
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

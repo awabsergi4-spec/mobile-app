@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import Connection, and_, or_, select
 
-from ..common import rows
+from ..common import category_key, rows
 from ..db import get_conn, t, utcnow
 from ..responses import ok
 from ..security import current_user
@@ -99,6 +99,8 @@ def service_categories(type: str | None = None, locale: str = Query("en"), _: di
     for c in categories:
         trs = by_category.get(c["id"], {})
         tr = trs.get(locale) or trs.get("en")
+        en = trs.get("en")
         out.append({"id": c["id"], "type": c["type"], "parentId": c["parentId"],
+                    "key": category_key(en["name"] if en else None),
                     "name": tr["name"] if tr else c["id"], "description": tr["description"] if tr else None})
     return ok(out)
