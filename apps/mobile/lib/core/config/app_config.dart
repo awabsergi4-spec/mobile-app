@@ -10,11 +10,11 @@ enum AppEnvironment { development, staging, production }
 /// is a Dart language feature). Nothing here is hardcoded into widgets;
 /// every screen reads through `AppConfig`, never a literal URL.
 ///
-/// Local dev without any `--dart-define` still works: defaults point at
-/// the backend's local dev port. Android emulators can't reach
-/// `localhost` (it resolves to the emulator itself), so the default host
-/// differs by platform — override with `--dart-define=API_BASE_URL=...`
-/// for a physical device or a non-default backend host/port.
+/// By default every build talks to the deployed SAHL API on Render. To use
+/// a backend running on this PC instead, pass `--dart-define=API_BASE_URL=...`:
+///   Android emulator:        http://10.0.2.2:8000
+///   USB phone (adb reverse): http://localhost:8000
+///   Flutter web / desktop:   http://localhost:8000
 abstract final class AppConfig {
   static const _envName = String.fromEnvironment('APP_ENV', defaultValue: 'development');
 
@@ -28,23 +28,11 @@ abstract final class AppConfig {
 
   static const _apiBaseUrlOverride = String.fromEnvironment('API_BASE_URL');
 
-  static String get apiBaseUrl {
-    if (_apiBaseUrlOverride.isNotEmpty) return _apiBaseUrlOverride;
-    // Web (incl. a phone browser): talk to the API on the page's own host.
-    // Checked before the platform test because Flutter web reports Android
-    // on Android browsers, where 10.0.2.2 would be wrong.
-    if (kIsWeb) {
-      return 'http://${Uri.base.host}:8000';
-    }
-    // The SAHL API (apps/api, FastAPI) listens on :8000. 10.0.2.2 is the
-    // Android emulator's alias for the host machine's localhost — a
-    // physical device needs --dart-define=API_BASE_URL=... (or
-    // `adb reverse tcp:8000 tcp:8000` plus API_BASE_URL=http://localhost:8000).
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8000';
-    }
-    return 'http://localhost:8000';
-  }
+  /// The deployed SAHL API (apps/api, FastAPI on Render, backed by Neon).
+  static const renderApiBaseUrl = 'https://mobile-app-ynec.onrender.com';
+
+  static String get apiBaseUrl =>
+      _apiBaseUrlOverride.isNotEmpty ? _apiBaseUrlOverride : renderApiBaseUrl;
 
   static const apiVersionPath = '/api/v1';
 

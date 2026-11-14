@@ -87,8 +87,10 @@ created at sign-up; no "become provider" later). Full list: [BUGS_AND_TECHNICAL_
    `.venv/Scripts/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` (launch.json: `sahl-api`).
 2. **Admin** (`apps/backend`): `.env` with `DATABASE_URL`, JWT keys, `SAHL_API_URL="http://localhost:8000"`;
    `npm install` → `npx prisma generate` → `npx prisma db seed` (first time) → `npm run dev` → `http://localhost:3000/admin/login`.
-3. **Mobile** (`apps/mobile`): `flutter pub get` → `flutter run`. Emulator uses `http://10.0.2.2:8000` automatically.
-   Physical phone over USB: `adb reverse tcp:8000 tcp:8000` and `--dart-define=API_BASE_URL=http://localhost:8000`.
+3. **Mobile** (`apps/mobile`): `flutter pub get` → `flutter run`. By default the app uses the **deployed API on Render**
+   (`https://mobile-app-ynec.onrender.com`, `AppConfig.renderApiBaseUrl`, backed by Neon). For a local API pass
+   `--dart-define=API_BASE_URL=http://10.0.2.2:8000` (emulator) or, for a USB phone, `adb reverse tcp:8000 tcp:8000`
+   plus `--dart-define=API_BASE_URL=http://localhost:8000`.
    On this PC Gradle needs `JAVA_TOOL_OPTIONS='-Djdk.net.unixdomain.tmpdir=C:\tmp\jdk-uds -Djava.net.preferIPv4Stack=true'`
    (JDK 17 "Unable to establish loopback connection").
 New sign-ups appear in Admin → Users with a "waiting for approval" banner. JWT key generation and device setup:
