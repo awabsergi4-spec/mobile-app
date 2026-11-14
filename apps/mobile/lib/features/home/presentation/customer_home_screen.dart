@@ -29,14 +29,6 @@ class CustomerHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final user = ref.watch(authControllerProvider).user;
-    final tokens = context.sahl;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final serviceTypes = [
-      (Symbols.bolt, colorScheme.primary, l10n.serviceTypeOnDemand, l10n.serviceTypeOnDemandHint, 'onDemand'),
-      (Symbols.laptop_mac, tokens.info, l10n.serviceTypeShortTerm, l10n.serviceTypeShortTermHint, 'remote'),
-      (Symbols.handshake, tokens.success, l10n.serviceTypeLongTerm, l10n.serviceTypeLongTermHint, 'contract'),
-    ];
 
     return Scaffold(
       body: SafeArea(
@@ -69,34 +61,220 @@ class CustomerHomeScreen extends ConsumerWidget {
               SearchBarButton(hint: l10n.homeSearchHint, onTap: () => context.push('/search')),
               const _ActiveRequestSection(),
               SectionHeader(title: l10n.homeServiceTypesTitle),
-              for (final (icon, color, title, hint, type) in serviceTypes) ...[
-                SahlCard(
-                  onTap: () => context.go('/c/explore?type=$type'),
-                  child: Row(
-                    children: [
-                      IconBadge(icon: icon, color: color, size: 52),
-                      const SizedBox(width: AppSpacing.base),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 2),
-                            Text(hint, style: TextStyle(color: tokens.textMuted)),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.chevron_right_rounded, color: tokens.textMuted),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-              ],
+              const _ServiceTypeCards(),
               const _PromotionsSection(),
               const _RecommendedSection(),
               const HomeLayoutBlockList(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The three service types as illustrated cards: On-Demand as a wide hero,
+/// Short-Term and Long-Term side by side. Each opens Explore on its tab.
+class _ServiceTypeCards extends StatelessWidget {
+  const _ServiceTypeCards();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        _HeroServiceCard(
+          image: 'assets/images/ondemand.webp',
+          title: l10n.serviceTypeOnDemand,
+          hint: l10n.serviceTypeOnDemandHint,
+          icon: Symbols.bolt,
+          onTap: () => context.go('/c/explore?type=onDemand'),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _CompactServiceCard(
+                  image: 'assets/images/short.webp',
+                  title: l10n.serviceTypeShortTerm,
+                  hint: l10n.serviceTypeShortTermHint,
+                  icon: Symbols.laptop_mac,
+                  onTap: () => context.go('/c/explore?type=remote'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _CompactServiceCard(
+                  image: 'assets/images/long.webp',
+                  title: l10n.serviceTypeLongTerm,
+                  hint: l10n.serviceTypeLongTermHint,
+                  icon: Symbols.handshake,
+                  onTap: () => context.go('/c/explore?type=contract'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Decodes the large illustration at roughly the size it is shown.
+Widget _serviceImage(BuildContext context, String asset, double logicalWidth) {
+  final dpr = MediaQuery.devicePixelRatioOf(context);
+  return Image.asset(
+    asset,
+    fit: BoxFit.cover,
+    cacheWidth: (logicalWidth * dpr).round().clamp(200, 1672),
+    excludeFromSemantics: true,
+    errorBuilder: (_, _, _) => ColoredBox(color: context.sahl.surfaceMuted),
+  );
+}
+
+class _HeroServiceCard extends StatelessWidget {
+  const _HeroServiceCard({required this.image, required this.title, required this.hint, required this.icon, required this.onTap});
+
+  final String image;
+  final String title;
+  final String hint;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final tokens = context.sahl;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return Semantics(
+      button: true,
+      label: '$title. $hint',
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: tokens.shadow, blurRadius: 18, offset: const Offset(0, 8))],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                LayoutBuilder(builder: (context, c) => _serviceImage(context, image, c.maxWidth)),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.35, 1],
+                      colors: [colorScheme.scrim.withValues(alpha: 0), colorScheme.scrim.withValues(alpha: 0.8)],
+                    ),
+                  ),
+                ),
+                PositionedDirectional(
+                  start: AppSpacing.base,
+                  end: AppSpacing.base,
+                  bottom: AppSpacing.base,
+                  child: DefaultTextStyle.merge(
+                    style: const TextStyle(color: Colors.white),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(icon, color: colorScheme.primary, fill: 1, size: 22),
+                                  const SizedBox(width: 6),
+                                  Flexible(child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900))),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Opacity(opacity: 0.88, child: Text(hint, maxLines: 2, overflow: TextOverflow.ellipsis)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        DecoratedBox(
+                          decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Icon(rtl ? Symbols.arrow_back : Symbols.arrow_forward, color: colorScheme.onPrimary, size: 20),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Material(type: MaterialType.transparency, child: InkWell(onTap: onTap)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompactServiceCard extends StatelessWidget {
+  const _CompactServiceCard({required this.image, required this.title, required this.hint, required this.icon, required this.onTap});
+
+  final String image;
+  final String title;
+  final String hint;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.sahl;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: '$title. $hint',
+      excludeSemantics: true,
+      child: SahlCard(
+        onTap: onTap,
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 4 / 3,
+              child: LayoutBuilder(builder: (context, c) => _serviceImage(context, image, c.maxWidth)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(icon, size: 18, color: colorScheme.primary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(hint, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: tokens.textMuted, fontSize: 12)),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
