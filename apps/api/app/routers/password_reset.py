@@ -23,7 +23,7 @@ from ..common import get_row, rows
 from ..db import get_conn, insert_row, t, update_rows, utcnow
 from ..events import audit, publish
 from ..responses import ApiError, ok
-from ..security import find_user_by_phone, hash_password, require_permission, revoke_all_sessions, verify_password
+from ..security import find_user_by_login, hash_password, require_permission, revoke_all_sessions, verify_password
 
 router = APIRouter(tags=["auth"])
 admin_router = APIRouter(prefix="/admin/password-resets", tags=["admin"])
@@ -38,11 +38,12 @@ MAX_ATTEMPTS = 5
 
 
 class RequestBody(BaseModel):
-    phone: str = Field(min_length=6, max_length=20)
+    # Email or phone number (field name kept for the first app build).
+    phone: str = Field(min_length=3, max_length=254)
 
 
 class ConfirmBody(BaseModel):
-    phone: str = Field(min_length=6, max_length=20)
+    phone: str = Field(min_length=3, max_length=254)  # email or phone
     code: str = Field(pattern=r"^\d{6}$")
     newPassword: str = Field(min_length=8, max_length=72)
 
@@ -55,7 +56,7 @@ def _open_requests(conn: Connection, user_id: str) -> list[dict]:
 
 @router.post("/auth/password-reset/request")
 def request_reset(body: RequestBody, conn: Connection = Depends(get_conn)):
-    user = find_user_by_phone(conn, body.phone)
+    user = find_user_by_login(conn, body.phone)
     # Same answer whether or not the number has an account (no enumeration).
     if user and user["status"] == "ACTIVE" and not _open_requests(conn, user["id"]):
         insert_row(conn, "OtpCode", {"userId": user["id"], "purpose": PURPOSE, "codeHash": WAITING,
@@ -66,7 +67,7 @@ def request_reset(body: RequestBody, conn: Connection = Depends(get_conn)):
 
 @router.post("/auth/password-reset/confirm")
 def confirm_reset(body: ConfirmBody, conn: Connection = Depends(get_conn)):
-    user = find_user_by_phone(conn, body.phone)
+    user = find_user_by_login(conn, body.phone)
     issued = [r for r in _open_requests(conn, user["id"]) if r["codeHash"] not in (WAITING, CANCELLED)] if user else []
     if not issued:
         raise ApiError(400, "INVALID_RESET_CODE", "The code is wrong or has expired")

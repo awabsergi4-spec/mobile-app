@@ -127,3 +127,20 @@ def test_validation_and_bad_json_envelopes(client):
 def test_protected_route_without_token(client):
     res = client.get(f"{API}/wallets/me")
     assert res.status_code == 401 and res.json()["errorCode"] == "UNAUTHENTICATED"
+
+
+def test_login_with_email_or_phone(client, admin_headers):
+    res = client.post(f"{API}/auth/register", json={
+        "phone": "+249917000001", "password": "Secret123", "fullName": "Email User",
+        "preferredLanguage": "en", "email": "Mona.Ali@Example.com"})
+    approve(client, admin_headers, res.json()["data"]["id"])
+    by_email = client.post(f"{API}/auth/login", json={"login": "mona.ali@example.COM", "password": "Secret123"})
+    assert by_email.status_code == 200 and by_email.json()["data"]["accessToken"]
+    assert client.post(f"{API}/auth/login", json={"login": "+249917000001", "password": "Secret123"}).status_code == 200
+    # Older app builds still send `phone`.
+    assert client.post(f"{API}/auth/login", json={"phone": "+249917000001", "password": "Secret123"}).status_code == 200
+    wrong = client.post(f"{API}/auth/login", json={"login": "nobody@example.com", "password": "Secret123"})
+    assert wrong.json()["errorCode"] == "INVALID_CREDENTIALS"
+    assert client.post(f"{API}/auth/login", json={"password": "Secret123"}).json()["errorCode"] == "VALIDATION_ERROR"
+    # Forgot password works with the email too.
+    assert client.post(f"{API}/auth/password-reset/request", json={"phone": "mona.ali@example.com"}).status_code == 200

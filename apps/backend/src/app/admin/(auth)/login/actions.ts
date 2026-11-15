@@ -20,12 +20,12 @@ const ERROR_CODE_TO_QUERY: Record<string, string> = {
 // the shared RS256 public key, then the staff-permission gate decides
 // whether this account may use the Admin Platform at all.
 export async function adminLoginAction(formData: FormData): Promise<void> {
-  const phone = String(formData.get("phone") ?? "");
+  const login = String(formData.get("login") ?? "").trim(); // email or phone
   const password = String(formData.get("password") ?? "");
 
   let session: IssuedSession;
   try {
-    session = await sahlApi<IssuedSession>("/auth/login", { method: "POST", body: { phone, password } });
+    session = await sahlApi<IssuedSession>("/auth/login", { method: "POST", body: { login, password } });
   } catch (err) {
     const code = err instanceof SahlApiError ? ERROR_CODE_TO_QUERY[err.errorCode] : undefined;
     redirect(`/admin/login?error=${code ?? "unknown"}`);

@@ -33,7 +33,7 @@
   "errorNotFound": "We couldn't find what you're looking for.",
   "errorConflict": "This action can't be completed right now.",
   "errorTooManyRequests": "Too many attempts. Please wait a moment and try again.",
-  "errorInvalidCredentials": "Incorrect phone number or password.",
+  "errorInvalidCredentials": "Incorrect email/phone or password.",
   "errorAccountNotActive": "This account isn't active. Please contact support.",
   "errorUserNotFound": "No account was found with that phone number.",
   "errorPhoneAlreadyRegistered": "An account with this phone number already exists.",
@@ -746,7 +746,7 @@
   "errorUploadsOff": "Image uploads aren't available right now.",
   "forgotPassword": "Forgot password?",
   "resetTitle": "Reset your password",
-  "resetRequestSubtitle": "Enter your phone number. SAHL support will contact you with a 6-digit code.",
+  "resetRequestSubtitle": "Enter your email or phone number. SAHL support will contact you with a 6-digit code.",
   "resetRequestButton": "Send request",
   "resetHaveCode": "I already have a code",
   "resetCodeTitle": "Enter your code",
@@ -757,5 +757,6 @@
   "resetDone": "Password changed. Sign in with your new password.",
   "validationResetCode": "Enter the 6-digit code",
   "errorInvalidResetCode": "The code is wrong or has expired. Check it, or ask for a new one.",
-  "errorTooManyAttempts": "Too many wrong codes. Ask SAHL support for a new one."
+  "errorTooManyAttempts": "Too many wrong codes. Ask SAHL support for a new one.",
+  "emailOrPhone": "Email or phone number"
 }

@@ -38,15 +38,16 @@ export default async function AdminLoginPage({
 
         <form action={adminLoginAction} className="mt-6 space-y-4">
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-text-primary">
-              {t("login.phone")}
+            <label htmlFor="login" className="block text-sm font-medium text-text-primary">
+              {t("login.emailOrPhone")}
             </label>
             <input
-              id="phone"
-              name="phone"
-              type="tel"
+              id="login"
+              name="login"
+              type="text"
+              inputMode="email"
               required
-              autoComplete="tel"
+              autoComplete="username"
               dir="ltr"
               className="mt-1 w-full rounded-button border border-text-disabled/40 px-3 py-2 text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />

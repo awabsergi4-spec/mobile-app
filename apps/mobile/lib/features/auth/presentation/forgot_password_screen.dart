@@ -88,14 +88,14 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final l10n = AppLocalizations.of(context)!;
     final phoneField = AuthTextField(
       controller: _phone,
-      hint: l10n.phoneNumber,
-      icon: Symbols.call,
-      keyboardType: TextInputType.phone,
+      hint: l10n.emailOrPhone,
+      icon: Symbols.alternate_email,
+      keyboardType: TextInputType.emailAddress,
       textDirection: TextDirection.ltr,
       textInputAction: TextInputAction.next,
-      autofillHints: const [AutofillHints.telephoneNumber],
+      autofillHints: const [AutofillHints.email, AutofillHints.username, AutofillHints.telephoneNumber],
       enabled: !_busy,
-      validator: (value) => Validators.phone(value, l10n),
+      validator: (value) => Validators.emailOrPhone(value, l10n),
     );
 
     return AuthTheme(

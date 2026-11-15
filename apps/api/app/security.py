@@ -10,7 +10,7 @@ import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 from fastapi import Depends, Request
-from sqlalchemy import Connection, or_, select
+from sqlalchemy import Connection, func, or_, select
 
 from .config import get_settings
 from .db import get_conn, insert_row, t, update_rows, utcnow
@@ -54,6 +54,16 @@ def find_user_by_phone(conn: Connection, raw: str) -> dict[str, Any] | None:
         select(users).where(or_(users.c.phone == canonical, users.c.phone == canonical[1:]))
     ).mappings().first()
     return dict(row) if row else None
+
+
+def find_user_by_login(conn: Connection, value: str) -> dict[str, Any] | None:
+    """Sign-in identifier: an email address (case-insensitive) or a phone number."""
+    value = (value or "").strip()
+    if "@" in value:
+        users = t("User")
+        row = conn.execute(select(users).where(func.lower(users.c.email) == value.lower())).mappings().first()
+        return dict(row) if row else None
+    return find_user_by_phone(conn, value)
 
 
 # ── Tokens ───────────────────────────────────────────────────────────────

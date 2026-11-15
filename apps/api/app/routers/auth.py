@@ -11,8 +11,8 @@ from ..db import get_conn, insert_row, t, update_rows, utcnow
 from ..events import publish
 from ..responses import ApiError, ok
 from ..security import (
-    current_user, find_user_by_phone, hash_password, issue_session, normalize_phone, revoke_all_sessions, sha256,
-    verify_password,
+    current_user, find_user_by_login, find_user_by_phone, hash_password, issue_session, normalize_phone,
+    revoke_all_sessions, sha256, verify_password,
 )
 
 router = APIRouter(tags=["auth"])
@@ -38,9 +38,17 @@ class RegisterBody(BaseModel):
 
 
 class LoginBody(BaseModel):
-    phone: str = Field(min_length=8, max_length=20)
+    # Email or phone number. `phone` is still accepted from older app builds.
+    login: str | None = Field(default=None, min_length=3, max_length=254)
+    phone: str | None = Field(default=None, min_length=8, max_length=20)
     password: str = Field(min_length=1, max_length=72)
     deviceInfo: str | None = Field(default=None, max_length=255)
+
+    @model_validator(mode="after")
+    def _one_identifier(self):
+        if not (self.login or self.phone):
+            raise ValueError("login (email or phone) is required")
+        return self
 
 
 class RefreshBody(BaseModel):
@@ -98,8 +106,8 @@ def _assert_can_sign_in(user: dict) -> None:
 
 @router.post("/auth/login")
 def login(body: LoginBody, conn: Connection = Depends(get_conn)):
-    user = find_user_by_phone(conn, body.phone)
-    # Same error for unknown phone and wrong password (no account enumeration).
+    user = find_user_by_login(conn, body.login or body.phone or "")
+    # Same error for unknown account and wrong password (no account enumeration).
     if not user or not verify_password(body.password, user["passwordHash"]):
         raise ApiError(401, "INVALID_CREDENTIALS", "Invalid phone or password")
     _assert_can_sign_in(user)

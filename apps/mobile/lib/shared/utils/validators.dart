@@ -17,6 +17,14 @@ abstract final class Validators {
     return null;
   }
 
+  /// Sign-in identifier: a valid email (contains @) or a phone number.
+  static String? emailOrPhone(String? value, AppLocalizations l10n) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) return l10n.validationRequired;
+    if (trimmed.contains('@')) return optionalEmail(trimmed, l10n);
+    return phone(trimmed, l10n);
+  }
+
   static String? password(String? value, AppLocalizations l10n) {
     if (value == null || value.isEmpty) return l10n.validationRequired;
     if (value.length < 8) return l10n.validationPasswordTooShort;

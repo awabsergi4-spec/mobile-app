@@ -103,7 +103,8 @@ class AppLocalizationsAr extends AppLocalizations {
       'محاولات كثيرة جدًا. الرجاء الانتظار قليلاً ثم المحاولة مرة أخرى.';
 
   @override
-  String get errorInvalidCredentials => 'رقم الهاتف أو كلمة المرور غير صحيحة.';
+  String get errorInvalidCredentials =>
+      'البريد الإلكتروني/رقم الهاتف أو كلمة المرور غير صحيحة.';
 
   @override
   String get errorAccountNotActive =>
@@ -1822,7 +1823,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetRequestSubtitle =>
-      'أدخل رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.';
+      'أدخل بريدك الإلكتروني أو رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.';
 
   @override
   String get resetRequestButton => 'إرسال الطلب';
@@ -1860,4 +1861,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get errorTooManyAttempts =>
       'محاولات خاطئة كثيرة. اطلب رمزاً جديداً من دعم سهل.';
+
+  @override
+  String get emailOrPhone => 'البريد الإلكتروني أو رقم الهاتف';
 }

@@ -281,7 +281,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorInvalidCredentials.
   ///
   /// In en, this message translates to:
-  /// **'Incorrect phone number or password.'**
+  /// **'Incorrect email/phone or password.'**
   String get errorInvalidCredentials;
 
   /// No description provided for @errorAccountNotActive.
@@ -3461,7 +3461,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetRequestSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter your phone number. SAHL support will contact you with a 6-digit code.'**
+  /// **'Enter your email or phone number. SAHL support will contact you with a 6-digit code.'**
   String get resetRequestSubtitle;
 
   /// No description provided for @resetRequestButton.
@@ -3529,6 +3529,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many wrong codes. Ask SAHL support for a new one.'**
   String get errorTooManyAttempts;
+
+  /// No description provided for @emailOrPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or phone number'**
+  String get emailOrPhone;
 }
 
 class _AppLocalizationsDelegate

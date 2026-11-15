@@ -102,7 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many attempts. Please wait a moment and try again.';
 
   @override
-  String get errorInvalidCredentials => 'Incorrect phone number or password.';
+  String get errorInvalidCredentials => 'Incorrect email/phone or password.';
 
   @override
   String get errorAccountNotActive =>
@@ -1821,7 +1821,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetRequestSubtitle =>
-      'Enter your phone number. SAHL support will contact you with a 6-digit code.';
+      'Enter your email or phone number. SAHL support will contact you with a 6-digit code.';
 
   @override
   String get resetRequestButton => 'Send request';
@@ -1858,4 +1858,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorTooManyAttempts =>
       'Too many wrong codes. Ask SAHL support for a new one.';
+
+  @override
+  String get emailOrPhone => 'Email or phone number';
 }

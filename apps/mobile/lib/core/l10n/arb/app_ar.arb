@@ -30,7 +30,7 @@
   "errorNotFound": "لم نتمكن من العثور على ما تبحث عنه.",
   "errorConflict": "لا يمكن إتمام هذا الإجراء الآن.",
   "errorTooManyRequests": "محاولات كثيرة جدًا. الرجاء الانتظار قليلاً ثم المحاولة مرة أخرى.",
-  "errorInvalidCredentials": "رقم الهاتف أو كلمة المرور غير صحيحة.",
+  "errorInvalidCredentials": "البريد الإلكتروني/رقم الهاتف أو كلمة المرور غير صحيحة.",
   "errorAccountNotActive": "هذا الحساب غير مفعّل. يرجى التواصل مع الدعم.",
   "errorUserNotFound": "لم يتم العثور على حساب بهذا الرقم.",
   "errorPhoneAlreadyRegistered": "يوجد حساب مسجل بهذا الرقم بالفعل.",
@@ -560,7 +560,7 @@
   "errorUploadsOff": "رفع الصور غير متاح حالياً.",
   "forgotPassword": "نسيت كلمة المرور؟",
   "resetTitle": "استعادة كلمة المرور",
-  "resetRequestSubtitle": "أدخل رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.",
+  "resetRequestSubtitle": "أدخل بريدك الإلكتروني أو رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.",
   "resetRequestButton": "إرسال الطلب",
   "resetHaveCode": "لدي رمز بالفعل",
   "resetCodeTitle": "أدخل الرمز",
@@ -571,5 +571,6 @@
   "resetDone": "تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة.",
   "validationResetCode": "أدخل الرمز المكوّن من 6 أرقام",
   "errorInvalidResetCode": "الرمز غير صحيح أو منتهي. تحقق منه أو اطلب رمزاً جديداً.",
-  "errorTooManyAttempts": "محاولات خاطئة كثيرة. اطلب رمزاً جديداً من دعم سهل."
+  "errorTooManyAttempts": "محاولات خاطئة كثيرة. اطلب رمزاً جديداً من دعم سهل.",
+  "emailOrPhone": "البريد الإلكتروني أو رقم الهاتف"
 }

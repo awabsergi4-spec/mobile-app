@@ -52,7 +52,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _apiClient.post(
         '/auth/login',
         skipAuth: true,
-        data: {'phone': phone, 'password': password},
+        // `login` accepts an email or a phone number.
+        data: {'login': phone, 'password': password},
       );
       await _saveSessionFromResponse(response.dataAsMap);
       return const Result.success(null);
