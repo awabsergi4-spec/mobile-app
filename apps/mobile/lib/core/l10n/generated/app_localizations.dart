@@ -3127,6 +3127,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your wallet is frozen. Contact support for help.'**
   String get walletFrozen;
+
+  /// No description provided for @myListingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My posted services'**
+  String get myListingsTitle;
+
+  /// No description provided for @myListingsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t posted a service yet. Post one so customers can order it directly.'**
+  String get myListingsEmpty;
+
+  /// No description provided for @postServiceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a service'**
+  String get postServiceAction;
+
+  /// No description provided for @editServiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit service'**
+  String get editServiceTitle;
+
+  /// No description provided for @listingStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get listingStatusPending;
+
+  /// No description provided for @listingStatusPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get listingStatusPublished;
+
+  /// No description provided for @listingStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs changes'**
+  String get listingStatusRejected;
+
+  /// No description provided for @listingStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get listingStatusPaused;
+
+  /// No description provided for @listingRejectedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer\'s note: {reason}'**
+  String listingRejectedReason(String reason);
+
+  /// No description provided for @listingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get listingCategory;
+
+  /// No description provided for @listingTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Service title'**
+  String get listingTitleLabel;
+
+  /// No description provided for @listingTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. I will design your company logo'**
+  String get listingTitleHint;
+
+  /// No description provided for @listingDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get listingDescriptionLabel;
+
+  /// No description provided for @listingDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s included, what you need from the customer, and how you work'**
+  String get listingDescriptionHint;
+
+  /// No description provided for @listingPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting price'**
+  String get listingPriceLabel;
+
+  /// No description provided for @listingDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery (days)'**
+  String get listingDeliveryLabel;
+
+  /// No description provided for @listingCoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover image'**
+  String get listingCoverTitle;
+
+  /// No description provided for @listingCoverGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a landscape 16:9 image, ideally 1280×720 px (at least 800×450). JPG, PNG or WebP, up to 5 MB. Keep text and faces near the middle — the edges may be cropped on small cards.'**
+  String get listingCoverGuide;
+
+  /// No description provided for @listingCoverPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose cover'**
+  String get listingCoverPick;
+
+  /// No description provided for @listingCoverChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change cover'**
+  String get listingCoverChange;
+
+  /// No description provided for @listingGalleryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get listingGalleryTitle;
+
+  /// No description provided for @listingGalleryGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max} images of your work (same size rules as the cover).'**
+  String listingGalleryGuide(int max);
+
+  /// No description provided for @listingGalleryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add images'**
+  String get listingGalleryAdd;
+
+  /// No description provided for @listingRemoveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove image'**
+  String get listingRemoveImage;
+
+  /// No description provided for @listingUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get listingUploading;
+
+  /// No description provided for @listingImageTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too small. Use at least 800×450 px.'**
+  String get listingImageTooSmall;
+
+  /// No description provided for @listingImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is larger than 5 MB.'**
+  String get listingImageTooLarge;
+
+  /// No description provided for @listingImageNotLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'This image isn\'t landscape — it will be cropped to 16:9.'**
+  String get listingImageNotLandscape;
+
+  /// No description provided for @listingImageUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read this image. Try another file.'**
+  String get listingImageUnreadable;
+
+  /// No description provided for @listingUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed. Check your connection and try again.'**
+  String get listingUploadFailed;
+
+  /// No description provided for @listingCoverRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a cover image.'**
+  String get listingCoverRequired;
+
+  /// No description provided for @listingUploadsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Image uploads aren\'t available yet, so services can\'t be posted right now.'**
+  String get listingUploadsOff;
+
+  /// No description provided for @listingSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get listingSubmit;
+
+  /// No description provided for @listingReviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'SAHL reviews every new or edited service before customers can see it.'**
+  String get listingReviewNote;
+
+  /// No description provided for @listingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent for review. We\'ll notify you when it\'s live.'**
+  String get listingSubmitted;
+
+  /// No description provided for @listingPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get listingPause;
+
+  /// No description provided for @listingResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get listingResume;
+
+  /// No description provided for @listingDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get listingDelete;
+
+  /// No description provided for @listingDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service?'**
+  String get listingDeleteConfirm;
+
+  /// No description provided for @listingDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed for good, with its gallery.'**
+  String get listingDeleteMessage;
+
+  /// No description provided for @listingEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get listingEdit;
+
+  /// No description provided for @listingsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Services you can order'**
+  String get listingsSectionTitle;
+
+  /// No description provided for @listingDeliveryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1-day delivery} other{{days}-day delivery}}'**
+  String listingDeliveryDays(int days);
+
+  /// No description provided for @listingOrderAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Order this service'**
+  String get listingOrderAction;
+
+  /// No description provided for @listingOrderConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Order this service?'**
+  String get listingOrderConfirm;
+
+  /// No description provided for @listingOrderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}” from {provider}, starting at {price}. You can agree on milestones after ordering.'**
+  String listingOrderMessage(String title, String provider, String price);
+
+  /// No description provided for @listingQuoteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a project quote'**
+  String get listingQuoteAction;
+
+  /// No description provided for @listingAboutService.
+  ///
+  /// In en, this message translates to:
+  /// **'About this service'**
+  String get listingAboutService;
+
+  /// No description provided for @listingAboutProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'About the provider'**
+  String get listingAboutProvider;
+
+  /// No description provided for @providerServicesListings.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted services'**
+  String get providerServicesListings;
+
+  /// No description provided for @errorListingNotEligible.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider profile must be verified before you can post services.'**
+  String get errorListingNotEligible;
+
+  /// No description provided for @errorInvalidImage.
+  ///
+  /// In en, this message translates to:
+  /// **'One of the images wasn\'t uploaded through the app. Please add it again.'**
+  String get errorInvalidImage;
+
+  /// No description provided for @errorUploadsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Image uploads aren\'t available right now.'**
+  String get errorUploadsOff;
 }
 
 class _AppLocalizationsDelegate

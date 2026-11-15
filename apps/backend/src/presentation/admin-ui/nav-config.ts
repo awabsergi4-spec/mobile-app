@@ -21,6 +21,8 @@ export const adminNavSections: { title: string; items: AdminNavItem[] }[] = [
       { label: "Providers", href: "/admin/providers", permissionKey: "providers.manage" },
       { label: "Companies", href: "/admin/companies", permissionKey: "companies.manage" },
       { label: "Services", href: "/admin/services", permissionKey: "services.manage" },
+      { label: "Service Listings", href: "/admin/listings", permissionKey: "services.manage" },
+      { label: "Categories", href: "/admin/categories", permissionKey: "services.manage" },
     ],
   },
   {

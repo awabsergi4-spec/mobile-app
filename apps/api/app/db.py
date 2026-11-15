@@ -27,7 +27,8 @@ TABLES = [
     "PaymentTransaction", "Permission", "PromotionalCampaign", "ProviderCategory", "ProviderDocument",
     "ProviderPayoutAccount", "ProviderPortfolioItem", "ProviderProfile", "ProviderServiceArea", "RefreshToken",
     "Region", "RemoteConfigEntry", "RemoteEngagement", "RemoteMilestone", "Review", "ReviewCategoryScore",
-    "ServiceCategory", "ServiceCategoryTranslation", "StaffRole", "StaffRolePermission", "SupportTicket",
+    "ServiceCategory", "ServiceCategoryTranslation", "ServiceListing", "ServiceListingImage", "StaffRole",
+    "StaffRolePermission", "SupportTicket",
     "SupportTicketMessage", "User", "UserStaffRole", "Wallet", "WalletBalance", "Withdrawal",
 ]
 

@@ -13,6 +13,7 @@ import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../application/catalog_providers.dart';
 import '../domain/catalog_models.dart';
+import '../../listings/presentation/widgets/listings_section.dart';
 
 /// Public provider profile as customers see it: verification, experience,
 /// rating, services with prices, portfolio and reviews, plus booking.
@@ -115,6 +116,7 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
                     children: [for (final skill in s.skills) Chip(label: Text(skill))],
                   ),
                 ],
+                ListingsSection(title: l10n.providerServicesListings, providerId: providerId, horizontal: true),
                 SectionHeader(title: l10n.servicesOffered),
                 if (p.services.isEmpty)
                   Text(l10n.serviceNoProviders, style: TextStyle(color: tokens.textMuted))

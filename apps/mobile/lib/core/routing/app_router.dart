@@ -31,6 +31,8 @@ import '../../features/home/presentation/customer_home_screen.dart';
 import '../../features/home/presentation/customer_requests_screen.dart';
 import '../../features/home/presentation/provider_home_screen.dart';
 import '../../features/home/presentation/provider_hub_screens.dart';
+import '../../features/listings/presentation/listing_details_screen.dart';
+import '../../features/listings/presentation/listing_form_screen.dart';
 import '../../features/notification/presentation/notifications_screen.dart';
 import '../../features/on_demand/presentation/booking_screen.dart';
 import '../../features/on_demand/presentation/on_demand_request_detail_screen.dart';
@@ -292,6 +294,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/company/:id/verification',
         builder: (context, state) => CompanyVerificationScreen(companyId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/listings/:id',
+        builder: (context, state) => ListingDetailsScreen(listingId: state.pathParameters['id']!),
+      ),
+      GoRoute(path: '/provider/listings/new', builder: (context, state) => const ListingFormScreen()),
+      GoRoute(
+        path: '/provider/listings/:id/edit',
+        builder: (context, state) => ListingFormScreen(listingId: state.pathParameters['id']!),
       ),
       GoRoute(path: '/provider/profile', builder: (context, state) => const ProviderProfileScreen()),
       GoRoute(path: '/provider/verification', builder: (context, state) => const ProviderVerificationScreen()),

@@ -1626,4 +1626,190 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletFrozen => 'Your wallet is frozen. Contact support for help.';
+
+  @override
+  String get myListingsTitle => 'My posted services';
+
+  @override
+  String get myListingsEmpty =>
+      'You haven\'t posted a service yet. Post one so customers can order it directly.';
+
+  @override
+  String get postServiceAction => 'Post a service';
+
+  @override
+  String get editServiceTitle => 'Edit service';
+
+  @override
+  String get listingStatusPending => 'Waiting for review';
+
+  @override
+  String get listingStatusPublished => 'Published';
+
+  @override
+  String get listingStatusRejected => 'Needs changes';
+
+  @override
+  String get listingStatusPaused => 'Paused';
+
+  @override
+  String listingRejectedReason(String reason) {
+    return 'Reviewer\'s note: $reason';
+  }
+
+  @override
+  String get listingCategory => 'Category';
+
+  @override
+  String get listingTitleLabel => 'Service title';
+
+  @override
+  String get listingTitleHint => 'e.g. I will design your company logo';
+
+  @override
+  String get listingDescriptionLabel => 'Description';
+
+  @override
+  String get listingDescriptionHint =>
+      'What\'s included, what you need from the customer, and how you work';
+
+  @override
+  String get listingPriceLabel => 'Starting price';
+
+  @override
+  String get listingDeliveryLabel => 'Delivery (days)';
+
+  @override
+  String get listingCoverTitle => 'Cover image';
+
+  @override
+  String get listingCoverGuide =>
+      'Use a landscape 16:9 image, ideally 1280×720 px (at least 800×450). JPG, PNG or WebP, up to 5 MB. Keep text and faces near the middle — the edges may be cropped on small cards.';
+
+  @override
+  String get listingCoverPick => 'Choose cover';
+
+  @override
+  String get listingCoverChange => 'Change cover';
+
+  @override
+  String get listingGalleryTitle => 'Gallery';
+
+  @override
+  String listingGalleryGuide(int max) {
+    return 'Up to $max images of your work (same size rules as the cover).';
+  }
+
+  @override
+  String get listingGalleryAdd => 'Add images';
+
+  @override
+  String get listingRemoveImage => 'Remove image';
+
+  @override
+  String get listingUploading => 'Uploading…';
+
+  @override
+  String get listingImageTooSmall =>
+      'This image is too small. Use at least 800×450 px.';
+
+  @override
+  String get listingImageTooLarge => 'This image is larger than 5 MB.';
+
+  @override
+  String get listingImageNotLandscape =>
+      'This image isn\'t landscape — it will be cropped to 16:9.';
+
+  @override
+  String get listingImageUnreadable =>
+      'Couldn\'t read this image. Try another file.';
+
+  @override
+  String get listingUploadFailed =>
+      'Upload failed. Check your connection and try again.';
+
+  @override
+  String get listingCoverRequired => 'Add a cover image.';
+
+  @override
+  String get listingUploadsOff =>
+      'Image uploads aren\'t available yet, so services can\'t be posted right now.';
+
+  @override
+  String get listingSubmit => 'Send for review';
+
+  @override
+  String get listingReviewNote =>
+      'SAHL reviews every new or edited service before customers can see it.';
+
+  @override
+  String get listingSubmitted =>
+      'Sent for review. We\'ll notify you when it\'s live.';
+
+  @override
+  String get listingPause => 'Pause';
+
+  @override
+  String get listingResume => 'Resume';
+
+  @override
+  String get listingDelete => 'Delete';
+
+  @override
+  String get listingDeleteConfirm => 'Delete this service?';
+
+  @override
+  String get listingDeleteMessage =>
+      'It will be removed for good, with its gallery.';
+
+  @override
+  String get listingEdit => 'Edit';
+
+  @override
+  String get listingsSectionTitle => 'Services you can order';
+
+  @override
+  String listingDeliveryDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days-day delivery',
+      one: '1-day delivery',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get listingOrderAction => 'Order this service';
+
+  @override
+  String get listingOrderConfirm => 'Order this service?';
+
+  @override
+  String listingOrderMessage(String title, String provider, String price) {
+    return '“$title” from $provider, starting at $price. You can agree on milestones after ordering.';
+  }
+
+  @override
+  String get listingQuoteAction => 'Request a project quote';
+
+  @override
+  String get listingAboutService => 'About this service';
+
+  @override
+  String get listingAboutProvider => 'About the provider';
+
+  @override
+  String get providerServicesListings => 'Posted services';
+
+  @override
+  String get errorListingNotEligible =>
+      'Your provider profile must be verified before you can post services.';
+
+  @override
+  String get errorInvalidImage =>
+      'One of the images wasn\'t uploaded through the app. Please add it again.';
+
+  @override
+  String get errorUploadsOff => 'Image uploads aren\'t available right now.';
 }

@@ -1628,4 +1628,189 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletFrozen => 'محفظتك مجمّدة. تواصل مع الدعم للمساعدة.';
+
+  @override
+  String get myListingsTitle => 'خدماتي المنشورة';
+
+  @override
+  String get myListingsEmpty =>
+      'لم تنشر أي خدمة بعد. انشر خدمة ليتمكن العملاء من طلبها مباشرة.';
+
+  @override
+  String get postServiceAction => 'انشر خدمة';
+
+  @override
+  String get editServiceTitle => 'تعديل الخدمة';
+
+  @override
+  String get listingStatusPending => 'قيد المراجعة';
+
+  @override
+  String get listingStatusPublished => 'منشورة';
+
+  @override
+  String get listingStatusRejected => 'تحتاج تعديلات';
+
+  @override
+  String get listingStatusPaused => 'متوقفة مؤقتاً';
+
+  @override
+  String listingRejectedReason(String reason) {
+    return 'ملاحظة المراجع: $reason';
+  }
+
+  @override
+  String get listingCategory => 'التصنيف';
+
+  @override
+  String get listingTitleLabel => 'عنوان الخدمة';
+
+  @override
+  String get listingTitleHint => 'مثال: سأصمم شعار شركتك';
+
+  @override
+  String get listingDescriptionLabel => 'الوصف';
+
+  @override
+  String get listingDescriptionHint =>
+      'ما الذي تشمله الخدمة، وما تحتاجه من العميل، وطريقة عملك';
+
+  @override
+  String get listingPriceLabel => 'السعر يبدأ من';
+
+  @override
+  String get listingDeliveryLabel => 'التسليم (أيام)';
+
+  @override
+  String get listingCoverTitle => 'صورة الغلاف';
+
+  @override
+  String get listingCoverGuide =>
+      'استخدم صورة أفقية بنسبة 16:9، ويُفضّل 1280×720 بكسل (800×450 على الأقل). بصيغة JPG أو PNG أو WebP وبحجم حتى 5 ميجابايت. اجعل النصوص والوجوه في المنتصف، فقد تُقص الأطراف في البطاقات الصغيرة.';
+
+  @override
+  String get listingCoverPick => 'اختر الغلاف';
+
+  @override
+  String get listingCoverChange => 'تغيير الغلاف';
+
+  @override
+  String get listingGalleryTitle => 'معرض الأعمال';
+
+  @override
+  String listingGalleryGuide(int max) {
+    return 'حتى $max صور من أعمالك (بنفس شروط مقاس الغلاف).';
+  }
+
+  @override
+  String get listingGalleryAdd => 'أضف صوراً';
+
+  @override
+  String get listingRemoveImage => 'إزالة الصورة';
+
+  @override
+  String get listingUploading => 'جارٍ الرفع…';
+
+  @override
+  String get listingImageTooSmall =>
+      'الصورة صغيرة جداً. استخدم 800×450 بكسل على الأقل.';
+
+  @override
+  String get listingImageTooLarge => 'حجم الصورة أكبر من 5 ميجابايت.';
+
+  @override
+  String get listingImageNotLandscape =>
+      'الصورة ليست أفقية، وسيتم قصها إلى نسبة 16:9.';
+
+  @override
+  String get listingImageUnreadable => 'تعذّرت قراءة الصورة. جرّب ملفاً آخر.';
+
+  @override
+  String get listingUploadFailed =>
+      'فشل الرفع. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get listingCoverRequired => 'أضف صورة غلاف.';
+
+  @override
+  String get listingUploadsOff =>
+      'رفع الصور غير متاح حالياً، لذا لا يمكن نشر الخدمات الآن.';
+
+  @override
+  String get listingSubmit => 'إرسال للمراجعة';
+
+  @override
+  String get listingReviewNote =>
+      'تراجع سهل كل خدمة جديدة أو معدّلة قبل أن تظهر للعملاء.';
+
+  @override
+  String get listingSubmitted => 'أُرسلت للمراجعة. سنخبرك عند نشرها.';
+
+  @override
+  String get listingPause => 'إيقاف مؤقت';
+
+  @override
+  String get listingResume => 'استئناف';
+
+  @override
+  String get listingDelete => 'حذف';
+
+  @override
+  String get listingDeleteConfirm => 'حذف هذه الخدمة؟';
+
+  @override
+  String get listingDeleteMessage => 'سيتم حذفها نهائياً مع معرض صورها.';
+
+  @override
+  String get listingEdit => 'تعديل';
+
+  @override
+  String get listingsSectionTitle => 'خدمات يمكنك طلبها';
+
+  @override
+  String listingDeliveryDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'تسليم خلال $days يوماً',
+      few: 'تسليم خلال $days أيام',
+      two: 'تسليم خلال يومين',
+      one: 'تسليم خلال يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get listingOrderAction => 'اطلب هذه الخدمة';
+
+  @override
+  String get listingOrderConfirm => 'طلب هذه الخدمة؟';
+
+  @override
+  String listingOrderMessage(String title, String provider, String price) {
+    return '«$title» من $provider بسعر يبدأ من $price. يمكنكما الاتفاق على المراحل بعد الطلب.';
+  }
+
+  @override
+  String get listingQuoteAction => 'اطلب عرض سعر لمشروع';
+
+  @override
+  String get listingAboutService => 'عن هذه الخدمة';
+
+  @override
+  String get listingAboutProvider => 'عن مقدم الخدمة';
+
+  @override
+  String get providerServicesListings => 'الخدمات المنشورة';
+
+  @override
+  String get errorListingNotEligible =>
+      'يجب توثيق ملفك كمقدم خدمة قبل نشر الخدمات.';
+
+  @override
+  String get errorInvalidImage =>
+      'إحدى الصور لم تُرفع عبر التطبيق. أضفها مرة أخرى.';
+
+  @override
+  String get errorUploadsOff => 'رفع الصور غير متاح حالياً.';
 }

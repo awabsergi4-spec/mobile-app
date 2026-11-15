@@ -656,5 +656,92 @@
   "txTypePromotion": "Promotion",
   "txTypeTax": "Tax",
   "txTypeProcessingFee": "Processing fee",
-  "walletFrozen": "Your wallet is frozen. Contact support for help."
+  "walletFrozen": "Your wallet is frozen. Contact support for help.",
+  "myListingsTitle": "My posted services",
+  "myListingsEmpty": "You haven't posted a service yet. Post one so customers can order it directly.",
+  "postServiceAction": "Post a service",
+  "editServiceTitle": "Edit service",
+  "listingStatusPending": "Waiting for review",
+  "listingStatusPublished": "Published",
+  "listingStatusRejected": "Needs changes",
+  "listingStatusPaused": "Paused",
+  "listingRejectedReason": "Reviewer's note: {reason}",
+  "@listingRejectedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "listingCategory": "Category",
+  "listingTitleLabel": "Service title",
+  "listingTitleHint": "e.g. I will design your company logo",
+  "listingDescriptionLabel": "Description",
+  "listingDescriptionHint": "What's included, what you need from the customer, and how you work",
+  "listingPriceLabel": "Starting price",
+  "listingDeliveryLabel": "Delivery (days)",
+  "listingCoverTitle": "Cover image",
+  "listingCoverGuide": "Use a landscape 16:9 image, ideally 1280×720 px (at least 800×450). JPG, PNG or WebP, up to 5 MB. Keep text and faces near the middle — the edges may be cropped on small cards.",
+  "listingCoverPick": "Choose cover",
+  "listingCoverChange": "Change cover",
+  "listingGalleryTitle": "Gallery",
+  "listingGalleryGuide": "Up to {max} images of your work (same size rules as the cover).",
+  "@listingGalleryGuide": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "listingGalleryAdd": "Add images",
+  "listingRemoveImage": "Remove image",
+  "listingUploading": "Uploading…",
+  "listingImageTooSmall": "This image is too small. Use at least 800×450 px.",
+  "listingImageTooLarge": "This image is larger than 5 MB.",
+  "listingImageNotLandscape": "This image isn't landscape — it will be cropped to 16:9.",
+  "listingImageUnreadable": "Couldn't read this image. Try another file.",
+  "listingUploadFailed": "Upload failed. Check your connection and try again.",
+  "listingCoverRequired": "Add a cover image.",
+  "listingUploadsOff": "Image uploads aren't available yet, so services can't be posted right now.",
+  "listingSubmit": "Send for review",
+  "listingReviewNote": "SAHL reviews every new or edited service before customers can see it.",
+  "listingSubmitted": "Sent for review. We'll notify you when it's live.",
+  "listingPause": "Pause",
+  "listingResume": "Resume",
+  "listingDelete": "Delete",
+  "listingDeleteConfirm": "Delete this service?",
+  "listingDeleteMessage": "It will be removed for good, with its gallery.",
+  "listingEdit": "Edit",
+  "listingsSectionTitle": "Services you can order",
+  "listingDeliveryDays": "{days, plural, =1{1-day delivery} other{{days}-day delivery}}",
+  "@listingDeliveryDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "listingOrderAction": "Order this service",
+  "listingOrderConfirm": "Order this service?",
+  "listingOrderMessage": "“{title}” from {provider}, starting at {price}. You can agree on milestones after ordering.",
+  "@listingOrderMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "provider": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "listingQuoteAction": "Request a project quote",
+  "listingAboutService": "About this service",
+  "listingAboutProvider": "About the provider",
+  "providerServicesListings": "Posted services",
+  "errorListingNotEligible": "Your provider profile must be verified before you can post services.",
+  "errorInvalidImage": "One of the images wasn't uploaded through the app. Please add it again.",
+  "errorUploadsOff": "Image uploads aren't available right now."
 }

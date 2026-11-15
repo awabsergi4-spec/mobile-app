@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     refresh_token_ttl: str = "30d"
     allowed_origins: str = ""
     default_region_code: str = "SD"
+    # Image uploads (listing covers/galleries). Empty = uploads disabled.
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
 
     @field_validator("jwt_private_key", "jwt_public_key")
     @classmethod
@@ -54,6 +58,10 @@ class Settings(BaseSettings):
     @property
     def refresh_token_ttl_seconds(self) -> int:
         return _parse_duration(self.refresh_token_ttl)
+
+    @property
+    def uploads_enabled(self) -> bool:
+        return bool(self.cloudinary_cloud_name and self.cloudinary_api_key and self.cloudinary_api_secret)
 
     @property
     def cors_origins(self) -> list[str]:

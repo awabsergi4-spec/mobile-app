@@ -15,6 +15,8 @@ import '../application/catalog_providers.dart';
 import '../data/catalog_repository.dart';
 import '../domain/catalog_models.dart';
 import 'widgets/provider_card.dart';
+import '../../listings/application/listing_providers.dart';
+import '../../listings/presentation/widgets/listings_section.dart';
 
 /// A service (category): what it is, its price range, who offers it, and
 /// the right next step for its type — on-demand requests are matched
@@ -50,11 +52,13 @@ class _ServiceDetailsScreenState extends ConsumerState<ServiceDetailsScreen> {
             onRefresh: () async {
               ref.invalidate(categoryDetailProvider(widget.categoryId));
               ref.invalidate(exploreProvidersProvider(query));
+              ref.invalidate(listingsProvider((categoryId: category.id, providerId: null)));
             },
             child: ListView(
               padding: const EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.sm, AppSpacing.base, 120),
               children: [
                 _Header(category: category),
+                if (category.type != 'ON_DEMAND') ListingsSection(title: l10n.listingsSectionTitle, categoryId: category.id),
                 SectionHeader(title: l10n.serviceProvidersTitle),
                 Wrap(
                   spacing: AppSpacing.sm,

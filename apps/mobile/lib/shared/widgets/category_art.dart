@@ -16,6 +16,12 @@ const _artByKeyword = [
   ('program', 'programming'),
   ('develop', 'programming'),
   ('design', 'desgin'),
+  ('voice', 'voice'),
+  ('dubb', 'voice'),
+  ('writ', 'writing'),
+  ('translat', 'writing'),
+  ('video', 'video'),
+  ('montage', 'video'),
 ];
 
 String? categoryImageAsset(String? key) {

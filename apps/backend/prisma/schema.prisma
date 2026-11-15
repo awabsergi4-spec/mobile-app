@@ -457,6 +457,7 @@ model ProviderProfile {
   advertisements    Advertisement[]
   workingHours      ProviderWorkingHours[]
   portfolioItems    ProviderPortfolioItem[]
+  serviceListings   ServiceListing[]
   commissionRules   CommissionRule[]
   payoutAccounts    ProviderPayoutAccount[]
 
@@ -622,6 +623,7 @@ model ServiceCategory {
 
   translations       ServiceCategoryTranslation[]
   providerCategories ProviderCategory[]
+  serviceListings    ServiceListing[]
   onDemandRequests   OnDemandRequest[]
   contractProjects   ContractProject[]
   remoteEngagements  RemoteEngagement[]
@@ -2408,4 +2410,48 @@ model AutomationRule {
 
   @@index([triggerEventType])
   @@index([isActive])
+}
+
+// A service a provider posts for customers to order (Short-Term / Long-Term
+// categories), with a 16:9 cover and a gallery. New and edited listings wait
+// for admin review before customers can see them.
+enum ServiceListingStatus {
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  PAUSED
+}
+
+model ServiceListing {
+  id              String                @id @default(cuid())
+  providerId      String
+  provider        ProviderProfile       @relation(fields: [providerId], references: [id])
+  categoryId      String
+  category        ServiceCategory       @relation(fields: [categoryId], references: [id])
+  title           String
+  description     String
+  priceFrom       Int // minor units
+  deliveryDays    Int?
+  coverUrl        String
+  status          ServiceListingStatus  @default(PENDING_REVIEW)
+  rejectionReason String?
+  reviewedAt      DateTime?
+  reviewedById    String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  images          ServiceListingImage[]
+
+  @@index([categoryId, status])
+  @@index([providerId])
+}
+
+model ServiceListingImage {
+  id        String         @id @default(cuid())
+  listingId String
+  listing   ServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int
+  createdAt DateTime       @default(now())
+
+  @@index([listingId])
 }

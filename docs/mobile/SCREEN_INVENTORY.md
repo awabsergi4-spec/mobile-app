@@ -206,3 +206,22 @@ database change · **EXT** = needs an external service/credential.
 - Profile photo upload stays hidden until Cloudinary keys are configured.
 - Amounts are shown as stored integers (open item B-08: minor vs major units).
 - Render does not have these endpoints until the branch is pushed and redeployed.
+
+## 8. Service listings (done 2026-11-15)
+
+Providers post services customers can order directly. A posted service has a title, a Short-Term or Long-Term category, a description, a starting price, an optional delivery time, a 16:9 cover and a gallery of up to 8 images.
+
+- **Schema (approved):** `ServiceListing` and `ServiceListingImage`, plus the `ServiceListingStatus` enum. Alembic `0002_service_listings` mirrors Prisma migration `20261114200000_service_listings`. Applied to Neon on 2026-11-15; Neon is stamped at `0002_service_listings`.
+- **Review:** new and edited listings are `PENDING_REVIEW` until an admin approves them in Admin → Service Listings. A rejection reason is sent to the provider as a notification. Approving also adds the category to the provider's offered categories.
+- **Images:** the app gets a signed upload from `POST /uploads/signature` and uploads straight to Cloudinary. The API accepts only URLs in the uploader's own folder (`sahl/listings/<userId>/`). Covers are shown through a Cloudinary `c_fill,ar_16:9` transformation, so every card is the same shape. The form explains the size rules (16:9, ideally 1280×720, at least 800×450, up to 5 MB) and rejects smaller or larger files.
+- **Uploads need** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in `apps/api/.env` and on Render. Without them, `/uploads/status` returns `enabled: false` and the form shows a notice instead of letting providers post.
+- **Ordering:** a Short-Term listing creates a remote engagement with that provider at the listing price. A Long-Term listing opens "Post a project" with the category pre-filled.
+- **Admin:** a Categories page (create/edit names in English and Arabic, hide/show) and a Service Listings page (review queue with approve/reject).
+
+| Route | Screen |
+|---|---|
+| `/p/services` | Provider: My posted services (status, reviewer note, edit / pause / resume / delete) |
+| `/provider/listings/new`, `/provider/listings/:id/edit` | Post or edit a service: cover, gallery, size guidance, send for review |
+| `/listings/:id` | Customer: gallery, details, provider, Order / Request a quote |
+| `/services/:categoryId` | Now also lists "Services you can order" for Short-Term and Long-Term categories |
+| `/providers/:id` | Now also shows the provider's posted services |
