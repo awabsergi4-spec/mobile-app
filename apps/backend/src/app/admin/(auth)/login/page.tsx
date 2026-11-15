@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/presentation/admin-session";
+import { LocaleSwitch } from "@/presentation/admin-ui/locale-switch";
+import { getI18n } from "@/presentation/i18n";
 import { adminLoginAction } from "./actions";
-import { adminLoginErrorMessage } from "./error-messages";
+import { adminLoginErrorKey } from "./error-messages";
 
 export default async function AdminLoginPage({
   searchParams,
@@ -13,25 +15,31 @@ export default async function AdminLoginPage({
     redirect("/admin/dashboard");
   }
 
+  const { t } = await getI18n();
   const { error } = await searchParams;
-  const errorMessage = adminLoginErrorMessage(error);
+  const errorKey = adminLoginErrorKey(error);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background-light px-4">
       <div className="w-full max-w-sm rounded-card bg-surface-light p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-text-primary">SAHL Admin</h1>
-        <p className="mt-1 text-sm text-text-secondary">Sign in with your staff account</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-text-primary">{t("app.title")}</h1>
+            <p className="mt-1 text-sm text-text-secondary">{t("login.subtitle")}</p>
+          </div>
+          <LocaleSwitch />
+        </div>
 
-        {errorMessage && (
+        {errorKey && (
           <div className="mt-4 rounded-lg bg-error/10 px-3 py-2 text-sm text-error" role="alert">
-            {errorMessage}
+            {t(errorKey)}
           </div>
         )}
 
         <form action={adminLoginAction} className="mt-6 space-y-4">
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-text-primary">
-              Phone number
+              {t("login.phone")}
             </label>
             <input
               id="phone"
@@ -45,7 +53,7 @@ export default async function AdminLoginPage({
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-text-primary">
-              Password
+              {t("login.password")}
             </label>
             <input
               id="password"
@@ -53,6 +61,7 @@ export default async function AdminLoginPage({
               type="password"
               required
               autoComplete="current-password"
+              dir="ltr"
               className="mt-1 w-full rounded-button border border-text-disabled/40 px-3 py-2 text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
@@ -60,7 +69,7 @@ export default async function AdminLoginPage({
             type="submit"
             className="w-full rounded-button bg-primary px-4 py-2 font-medium text-white transition hover:bg-secondary"
           >
-            Sign in
+            {t("login.submit")}
           </button>
         </form>
       </div>

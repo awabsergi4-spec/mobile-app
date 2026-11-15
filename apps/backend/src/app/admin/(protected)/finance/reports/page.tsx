@@ -6,7 +6,9 @@ import { formatMoney } from "@/presentation/admin-ui/format-money";
 import { financeReportingService } from "@/infrastructure/finance/finance-services";
 import { prisma } from "@/infrastructure/prisma-client";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function AdminFinanceReportsPage({ searchParams }: { searchParams: Promise<{ currency?: string }> }) {
+  const { t, e } = await getI18n();
   try {
     await requireAdminPermission("finance.manage");
   } catch (err) {
@@ -26,9 +28,9 @@ export default async function AdminFinanceReportsPage({ searchParams }: { search
     return (
       <div>
         <Link href="/admin/finance" className="text-sm text-primary hover:underline">
-          ← Back to finance
+          {t("ui.backToFinance")}
         </Link>
-        <p className="mt-4 text-text-secondary">No active region is configured, and no currency was specified.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.noActiveRegionIsConfiguredAndNo")}</p>
       </div>
     );
   }
@@ -45,32 +47,32 @@ export default async function AdminFinanceReportsPage({ searchParams }: { search
   return (
     <div>
       <Link href="/admin/finance" className="text-sm text-primary hover:underline">
-        ← Back to finance
+        {t("ui.backToFinance")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">Trial balance & reconciliation</h1>
-      <p className="mt-1 text-sm text-text-secondary">Currency: {currency}. Discrepancies are reported, never silently corrected.</p>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.trialBalanceReconciliation")}</h1>
+      <p className="mt-1 text-sm text-text-secondary">{t("ui.reportsCurrencyNote", { currency })}</p>
 
       <form className="mt-4 flex gap-3" method="GET">
         <input
           type="text"
           name="currency"
           defaultValue={currency}
-          placeholder="Currency code, e.g. SDG"
+          placeholder={t("ui.currencyCodeEGSdg")}
           className="w-40 rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         />
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Load
+          {t("ui.load")}
         </button>
       </form>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <StatCard
-          label="Wallet reconciliation"
-          value={walletReconciliation.isReconciled ? "Reconciled" : formatMoney(walletReconciliation.discrepancy, currency)}
+          label={t("stat.walletReconciliation")}
+          value={walletReconciliation.isReconciled ? t("ui.reconciled") : formatMoney(walletReconciliation.discrepancy, currency)}
           tone={walletReconciliation.isReconciled ? "default" : "error"}
         />
         <StatCard
-          label="Escrow reconciliation"
+          label={t("stat.escrowReconciliation")}
           value={escrowReconciliation.isReconciled ? "Reconciled" : formatMoney(escrowReconciliation.discrepancy, currency)}
           tone={escrowReconciliation.isReconciled ? "default" : "error"}
         />
@@ -78,27 +80,27 @@ export default async function AdminFinanceReportsPage({ searchParams }: { search
 
       <div className="mt-6 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-text-primary">Trial balance</h2>
+          <h2 className="text-sm font-semibold text-text-primary">{t("ui.trialBalance")}</h2>
           <span className={totalDebits === totalCredits ? "text-sm text-success" : "text-sm text-error"}>
-            {totalDebits === totalCredits ? "Balanced" : "UNBALANCED"}
+            {totalDebits === totalCredits ? t("ui.balanced") : t("ui.unbalanced")}
           </span>
         </div>
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-2 py-2">Account</th>
-                <th className="px-2 py-2">Type</th>
-                <th className="px-2 py-2">Debits</th>
-                <th className="px-2 py-2">Credits</th>
-                <th className="px-2 py-2">Balance</th>
+                <th className="px-2 py-2">{t("ui.account")}</th>
+                <th className="px-2 py-2">{t("ui.type")}</th>
+                <th className="px-2 py-2">{t("ui.debits")}</th>
+                <th className="px-2 py-2">{t("ui.credits")}</th>
+                <th className="px-2 py-2">{t("ui.balance")}</th>
               </tr>
             </thead>
             <tbody>
               {trialBalance.map((line) => (
                 <tr key={line.ledgerAccountCode} className="border-b border-text-disabled/10 last:border-0">
                   <td className="px-2 py-2 text-text-primary">{line.ledgerAccountName}</td>
-                  <td className="px-2 py-2 text-text-secondary">{line.type}</td>
+                  <td className="px-2 py-2 text-text-secondary">{e("enum", line.type)}</td>
                   <td className="px-2 py-2 text-text-secondary">{formatMoney(line.totalDebits, currency)}</td>
                   <td className="px-2 py-2 text-text-secondary">{formatMoney(line.totalCredits, currency)}</td>
                   <td className="px-2 py-2 font-medium text-text-primary">{formatMoney(line.balance, currency)}</td>

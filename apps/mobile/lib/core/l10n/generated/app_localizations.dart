@@ -3445,6 +3445,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Image uploads aren\'t available right now.'**
   String get errorUploadsOff;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get resetTitle;
+
+  /// No description provided for @resetRequestSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number. SAHL support will contact you with a 6-digit code.'**
+  String get resetRequestSubtitle;
+
+  /// No description provided for @resetRequestButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get resetRequestButton;
+
+  /// No description provided for @resetHaveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'I already have a code'**
+  String get resetHaveCode;
+
+  /// No description provided for @resetCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your code'**
+  String get resetCodeTitle;
+
+  /// No description provided for @resetRequestedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request was sent. When SAHL support gives you the 6-digit code, enter it below with a new password. Codes are valid for 30 minutes.'**
+  String get resetRequestedMessage;
+
+  /// No description provided for @resetCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get resetCodeLabel;
+
+  /// No description provided for @resetConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get resetConfirmPassword;
+
+  /// No description provided for @resetSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get resetSubmit;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Sign in with your new password.'**
+  String get resetDone;
+
+  /// No description provided for @validationResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get validationResetCode;
+
+  /// No description provided for @errorInvalidResetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is wrong or has expired. Check it, or ask for a new one.'**
+  String get errorInvalidResetCode;
+
+  /// No description provided for @errorTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong codes. Ask SAHL support for a new one.'**
+  String get errorTooManyAttempts;
 }
 
 class _AppLocalizationsDelegate

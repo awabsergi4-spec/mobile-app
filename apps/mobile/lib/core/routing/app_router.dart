@@ -8,6 +8,7 @@ import '../../features/account/presentation/support_screens.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/current_user.dart';
+import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/session_restoring_screen.dart';
@@ -64,7 +65,7 @@ class _AuthRouterRefreshNotifier extends ChangeNotifier {
   }
 }
 
-const _unauthenticatedRoutes = {'/', '/login', '/register'};
+const _unauthenticatedRoutes = {'/', '/login', '/register', '/forgot-password'};
 
 /// First tab of each role's shell.
 String roleHomePath(UserWorkspace workspace) => switch (workspace) {
@@ -125,6 +126,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
+      GoRoute(path: '/forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
       // Legacy entry point — always redirected to the role's first tab.
       GoRoute(path: '/home', builder: (context, state) => const SessionRestoringScreen()),
 

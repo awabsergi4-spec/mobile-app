@@ -5,6 +5,7 @@ import { StatCard } from "@/presentation/admin-ui/stat-card";
 import { advertisementRepository } from "@/infrastructure/advertisement/advertisement-services";
 import { updateAdvertisementAction, setAdvertisementActiveAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 function toLocalInputValue(date: Date): string {
   const offset = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offset * 60000);
@@ -12,6 +13,7 @@ function toLocalInputValue(date: Date): string {
 }
 
 export default async function AdvertisementDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t, e, number } = await getI18n();
   try {
     await requireAdminPermission("advertisements.manage");
   } catch (err) {
@@ -28,9 +30,9 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
     return (
       <div>
         <Link href="/admin/advertisements" className="text-sm text-primary hover:underline">
-          ← Back to advertisements
+          {t("ui.backToAdvertisements")}
         </Link>
-        <p className="mt-4 text-text-secondary">Advertisement not found.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.advertisementNotFound")}</p>
       </div>
     );
   }
@@ -43,35 +45,35 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
   return (
     <div>
       <Link href="/admin/advertisements" className="text-sm text-primary hover:underline">
-        ← Back to advertisements
+        {t("ui.backToAdvertisements")}
       </Link>
       <div className="mt-2 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-text-primary">{ad.title || "(untitled)"}</h1>
         {ad.isActive ? (
           <form action={boundDeactivate}>
             <button type="submit" className="rounded-button bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-              Deactivate
+              {t("ui.deactivate")}
             </button>
           </form>
         ) : (
           <form action={boundActivate}>
             <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-              Activate
+              {t("ui.activate")}
             </button>
           </form>
         )}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-4">
-        <StatCard label="Impressions" value={eventCounts.impressions.toLocaleString()} />
-        <StatCard label="Clicks" value={eventCounts.clicks.toLocaleString()} />
-        <StatCard label="Conversions" value={eventCounts.conversions.toLocaleString()} />
+        <StatCard label={t("stat.impressions")} value={number(eventCounts.impressions)} />
+        <StatCard label={t("stat.clicks")} value={number(eventCounts.clicks)} />
+        <StatCard label={t("stat.conversions")} value={number(eventCounts.conversions)} />
       </div>
 
       <form action={boundUpdate} className="mt-6 max-w-xl space-y-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div>
           <label htmlFor="title" className="block text-xs font-medium text-text-secondary">
-            Title
+            {t("ui.title")}
           </label>
           <input
             id="title"
@@ -83,7 +85,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
         </div>
         <div>
           <label htmlFor="description" className="block text-xs font-medium text-text-secondary">
-            Description
+            {t("ui.description")}
           </label>
           <textarea
             id="description"
@@ -96,40 +98,40 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="adType" className="block text-xs font-medium text-text-secondary">
-              Ad type
+              {t("ui.adType")}
             </label>
             <select
               id="adType"
               name="adType"
-              defaultValue={ad.adType}
+              defaultValue={e("enum", ad.adType)}
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="BANNER">Banner</option>
-              <option value="NATIVE">Native</option>
-              <option value="SPONSORED_PROVIDER">Sponsored provider</option>
-              <option value="SPONSORED_SERVICE">Sponsored service</option>
-              <option value="SPONSORED_CATEGORY">Sponsored category</option>
+              <option value="BANNER">{t("ui.banner")}</option>
+              <option value="NATIVE">{t("ui.native")}</option>
+              <option value="SPONSORED_PROVIDER">{t("ui.sponsoredProvider")}</option>
+              <option value="SPONSORED_SERVICE">{t("ui.sponsoredService")}</option>
+              <option value="SPONSORED_CATEGORY">{t("ui.sponsoredCategory")}</option>
             </select>
           </div>
           <div>
             <label htmlFor="placement" className="block text-xs font-medium text-text-secondary">
-              Placement
+              {t("ui.placement")}
             </label>
             <select
               id="placement"
               name="placement"
-              defaultValue={ad.placement}
+              defaultValue={e("enum", ad.placement)}
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="SEARCH_TOP">Search top</option>
-              <option value="CATEGORY_BANNER">Category banner</option>
-              <option value="PROVIDER_FEATURED">Provider featured</option>
+              <option value="SEARCH_TOP">{t("ui.searchTop")}</option>
+              <option value="CATEGORY_BANNER">{t("ui.categoryBanner")}</option>
+              <option value="PROVIDER_FEATURED">{t("ui.providerFeatured")}</option>
             </select>
           </div>
         </div>
         <div>
           <label htmlFor="creativeUrl" className="block text-xs font-medium text-text-secondary">
-            Creative image URL
+            {t("ui.creativeImageUrl")}
           </label>
           <input
             id="creativeUrl"
@@ -142,7 +144,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="ctaText" className="block text-xs font-medium text-text-secondary">
-              CTA text
+              {t("ui.ctaText")}
             </label>
             <input
               id="ctaText"
@@ -153,7 +155,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
           </div>
           <div>
             <label htmlFor="destinationUrl" className="block text-xs font-medium text-text-secondary">
-              Destination / deep link
+              {t("ui.destinationDeepLink")}
             </label>
             <input
               id="destinationUrl"
@@ -167,7 +169,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label htmlFor="priority" className="block text-xs font-medium text-text-secondary">
-              Priority
+              {t("ui.priority")}
             </label>
             <input
               id="priority"
@@ -179,7 +181,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
           </div>
           <div>
             <label htmlFor="startsAt" className="block text-xs font-medium text-text-secondary">
-              Starts
+              {t("ui.starts")}
             </label>
             <input
               id="startsAt"
@@ -192,7 +194,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
           </div>
           <div>
             <label htmlFor="endsAt" className="block text-xs font-medium text-text-secondary">
-              Ends
+              {t("ui.ends")}
             </label>
             <input
               id="endsAt"
@@ -205,7 +207,7 @@ export default async function AdvertisementDetailPage({ params }: { params: Prom
           </div>
         </div>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Save changes
+          {t("ui.saveChanges")}
         </button>
       </form>
     </div>

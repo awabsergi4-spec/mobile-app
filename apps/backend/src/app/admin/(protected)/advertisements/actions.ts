@@ -10,15 +10,17 @@ import {
 } from "@/infrastructure/advertisement/advertisement-services";
 import type { AdPlacement, AdType } from "@prisma/client";
 
-function readCommonFields(formData: FormData) {
+import { getI18n, type Translate } from "@/presentation/i18n";
+
+function readCommonFields(formData: FormData, t: Translate) {
   const startsAt = new Date(String(formData.get("startsAt")));
   const endsAt = new Date(String(formData.get("endsAt")));
   if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime()) || endsAt <= startsAt) {
-    throw new Error("End date must be after the start date.");
+    throw new Error(t("ui.endDateMustBeAfterTheStart"));
   }
   const title = String(formData.get("title") ?? "").trim();
   if (title.length < 1) {
-    throw new Error("Title is required.");
+    throw new Error(t("ui.titleIsRequired"));
   }
 
   return {
@@ -37,7 +39,7 @@ function readCommonFields(formData: FormData) {
 
 export async function createAdvertisementAction(formData: FormData): Promise<void> {
   const { userId: actorId } = await requireAdminPermission("advertisements.manage");
-  const fields = readCommonFields(formData);
+  const fields = readCommonFields(formData, (await getI18n()).t);
   const ad = await createAdvertisementUseCase.execute({ ...fields, actorId });
   revalidatePath("/admin/advertisements");
   redirect(`/admin/advertisements/${ad.id}`);
@@ -45,7 +47,7 @@ export async function createAdvertisementAction(formData: FormData): Promise<voi
 
 export async function updateAdvertisementAction(advertisementId: string, formData: FormData): Promise<void> {
   const { userId: actorId } = await requireAdminPermission("advertisements.manage");
-  const fields = readCommonFields(formData);
+  const fields = readCommonFields(formData, (await getI18n()).t);
   await updateAdvertisementUseCase.execute({ advertisementId, actorId, ...fields });
   revalidatePath(`/admin/advertisements/${advertisementId}`);
 }

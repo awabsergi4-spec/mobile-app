@@ -79,6 +79,14 @@ def category_key(english_name: str | None) -> str | None:
     return "-".join("".join(ch if ch.isalnum() else " " for ch in english_name.lower()).split()) or None
 
 
+def category_images(conn: Connection, category_ids: list[str]) -> dict[str, str | None]:
+    """Admin-uploaded picture per category (None when not set)."""
+    if not category_ids:
+        return {}
+    sc = t("ServiceCategory")
+    return dict(conn.execute(select(sc.c.id, sc.c.imageUrl).where(sc.c.id.in_(category_ids))).all())
+
+
 def category_keys(conn: Connection, category_ids: list[str]) -> dict[str, str | None]:
     if not category_ids:
         return {}

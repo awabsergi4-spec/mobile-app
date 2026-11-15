@@ -12,7 +12,7 @@ from .config import get_settings
 from .responses import ApiError, fail
 from .routers import (
     account, admin_categories, admin_users, auth, catalog, companies, contracts, engagement, feedback, listings, on_demand,
-    providers, reference, remote, uploads, wallet,
+    password_reset, providers, reference, remote, uploads, wallet,
 )
 
 API_PREFIX = "/api/v1"
@@ -28,9 +28,10 @@ if get_settings().cors_origins:
     )
 
 for module in (reference, auth, account, catalog, providers, companies, on_demand, contracts, remote, wallet, engagement,
-               feedback, uploads, listings, admin_users, admin_categories):
+               feedback, uploads, listings, password_reset, admin_users, admin_categories):
     app.include_router(module.router, prefix=API_PREFIX)
 app.include_router(listings.admin_router, prefix=API_PREFIX)
+app.include_router(password_reset.admin_router, prefix=API_PREFIX)
 
 
 @app.exception_handler(ApiError)

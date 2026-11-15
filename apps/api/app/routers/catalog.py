@@ -9,7 +9,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import Connection, String, and_, cast, func, or_, select
 
-from ..common import category_key, category_keys, get_row, rows
+from ..common import category_images, category_key, category_keys, get_row, rows
 from ..db import get_conn, t, utcnow
 from ..responses import ApiError, ok
 from ..security import current_user
@@ -87,6 +87,7 @@ def category_detail(category_id: str, locale: str = "en", _: dict = Depends(curr
         "id": category["id"], "type": category["type"], "parentId": category["parentId"],
         "name": tr["name"] if tr else category["id"], "description": tr["description"] if tr else None,
         "key": category_key(translations["en"]["name"] if "en" in translations else None),
+        "imageUrl": category["imageUrl"],
         "skillLevel": category["skillLevel"], "locationRequirement": category["locationRequirement"],
         "durationClass": category["durationClass"],
         "providerCount": stats[0], "priceMin": stats[1], "priceMax": stats[2],
@@ -110,7 +111,8 @@ def search(q: str = Query(min_length=1, max_length=100), locale: str = "en", _: 
         or_(pp.c.businessName.ilike(like), cast(pp.c.skills, String).ilike(like), pp.c.bio.ilike(like))
     ).order_by(pp.c.ratingAverage.desc(), pp.c.id).limit(20))
     return ok({
-        "categories": [{"id": c["id"], "type": c["type"], "name": names.get(c["id"], c["id"]), "key": keys.get(c["id"])}
+        "categories": [{"id": c["id"], "type": c["type"], "name": names.get(c["id"], c["id"]), "key": keys.get(c["id"]),
+                        "imageUrl": c["imageUrl"]}
                        for c in categories],
         "providers": providers,
     })
@@ -149,9 +151,11 @@ def provider_public_profile(provider_id: str, locale: str = "en", _: dict = Depe
                     .where(pc.c.providerId == provider_id, sc.c.isActive.is_(True)))
     names = _category_names(conn, [s["categoryId"] for s in services], locale)
     keys = category_keys(conn, [s["categoryId"] for s in services])
+    images = category_images(conn, [s["categoryId"] for s in services])
     for s in services:
         s["name"] = names.get(s["categoryId"], s["categoryId"])
         s["key"] = keys.get(s["categoryId"])
+        s["imageUrl"] = images.get(s["categoryId"])
     pi = t("ProviderPortfolioItem")
     portfolio = rows(conn, select(pi.c.id, pi.c.title, pi.c.description, pi.c.mediaUrl, pi.c.createdAt)
                      .where(pi.c.providerId == provider_id).order_by(pi.c.createdAt.desc()).limit(24))

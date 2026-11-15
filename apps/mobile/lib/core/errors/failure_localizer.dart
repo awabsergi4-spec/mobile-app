@@ -37,6 +37,8 @@ String _localizeErrorCode(AppLocalizations l10n, String code, ApiFailure failure
     'TICKET_CLOSED' => l10n.errorTicketClosed,
     'CONTRACT_PROJECT_NOT_OPEN' => l10n.errorProjectNotOpen,
     'INVALID_IMAGE_URL' => l10n.errorInvalidImage,
+    'INVALID_RESET_CODE' => l10n.errorInvalidResetCode,
+    'TOO_MANY_ATTEMPTS' => l10n.errorTooManyAttempts,
     'UPLOADS_NOT_CONFIGURED' => l10n.errorUploadsOff,
     'INVALID_REFRESH_TOKEN' || 'REFRESH_TOKEN_REUSE_DETECTED' => l10n.errorSessionExpired,
     'UNAUTHENTICATED' => l10n.errorSessionExpired,

@@ -5,7 +5,9 @@ import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { workflowDefinitionRepository, workflowInstanceRepository } from "@/infrastructure/workflow/workflow-admin-services";
 import { setWorkflowDefinitionStatusAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function WorkflowDefinitionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t, e, dateTime } = await getI18n();
   try {
     await requireAdminPermission("workflows.manage");
   } catch (err) {
@@ -22,9 +24,9 @@ export default async function WorkflowDefinitionDetailPage({ params }: { params:
     return (
       <div>
         <Link href="/admin/workflows" className="text-sm text-primary hover:underline">
-          ← Back to workflows
+          {t("ui.backToWorkflows")}
         </Link>
-        <p className="mt-4 text-text-secondary">Workflow definition not found.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.workflowDefinitionNotFound")}</p>
       </div>
     );
   }
@@ -36,43 +38,43 @@ export default async function WorkflowDefinitionDetailPage({ params }: { params:
   return (
     <div>
       <Link href="/admin/workflows" className="text-sm text-primary hover:underline">
-        ← Back to workflows
+        {t("ui.backToWorkflows")}
       </Link>
       <div className="mt-2 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-text-primary">{definition.name}</h1>
           <p className="text-sm text-text-secondary">
-            {definition.key} · v{definition.version} · triggers on {definition.triggerEventType} · {definition.status}
+            {definition.key} · v{definition.version} · triggers on {definition.triggerEventType} · {e("enum", definition.status)}
           </p>
         </div>
         <div className="flex gap-2">
           {definition.status !== "PUBLISHED" && (
             <form action={boundActivate}>
               <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-                Activate
+                {t("ui.activate")}
               </button>
             </form>
           )}
           {definition.status !== "ARCHIVED" && (
             <form action={boundArchive}>
               <button type="submit" className="rounded-button bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-                Archive
+                {t("ui.archive")}
               </button>
             </form>
           )}
         </div>
       </div>
 
-      <h2 className="mt-6 text-sm font-semibold text-text-primary">Steps</h2>
+      <h2 className="mt-6 text-sm font-semibold text-text-primary">{t("ui.steps")}</h2>
       <div className="mt-2 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-start text-sm">
           <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
             <tr>
-              <th className="px-4 py-3">Order</th>
-              <th className="px-4 py-3">Step key</th>
-              <th className="px-4 py-3">Action type</th>
-              <th className="px-4 py-3">Max retries</th>
-              <th className="px-4 py-3">Timeout</th>
+              <th className="px-4 py-3">{t("ui.order")}</th>
+              <th className="px-4 py-3">{t("ui.stepKey")}</th>
+              <th className="px-4 py-3">{t("ui.actionType")}</th>
+              <th className="px-4 py-3">{t("ui.maxRetries")}</th>
+              <th className="px-4 py-3">{t("ui.timeout")}</th>
             </tr>
           </thead>
           <tbody>
@@ -89,18 +91,18 @@ export default async function WorkflowDefinitionDetailPage({ params }: { params:
         </table>
       </div>
 
-      <h2 className="mt-6 text-sm font-semibold text-text-primary">Recent instances</h2>
+      <h2 className="mt-6 text-sm font-semibold text-text-primary">{t("ui.recentInstances")}</h2>
       <div className="mt-2 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {instances.length === 0 ? (
-          <EmptyState message="No instances have run for this workflow yet." />
+          <EmptyState message={t("ui.noInstancesHaveRunForThisWorkflow")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Started</th>
-                <th className="px-4 py-3">Related entity</th>
-                <th className="px-4 py-3">Current step</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t("ui.started")}</th>
+                <th className="px-4 py-3">{t("ui.relatedEntity")}</th>
+                <th className="px-4 py-3">{t("ui.currentStep")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -111,15 +113,15 @@ export default async function WorkflowDefinitionDetailPage({ params }: { params:
                       href={`/admin/workflows/${definition.id}/instances/${instance.id}`}
                       className="font-medium text-text-primary hover:text-primary"
                     >
-                      {instance.startedAt.toLocaleString()}
+                      {dateTime(instance.startedAt)}
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
-                    {instance.relatedEntityType} / {instance.relatedEntityId}
+                    {e("enum", instance.relatedEntityType)} / {instance.relatedEntityId}
                   </td>
                   <td className="px-4 py-3 text-text-secondary">{instance.currentStepKey ?? "—"}</td>
                   <td className="px-4 py-3">
-                    <span className={instance.status === "FAILED" ? "text-error" : "text-text-secondary"}>{instance.status}</span>
+                    <span className={instance.status === "FAILED" ? "text-error" : "text-text-secondary"}>{e("enum", instance.status)}</span>
                   </td>
                 </tr>
               ))}

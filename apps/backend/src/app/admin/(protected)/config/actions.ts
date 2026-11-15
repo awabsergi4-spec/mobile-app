@@ -6,14 +6,16 @@ import { requireAdminPermission } from "@/presentation/admin-session";
 import { createRemoteConfigEntryUseCase, updateRemoteConfigEntryUseCase, deleteRemoteConfigEntryUseCase } from "@/infrastructure/remote-config/remote-config-services";
 import type { RemoteConfigValueType } from "@prisma/client";
 
-function parseValue(valueType: RemoteConfigValueType, raw: string): unknown {
+import { getI18n, type Translate } from "@/presentation/i18n";
+
+function parseValue(valueType: RemoteConfigValueType, raw: string, t: Translate): unknown {
   switch (valueType) {
     case "BOOLEAN":
       return raw === "true";
     case "NUMBER": {
       const n = Number(raw);
       if (!Number.isFinite(n)) {
-        throw new Error("Value must be a valid number.");
+        throw new Error(t("ui.valueMustBeAValidNumber"));
       }
       return n;
     }
@@ -23,20 +25,21 @@ function parseValue(valueType: RemoteConfigValueType, raw: string): unknown {
       try {
         return JSON.parse(raw);
       } catch {
-        throw new Error("Value must be valid JSON.");
+        throw new Error(t("ui.valueMustBeValidJson"));
       }
   }
 }
 
 export async function createConfigEntryAction(formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   const { userId: actorId } = await requireAdminPermission("config.manage");
 
   const key = String(formData.get("key") ?? "").trim();
   if (key.length < 1) {
-    throw new Error("Key is required.");
+    throw new Error(t("ui.keyIsRequired"));
   }
   const valueType = String(formData.get("valueType")) as RemoteConfigValueType;
-  const value = parseValue(valueType, String(formData.get("value") ?? ""));
+  const value = parseValue(valueType, String(formData.get("value") ?? ""), (await getI18n()).t);
   const regionId = String(formData.get("regionId") ?? "").trim() || undefined;
   const description = String(formData.get("description") ?? "").trim() || undefined;
 
@@ -58,7 +61,7 @@ export async function updateConfigEntryAction(entryId: string, formData: FormDat
   const { userId: actorId } = await requireAdminPermission("config.manage");
 
   const valueType = String(formData.get("valueType")) as RemoteConfigValueType;
-  const value = parseValue(valueType, String(formData.get("value") ?? ""));
+  const value = parseValue(valueType, String(formData.get("value") ?? ""), (await getI18n()).t);
   const description = String(formData.get("description") ?? "").trim() || undefined;
 
   await updateRemoteConfigEntryUseCase.execute({ entryId, actorId, updatedById: actorId, valueType, value, description });

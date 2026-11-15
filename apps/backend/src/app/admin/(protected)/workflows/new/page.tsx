@@ -3,6 +3,7 @@ import { ForbiddenAdminError, requireAdminPermission } from "@/presentation/admi
 import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { createWorkflowDefinitionAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 const EXAMPLE_STEPS = JSON.stringify(
   [
     {
@@ -18,6 +19,7 @@ const EXAMPLE_STEPS = JSON.stringify(
 );
 
 export default async function NewWorkflowDefinitionPage() {
+  const { t } = await getI18n();
   try {
     await requireAdminPermission("workflows.manage");
   } catch (err) {
@@ -30,9 +32,9 @@ export default async function NewWorkflowDefinitionPage() {
   return (
     <div>
       <Link href="/admin/workflows" className="text-sm text-primary hover:underline">
-        ← Back to workflows
+        {t("ui.backToWorkflows")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">New workflow definition</h1>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.newWorkflowDefinition")}</h1>
 
       <form
         action={createWorkflowDefinitionAction}
@@ -41,19 +43,19 @@ export default async function NewWorkflowDefinitionPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="key" className="block text-xs font-medium text-text-secondary">
-              Key
+              {t("ui.key")}
             </label>
             <input
               id="key"
               name="key"
               required
-              placeholder="e.g. milestone-completion"
+              placeholder={t("ui.eGMilestoneCompletion")}
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             />
           </div>
           <div>
             <label htmlFor="name" className="block text-xs font-medium text-text-secondary">
-              Name
+              {t("ui.name")}
             </label>
             <input
               id="name"
@@ -66,19 +68,19 @@ export default async function NewWorkflowDefinitionPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="triggerEventType" className="block text-xs font-medium text-text-secondary">
-              Trigger event type
+              {t("ui.triggerEventType")}
             </label>
             <input
               id="triggerEventType"
               name="triggerEventType"
               required
-              placeholder="a DomainEvent.type value"
+              placeholder={t("ui.aDomaineventTypeValue")}
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             />
           </div>
           <div>
             <label htmlFor="priority" className="block text-xs font-medium text-text-secondary">
-              Priority
+              {t("ui.priority")}
             </label>
             <input
               id="priority"
@@ -91,7 +93,7 @@ export default async function NewWorkflowDefinitionPage() {
         </div>
         <div>
           <label htmlFor="steps" className="block text-xs font-medium text-text-secondary">
-            Steps (JSON array — stepKey, order, actionType, actionConfig required per step)
+            {t("ui.stepsJsonArrayStepkeyOrderActiontypeActionconfig")}
           </label>
           <textarea
             id="steps"
@@ -102,9 +104,9 @@ export default async function NewWorkflowDefinitionPage() {
             className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 font-mono text-xs text-text-primary"
           />
         </div>
-        <p className="text-xs text-text-secondary">Created as a draft — activate it from the detail page once reviewed.</p>
+        <p className="text-xs text-text-secondary">{t("ui.createdAsADraftActivateItFrom")}</p>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Create workflow definition
+          {t("ui.createWorkflowDefinition")}
         </button>
       </form>
     </div>

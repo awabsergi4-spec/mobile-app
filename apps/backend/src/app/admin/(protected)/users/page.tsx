@@ -5,6 +5,7 @@ import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { adminApi } from "@/presentation/sahl-api";
 import { ACCOUNT_TYPE_LABELS, STATUS_LABELS, type AdminUserList, type AdminUserStatus } from "./api";
 
+import { getI18n } from "@/presentation/i18n";
 const STATUS_OPTIONS = Object.keys(STATUS_LABELS) as AdminUserStatus[];
 
 // Data comes from the SAHL API (GET /api/v1/admin/users).
@@ -13,6 +14,7 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ query?: string; status?: string }>;
 }) {
+  const { t, e, date } = await getI18n();
   try {
     await requireAdminPermission("users.manage");
   } catch (err) {
@@ -30,8 +32,8 @@ export default async function AdminUsersPage({
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-text-primary">Users</h1>
-      <p className="mt-1 text-sm text-text-secondary">{users.length} account{users.length === 1 ? "" : "s"} shown.</p>
+      <h1 className="text-xl font-semibold text-text-primary">{t("ui.users")}</h1>
+      <p className="mt-1 text-sm text-text-secondary">{t("count.shown", { n: users.length })}</p>
 
       {pendingApprovalCount > 0 && status !== "PENDING_VERIFICATION" && (
         <Link
@@ -39,9 +41,9 @@ export default async function AdminUsersPage({
           className="mt-4 flex items-center justify-between rounded-card border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-text-primary hover:border-warning"
         >
           <span>
-            <strong>{pendingApprovalCount}</strong> new account{pendingApprovalCount === 1 ? "" : "s"} waiting for approval
+            {t("count.pendingAccounts", { n: pendingApprovalCount })}
           </span>
-          <span className="font-medium text-primary">Review →</span>
+          <span className="font-medium text-primary">{t("ui.review2")}</span>
         </Link>
       )}
 
@@ -50,7 +52,7 @@ export default async function AdminUsersPage({
           type="text"
           name="query"
           defaultValue={query}
-          placeholder="Search phone or name…"
+          placeholder={t("ui.searchPhoneOrName")}
           className="w-64 rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         />
         <select
@@ -58,30 +60,30 @@ export default async function AdminUsersPage({
           defaultValue={status ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All statuses</option>
+          <option value="">{t("ui.allStatuses")}</option>
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {STATUS_LABELS[s]}
+              {e("enum", s)}
             </option>
           ))}
         </select>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Search
+          {t("ui.search")}
         </button>
       </form>
 
       <div className="mt-4 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {users.length === 0 ? (
-          <EmptyState message="No users match this search." />
+          <EmptyState message={t("ui.noUsersMatchThisSearch")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Joined</th>
+                <th className="px-4 py-3">{t("ui.name")}</th>
+                <th className="px-4 py-3">{t("ui.phone")}</th>
+                <th className="px-4 py-3">{t("ui.type")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
+                <th className="px-4 py-3">{t("ui.joined")}</th>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +97,7 @@ export default async function AdminUsersPage({
                   <td className="px-4 py-3 text-text-secondary" dir="ltr">
                     {user.phone}
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{ACCOUNT_TYPE_LABELS[user.accountType]}</td>
+                  <td className="px-4 py-3 text-text-secondary">{e("accountType", user.accountType)}</td>
                   <td className="px-4 py-3">
                     <span
                       className={
@@ -106,10 +108,10 @@ export default async function AdminUsersPage({
                             : "text-warning"
                       }
                     >
-                      {STATUS_LABELS[user.status]}
+                      {e("enum", user.status)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-text-secondary">{date(user.createdAt)}</td>
                 </tr>
               ))}
             </tbody>

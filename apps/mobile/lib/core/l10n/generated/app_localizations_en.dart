@@ -1812,4 +1812,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUploadsOff => 'Image uploads aren\'t available right now.';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get resetTitle => 'Reset your password';
+
+  @override
+  String get resetRequestSubtitle =>
+      'Enter your phone number. SAHL support will contact you with a 6-digit code.';
+
+  @override
+  String get resetRequestButton => 'Send request';
+
+  @override
+  String get resetHaveCode => 'I already have a code';
+
+  @override
+  String get resetCodeTitle => 'Enter your code';
+
+  @override
+  String get resetRequestedMessage =>
+      'Your request was sent. When SAHL support gives you the 6-digit code, enter it below with a new password. Codes are valid for 30 minutes.';
+
+  @override
+  String get resetCodeLabel => '6-digit code';
+
+  @override
+  String get resetConfirmPassword => 'Confirm new password';
+
+  @override
+  String get resetSubmit => 'Set new password';
+
+  @override
+  String get resetDone => 'Password changed. Sign in with your new password.';
+
+  @override
+  String get validationResetCode => 'Enter the 6-digit code';
+
+  @override
+  String get errorInvalidResetCode =>
+      'The code is wrong or has expired. Check it, or ask for a new one.';
+
+  @override
+  String get errorTooManyAttempts =>
+      'Too many wrong codes. Ask SAHL support for a new one.';
 }

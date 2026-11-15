@@ -3,7 +3,9 @@ import { ForbiddenAdminError, requireAdminPermission } from "@/presentation/admi
 import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { createAdvertisementAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function NewAdvertisementPage() {
+  const { t } = await getI18n();
   try {
     await requireAdminPermission("advertisements.manage");
   } catch (err) {
@@ -16,14 +18,14 @@ export default async function NewAdvertisementPage() {
   return (
     <div>
       <Link href="/admin/advertisements" className="text-sm text-primary hover:underline">
-        ← Back to advertisements
+        {t("ui.backToAdvertisements")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">New advertisement</h1>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.newAdvertisement")}</h1>
 
       <form action={createAdvertisementAction} className="mt-4 max-w-xl space-y-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div>
           <label htmlFor="title" className="block text-xs font-medium text-text-secondary">
-            Title
+            {t("ui.title")}
           </label>
           <input
             id="title"
@@ -34,7 +36,7 @@ export default async function NewAdvertisementPage() {
         </div>
         <div>
           <label htmlFor="description" className="block text-xs font-medium text-text-secondary">
-            Description
+            {t("ui.description")}
           </label>
           <textarea
             id="description"
@@ -46,38 +48,38 @@ export default async function NewAdvertisementPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="adType" className="block text-xs font-medium text-text-secondary">
-              Ad type
+              {t("ui.adType")}
             </label>
             <select
               id="adType"
               name="adType"
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="BANNER">Banner</option>
-              <option value="NATIVE">Native</option>
-              <option value="SPONSORED_PROVIDER">Sponsored provider</option>
-              <option value="SPONSORED_SERVICE">Sponsored service</option>
-              <option value="SPONSORED_CATEGORY">Sponsored category</option>
+              <option value="BANNER">{t("ui.banner")}</option>
+              <option value="NATIVE">{t("ui.native")}</option>
+              <option value="SPONSORED_PROVIDER">{t("ui.sponsoredProvider")}</option>
+              <option value="SPONSORED_SERVICE">{t("ui.sponsoredService")}</option>
+              <option value="SPONSORED_CATEGORY">{t("ui.sponsoredCategory")}</option>
             </select>
           </div>
           <div>
             <label htmlFor="placement" className="block text-xs font-medium text-text-secondary">
-              Placement
+              {t("ui.placement")}
             </label>
             <select
               id="placement"
               name="placement"
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="SEARCH_TOP">Search top</option>
-              <option value="CATEGORY_BANNER">Category banner</option>
-              <option value="PROVIDER_FEATURED">Provider featured</option>
+              <option value="SEARCH_TOP">{t("ui.searchTop")}</option>
+              <option value="CATEGORY_BANNER">{t("ui.categoryBanner")}</option>
+              <option value="PROVIDER_FEATURED">{t("ui.providerFeatured")}</option>
             </select>
           </div>
         </div>
         <div>
           <label htmlFor="creativeUrl" className="block text-xs font-medium text-text-secondary">
-            Creative image URL
+            {t("ui.creativeImageUrl")}
           </label>
           <input
             id="creativeUrl"
@@ -89,7 +91,7 @@ export default async function NewAdvertisementPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="ctaText" className="block text-xs font-medium text-text-secondary">
-              CTA text
+              {t("ui.ctaText")}
             </label>
             <input
               id="ctaText"
@@ -99,7 +101,7 @@ export default async function NewAdvertisementPage() {
           </div>
           <div>
             <label htmlFor="destinationUrl" className="block text-xs font-medium text-text-secondary">
-              Destination / deep link
+              {t("ui.destinationDeepLink")}
             </label>
             <input
               id="destinationUrl"
@@ -112,7 +114,7 @@ export default async function NewAdvertisementPage() {
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label htmlFor="priority" className="block text-xs font-medium text-text-secondary">
-              Priority
+              {t("ui.priority")}
             </label>
             <input
               id="priority"
@@ -124,7 +126,7 @@ export default async function NewAdvertisementPage() {
           </div>
           <div>
             <label htmlFor="startsAt" className="block text-xs font-medium text-text-secondary">
-              Starts
+              {t("ui.starts")}
             </label>
             <input
               id="startsAt"
@@ -136,7 +138,7 @@ export default async function NewAdvertisementPage() {
           </div>
           <div>
             <label htmlFor="endsAt" className="block text-xs font-medium text-text-secondary">
-              Ends
+              {t("ui.ends")}
             </label>
             <input
               id="endsAt"
@@ -147,9 +149,9 @@ export default async function NewAdvertisementPage() {
             />
           </div>
         </div>
-        <p className="text-xs text-text-secondary">Created inactive — publish it from the detail page once reviewed.</p>
+        <p className="text-xs text-text-secondary">{t("ui.createdInactivePublishItFromTheDetail")}</p>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Create advertisement
+          {t("ui.createAdvertisement")}
         </button>
       </form>
     </div>

@@ -5,12 +5,14 @@ import { requireAdminPermission } from "@/presentation/admin-session";
 import { createSettlementUseCase, completeSettlementUseCase } from "@/infrastructure/finance/finance-services";
 import type { SettlementSchedule } from "@prisma/client";
 
+import { getI18n } from "@/presentation/i18n";
 export async function createSettlementAction(formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   await requireAdminPermission("finance.manage");
   const schedule = String(formData.get("schedule") ?? "MANUAL") as SettlementSchedule;
   const currency = String(formData.get("currency") ?? "").trim();
   if (currency.length !== 3) {
-    throw new Error("A 3-letter currency code is required.");
+    throw new Error(t("ui.a3LetterCurrencyCodeIsRequired"));
   }
   await createSettlementUseCase.execute({ schedule, currency });
   revalidatePath("/admin/finance/settlements");

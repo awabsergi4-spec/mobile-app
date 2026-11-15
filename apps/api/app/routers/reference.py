@@ -101,6 +101,6 @@ def service_categories(type: str | None = None, locale: str = Query("en"), _: di
         tr = trs.get(locale) or trs.get("en")
         en = trs.get("en")
         out.append({"id": c["id"], "type": c["type"], "parentId": c["parentId"],
-                    "key": category_key(en["name"] if en else None),
+                    "key": category_key(en["name"] if en else None), "imageUrl": c["imageUrl"],
                     "name": tr["name"] if tr else c["id"], "description": tr["description"] if tr else None})
     return ok(out)

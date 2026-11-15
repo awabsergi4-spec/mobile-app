@@ -12,7 +12,7 @@ extension ServiceTypeWire on ServiceType {
 /// — `name`/`description` already resolved server-side for the caller's
 /// locale, so this client never picks a translation itself.
 class ServiceCategory {
-  const ServiceCategory({required this.id, required this.name, this.description, this.key});
+  const ServiceCategory({required this.id, required this.name, this.description, this.key, this.imageUrl});
 
   factory ServiceCategory.fromJson(Map<String, dynamic> json) {
     return ServiceCategory(
@@ -20,6 +20,7 @@ class ServiceCategory {
       name: json['name'] as String,
       description: json['description'] as String?,
       key: json['key'] as String?,
+      imageUrl: json['imageUrl'] as String?,
     );
   }
 
@@ -29,4 +30,7 @@ class ServiceCategory {
 
   /// Locale-independent slug of the English name (picks the artwork).
   final String? key;
+
+  /// Admin-uploaded picture (preferred over the bundled artwork).
+  final String? imageUrl;
 }

@@ -12,19 +12,21 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy import Connection
 
 from ..config import get_settings
+from ..db import get_conn
 from ..responses import ApiError, ok
-from ..security import current_user
+from ..security import current_user, permission_keys
 
 router = APIRouter(tags=["uploads"])
 
 ROOT_FOLDER = "sahl"
-PURPOSE_FOLDERS = {"listing": f"{ROOT_FOLDER}/listings"}
+PURPOSE_FOLDERS = {"listing": f"{ROOT_FOLDER}/listings", "category": f"{ROOT_FOLDER}/categories"}
 
 
 class SignatureBody(BaseModel):
-    purpose: Literal["listing"]
+    purpose: Literal["listing", "category"]
 
 
 def _sign(params: dict[str, str | int], secret: str) -> str:
@@ -39,10 +41,12 @@ def upload_status(_: dict = Depends(current_user)):
 
 
 @router.post("/uploads/signature")
-def upload_signature(body: SignatureBody, user: dict = Depends(current_user)):
+def upload_signature(body: SignatureBody, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
     settings = get_settings()
     if not settings.uploads_enabled:
         raise ApiError(503, "UPLOADS_NOT_CONFIGURED", "Image uploads are not configured on this server")
+    if body.purpose == "category" and "services.manage" not in permission_keys(conn, user["id"]):
+        raise ApiError(403, "FORBIDDEN", "Missing required permission: services.manage")
     folder = f"{PURPOSE_FOLDERS[body.purpose]}/{user['id']}"
     params: dict[str, str | int] = {"folder": folder, "timestamp": int(time.time())}
     return ok({
@@ -54,12 +58,14 @@ def upload_signature(body: SignatureBody, user: dict = Depends(current_user)):
     })
 
 
-def is_our_upload(url: str, user_id: str, purpose: str = "listing") -> bool:
-    """True when ``url`` is an image this user uploaded to our Cloudinary folder."""
+def is_our_upload(url: str, user_id: str | None, purpose: str = "listing") -> bool:
+    """True when ``url`` is an image uploaded to our Cloudinary folder for
+    ``purpose``, by ``user_id`` when given (any uploader when None)."""
     cloud = get_settings().cloudinary_cloud_name
     if not cloud:
         return False
     prefix = f"https://res.cloudinary.com/{cloud}/image/upload/"
     if not url.startswith(prefix) or len(url) > 500:
         return False
-    return f"/{PURPOSE_FOLDERS[purpose]}/{user_id}/" in url
+    folder = f"/{PURPOSE_FOLDERS[purpose]}/"
+    return f"{folder}{user_id}/" in url if user_id else folder in url

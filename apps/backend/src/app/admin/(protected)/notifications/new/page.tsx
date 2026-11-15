@@ -3,7 +3,9 @@ import { ForbiddenAdminError, requireAdminPermission } from "@/presentation/admi
 import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { createBroadcastAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function NewNotificationBroadcastPage() {
+  const { t } = await getI18n();
   try {
     await requireAdminPermission("notifications.manage");
   } catch (err) {
@@ -16,30 +18,30 @@ export default async function NewNotificationBroadcastPage() {
   return (
     <div>
       <Link href="/admin/notifications" className="text-sm text-primary hover:underline">
-        ← Back to notifications
+        {t("ui.backToNotifications")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">New broadcast</h1>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.newBroadcast")}</h1>
 
       <form action={createBroadcastAction} className="mt-4 max-w-xl space-y-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div>
           <label htmlFor="channel" className="block text-xs font-medium text-text-secondary">
-            Channel
+            {t("ui.channel")}
           </label>
           <select
             id="channel"
             name="channel"
             className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
           >
-            <option value="IN_APP">In-app</option>
-            <option value="POPUP">Popup</option>
-            <option value="FULL_SCREEN_ALERT">Full-screen alert</option>
-            <option value="EMERGENCY_BROADCAST">Emergency broadcast</option>
-            <option value="PUSH">Push (no push transport configured yet — delivers in-app only)</option>
+            <option value="IN_APP">{t("ui.inApp")}</option>
+            <option value="POPUP">{t("ui.popup")}</option>
+            <option value="FULL_SCREEN_ALERT">{t("ui.fullScreenAlert")}</option>
+            <option value="EMERGENCY_BROADCAST">{t("ui.emergencyBroadcast")}</option>
+            <option value="PUSH">{t("ui.pushNoPushTransportConfiguredYetDelivers")}</option>
           </select>
         </div>
         <div>
           <label htmlFor="title" className="block text-xs font-medium text-text-secondary">
-            Title
+            {t("ui.title")}
           </label>
           <input
             id="title"
@@ -50,7 +52,7 @@ export default async function NewNotificationBroadcastPage() {
         </div>
         <div>
           <label htmlFor="body" className="block text-xs font-medium text-text-secondary">
-            Body
+            {t("ui.body")}
           </label>
           <textarea
             id="body"
@@ -61,10 +63,10 @@ export default async function NewNotificationBroadcastPage() {
           />
         </div>
         <p className="text-xs text-text-secondary">
-          Created as a draft with no targeting — sends to every active user. Send it from the detail page once reviewed.
+          {t("ui.createdAsADraftWithNoTargeting")}
         </p>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Create broadcast
+          {t("ui.createBroadcast")}
         </button>
       </form>
     </div>

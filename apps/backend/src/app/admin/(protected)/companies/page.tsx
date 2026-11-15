@@ -5,6 +5,7 @@ import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { companyRepository } from "@/infrastructure/company/company-services";
 import type { AccountLifecycleStatus, VerificationStatus } from "@prisma/client";
 
+import { getI18n } from "@/presentation/i18n";
 const STATUS_OPTIONS: AccountLifecycleStatus[] = ["ACTIVE", "SUSPENDED", "DELETED"];
 const VERIFICATION_OPTIONS: VerificationStatus[] = [
   "UNVERIFIED",
@@ -21,6 +22,7 @@ export default async function AdminCompaniesPage({
 }: {
   searchParams: Promise<{ query?: string; status?: string; verificationStatus?: string }>;
 }) {
+  const { t, e, date } = await getI18n();
   try {
     await requireAdminPermission("companies.manage");
   } catch (err) {
@@ -40,9 +42,9 @@ export default async function AdminCompaniesPage({
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-text-primary">Companies</h1>
+      <h1 className="text-xl font-semibold text-text-primary">{t("ui.companies")}</h1>
       <p className="mt-1 text-sm text-text-secondary">
-        {companies.length} compan{companies.length === 1 ? "y" : "ies"} shown.
+        {t("count.shown", { n: companies.length })}
       </p>
 
       <form className="mt-4 flex flex-wrap gap-3" method="GET">
@@ -50,7 +52,7 @@ export default async function AdminCompaniesPage({
           type="text"
           name="query"
           defaultValue={query}
-          placeholder="Search company name…"
+          placeholder={t("ui.searchCompanyName")}
           className="w-64 rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         />
         <select
@@ -58,10 +60,10 @@ export default async function AdminCompaniesPage({
           defaultValue={status ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All statuses</option>
+          <option value="">{t("ui.allStatuses")}</option>
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {e("enum", s)}
             </option>
           ))}
         </select>
@@ -70,29 +72,29 @@ export default async function AdminCompaniesPage({
           defaultValue={verificationStatus ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All verification statuses</option>
+          <option value="">{t("ui.allVerificationStatuses")}</option>
           {VERIFICATION_OPTIONS.map((v) => (
             <option key={v} value={v}>
-              {v}
+              {e("enum", v)}
             </option>
           ))}
         </select>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Search
+          {t("ui.search")}
         </button>
       </form>
 
       <div className="mt-4 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {companies.length === 0 ? (
-          <EmptyState message="No companies match this search." />
+          <EmptyState message={t("ui.noCompaniesMatchThisSearch")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Verification</th>
-                <th className="px-4 py-3">Joined</th>
+                <th className="px-4 py-3">{t("ui.name")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
+                <th className="px-4 py-3">{t("ui.verification")}</th>
+                <th className="px-4 py-3">{t("ui.joined")}</th>
               </tr>
             </thead>
             <tbody>
@@ -104,14 +106,14 @@ export default async function AdminCompaniesPage({
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={company.status === "ACTIVE" ? "text-success" : "text-error"}>{company.status}</span>
+                    <span className={company.status === "ACTIVE" ? "text-success" : "text-error"}>{e("enum", company.status)}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className={company.verificationStatus === "VERIFIED" ? "text-success" : "text-warning"}>
-                      {company.verificationStatus}
+                      {e("enum", company.verificationStatus)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{company.createdAt.toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-text-secondary">{date(company.createdAt)}</td>
                 </tr>
               ))}
             </tbody>

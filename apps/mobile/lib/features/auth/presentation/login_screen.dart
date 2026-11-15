@@ -117,11 +117,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onSubmitted: (_) => _submit(),
                         validator: (value) => Validators.required(value, l10n),
                       ),
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton(
+                          onPressed: _isSubmitting ? null : () => context.push('/forgot-password'),
+                          style: TextButton.styleFrom(foregroundColor: AuthPalette.orange),
+                          child: Text(l10n.forgotPassword, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        ),
+                      ),
                       if (_failure != null) ...[
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 6),
                         ErrorBanner(message: localizeFailure(l10n, _failure!)),
                       ],
-                      const SizedBox(height: 26),
+                      const SizedBox(height: 18),
                       GradientButton(label: l10n.login, onPressed: _submit, isLoading: _isSubmitting),
                       const SizedBox(height: 18),
                       Row(

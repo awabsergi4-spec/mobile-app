@@ -1,3 +1,5 @@
+import type { MessageKey } from "@/presentation/i18n/en";
+
 // Shapes returned by the SAHL API's /admin/listings endpoints
 // (apps/api/app/routers/listings.py).
 export type ListingStatus = "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "PAUSED";
@@ -23,9 +25,11 @@ export interface AdminListingQueue {
   pendingCount: number;
 }
 
-export const LISTING_STATUS_LABELS: Record<ListingStatus, string> = {
-  PENDING_REVIEW: "Waiting for review",
-  PUBLISHED: "Published",
-  REJECTED: "Rejected",
-  PAUSED: "Paused by provider",
+export const LISTING_STATUSES: ListingStatus[] = ["PENDING_REVIEW", "PUBLISHED", "REJECTED", "PAUSED"];
+
+export const LISTING_STATUS_KEYS: Record<ListingStatus, MessageKey> = {
+  PENDING_REVIEW: "listings.status.PENDING_REVIEW",
+  PUBLISHED: "listings.status.PUBLISHED",
+  REJECTED: "listings.status.REJECTED",
+  PAUSED: "listings.status.PAUSED",
 };

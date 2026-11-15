@@ -70,6 +70,7 @@ class CategoryDetail {
     this.priceMin,
     this.priceMax,
     this.key,
+    this.imageUrl,
   });
 
   factory CategoryDetail.fromJson(Map<String, dynamic> json) => CategoryDetail(
@@ -81,6 +82,7 @@ class CategoryDetail {
         priceMin: _int(json['priceMin']),
         priceMax: _int(json['priceMax']),
         key: json['key'] as String?,
+        imageUrl: json['imageUrl'] as String?,
       );
 
   final String id;
@@ -93,18 +95,20 @@ class CategoryDetail {
   final int? priceMin;
   final int? priceMax;
   final String? key;
+  final String? imageUrl;
 }
 
 class SearchCategoryHit {
-  const SearchCategoryHit({required this.id, required this.type, required this.name, this.key});
+  const SearchCategoryHit({required this.id, required this.type, required this.name, this.key, this.imageUrl});
 
   factory SearchCategoryHit.fromJson(Map<String, dynamic> json) =>
-      SearchCategoryHit(id: json['id'] as String, type: json['type'] as String, name: json['name'] as String, key: json['key'] as String?);
+      SearchCategoryHit(id: json['id'] as String, type: json['type'] as String, name: json['name'] as String, key: json['key'] as String?, imageUrl: json['imageUrl'] as String?);
 
   final String id;
   final String type;
   final String name;
   final String? key;
+  final String? imageUrl;
 }
 
 /// `GET /search`.
@@ -123,7 +127,7 @@ class SearchResults {
 }
 
 class ProviderService {
-  const ProviderService({required this.categoryId, required this.type, required this.name, this.priceMin, this.priceMax, this.key});
+  const ProviderService({required this.categoryId, required this.type, required this.name, this.priceMin, this.priceMax, this.key, this.imageUrl});
 
   factory ProviderService.fromJson(Map<String, dynamic> json) => ProviderService(
         categoryId: json['categoryId'] as String,
@@ -132,6 +136,7 @@ class ProviderService {
         priceMin: _int(json['priceMin']),
         priceMax: _int(json['priceMax']),
         key: json['key'] as String?,
+        imageUrl: json['imageUrl'] as String?,
       );
 
   final String categoryId;
@@ -140,6 +145,7 @@ class ProviderService {
   final int? priceMin;
   final int? priceMax;
   final String? key;
+  final String? imageUrl;
 }
 
 class PortfolioEntry {

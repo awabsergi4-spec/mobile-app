@@ -5,6 +5,7 @@ import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { advertisementRepository } from "@/infrastructure/advertisement/advertisement-services";
 import type { AdPlacement } from "@prisma/client";
 
+import { getI18n } from "@/presentation/i18n";
 const PLACEMENT_OPTIONS: AdPlacement[] = ["SEARCH_TOP", "CATEGORY_BANNER", "PROVIDER_FEATURED"];
 
 export default async function AdminAdvertisementsPage({
@@ -12,6 +13,7 @@ export default async function AdminAdvertisementsPage({
 }: {
   searchParams: Promise<{ placement?: string; isActive?: string }>;
 }) {
+  const { t, e, date } = await getI18n();
   try {
     await requireAdminPermission("advertisements.manage");
   } catch (err) {
@@ -31,13 +33,13 @@ export default async function AdminAdvertisementsPage({
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-text-primary">Advertisements</h1>
+          <h1 className="text-xl font-semibold text-text-primary">{t("ui.advertisements")}</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            {ads.length} ad{ads.length === 1 ? "" : "s"} shown. Configurable content — no app update required to change.
+            {t("count.ads", { n: ads.length })}
           </p>
         </div>
         <Link href="/admin/advertisements/new" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          New advertisement
+          {t("ui.newAdvertisement")}
         </Link>
       </div>
 
@@ -47,10 +49,10 @@ export default async function AdminAdvertisementsPage({
           defaultValue={placement ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All placements</option>
+          <option value="">{t("ui.allPlacements")}</option>
           {PLACEMENT_OPTIONS.map((p) => (
             <option key={p} value={p}>
-              {p}
+              {e("enum", p)}
             </option>
           ))}
         </select>
@@ -59,27 +61,27 @@ export default async function AdminAdvertisementsPage({
           defaultValue={isActive ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All statuses</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
+          <option value="">{t("ui.allStatuses")}</option>
+          <option value="true">{t("ui.active")}</option>
+          <option value="false">{t("ui.inactive")}</option>
         </select>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Filter
+          {t("ui.filter")}
         </button>
       </form>
 
       <div className="mt-4 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {ads.length === 0 ? (
-          <EmptyState message="No advertisements match this filter." />
+          <EmptyState message={t("ui.noAdvertisementsMatchThisFilter")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Title</th>
-                <th className="px-4 py-3">Placement</th>
-                <th className="px-4 py-3">Priority</th>
-                <th className="px-4 py-3">Window</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t("ui.title")}</th>
+                <th className="px-4 py-3">{t("ui.placement")}</th>
+                <th className="px-4 py-3">{t("ui.priority")}</th>
+                <th className="px-4 py-3">{t("ui.window")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -90,10 +92,10 @@ export default async function AdminAdvertisementsPage({
                       {ad.title || "(untitled)"}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{ad.placement}</td>
+                  <td className="px-4 py-3 text-text-secondary">{e("enum", ad.placement)}</td>
                   <td className="px-4 py-3 text-text-secondary">{ad.priority}</td>
                   <td className="px-4 py-3 text-text-secondary">
-                    {ad.startsAt.toLocaleDateString()} – {ad.endsAt.toLocaleDateString()}
+                    {date(ad.startsAt)} – {date(ad.endsAt)}
                   </td>
                   <td className="px-4 py-3">
                     <span className={ad.isActive ? "text-success" : "text-text-secondary"}>{ad.isActive ? "Active" : "Inactive"}</span>

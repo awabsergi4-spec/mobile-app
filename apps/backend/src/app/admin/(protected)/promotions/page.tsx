@@ -4,11 +4,13 @@ import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { promotionRepository } from "@/infrastructure/promotion/promotion-services";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function AdminPromotionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ isActive?: string }>;
 }) {
+  const { t, date } = await getI18n();
   try {
     await requireAdminPermission("promotions.manage");
   } catch (err) {
@@ -27,14 +29,13 @@ export default async function AdminPromotionsPage({
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-text-primary">Promotions</h1>
+          <h1 className="text-xl font-semibold text-text-primary">{t("ui.promotions")}</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            {promotions.length} campaign{promotions.length === 1 ? "" : "s"} shown. Configurable content — no app update required to
-            change.
+            {t("count.ads", { n: promotions.length })}
           </p>
         </div>
         <Link href="/admin/promotions/new" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          New promotion
+          {t("ui.newPromotion")}
         </Link>
       </div>
 
@@ -44,26 +45,26 @@ export default async function AdminPromotionsPage({
           defaultValue={isActive ?? ""}
           className="rounded-button border border-text-disabled/30 bg-surface-light px-3 py-2 text-sm text-text-primary"
         >
-          <option value="">All statuses</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
+          <option value="">{t("ui.allStatuses")}</option>
+          <option value="true">{t("ui.active")}</option>
+          <option value="false">{t("ui.inactive")}</option>
         </select>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Filter
+          {t("ui.filter")}
         </button>
       </form>
 
       <div className="mt-4 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {promotions.length === 0 ? (
-          <EmptyState message="No promotions match this filter." />
+          <EmptyState message={t("ui.noPromotionsMatchThisFilter")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Discount</th>
-                <th className="px-4 py-3">Window</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t("ui.name")}</th>
+                <th className="px-4 py-3">{t("ui.discount")}</th>
+                <th className="px-4 py-3">{t("ui.window")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -75,10 +76,10 @@ export default async function AdminPromotionsPage({
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
-                    {promo.discountType === "PERCENTAGE" ? `${promo.discountValue}%` : `${promo.discountValue} (minor units)`}
+                    {promo.discountType === "PERCENTAGE" ? `${promo.discountValue}%` : t("ui.minorUnits", { n: promo.discountValue })}
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
-                    {promo.startsAt.toLocaleDateString()} – {promo.endsAt.toLocaleDateString()}
+                    {date(promo.startsAt)} – {date(promo.endsAt)}
                   </td>
                   <td className="px-4 py-3">
                     <span className={promo.isActive ? "text-success" : "text-text-secondary"}>{promo.isActive ? "Active" : "Inactive"}</span>

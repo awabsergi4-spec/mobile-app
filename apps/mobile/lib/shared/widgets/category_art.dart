@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../features/listings/domain/listing_models.dart';
 
 /// Bundled artwork for service categories, matched on the category's
 /// locale-independent `key` (its English name as a slug, from the API).
@@ -42,9 +43,12 @@ String? categoryImageAsset(String? key) {
 /// A category's picture filling its box (cover). Falls back to the service
 /// type's icon on a tinted background when there's no artwork for it.
 class CategoryArt extends StatelessWidget {
-  const CategoryArt({super.key, required this.categoryKey, required this.type, this.iconSize = 32});
+  const CategoryArt({super.key, required this.categoryKey, required this.type, this.imageUrl, this.iconSize = 32});
 
   final String? categoryKey;
+
+  /// Admin-uploaded picture; shown first, bundled art is the fallback.
+  final String? imageUrl;
   final String type;
   final double iconSize;
 
@@ -56,17 +60,26 @@ class CategoryArt extends StatelessWidget {
       child: Center(child: Icon(icon, color: color, size: iconSize)),
     );
     final asset = categoryImageAsset(categoryKey);
-    if (asset == null) return fallback;
+    final bundled = asset == null ? fallback : null;
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth.isFinite ? constraints.maxWidth : 400.0;
-        return Image.asset(
-          asset,
+        final px = (width * MediaQuery.devicePixelRatioOf(context)).round().clamp(120, 1600);
+        final local = bundled ??
+            Image.asset(
+              asset!,
+              fit: BoxFit.cover,
+              cacheWidth: px,
+              excludeFromSemantics: true,
+              errorBuilder: (_, _, _) => fallback,
+            );
+        if (imageUrl == null || imageUrl!.isEmpty) return local;
+        return Image.network(
+          cloudinaryVariant(imageUrl!, width: px),
           fit: BoxFit.cover,
-          // The source files are large; decode at roughly the shown size.
-          cacheWidth: (width * MediaQuery.devicePixelRatioOf(context)).round().clamp(120, 1600),
           excludeFromSemantics: true,
-          errorBuilder: (_, _, _) => fallback,
+          loadingBuilder: (context, child, progress) => progress == null ? child : local,
+          errorBuilder: (_, _, _) => local,
         );
       },
     );

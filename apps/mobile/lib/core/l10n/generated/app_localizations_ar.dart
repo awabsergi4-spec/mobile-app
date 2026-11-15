@@ -1813,4 +1813,51 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorUploadsOff => 'رفع الصور غير متاح حالياً.';
+
+  @override
+  String get forgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get resetTitle => 'استعادة كلمة المرور';
+
+  @override
+  String get resetRequestSubtitle =>
+      'أدخل رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.';
+
+  @override
+  String get resetRequestButton => 'إرسال الطلب';
+
+  @override
+  String get resetHaveCode => 'لدي رمز بالفعل';
+
+  @override
+  String get resetCodeTitle => 'أدخل الرمز';
+
+  @override
+  String get resetRequestedMessage =>
+      'تم إرسال طلبك. عندما يرسل لك فريق دعم سهل الرمز المكوّن من 6 أرقام، أدخله أدناه مع كلمة مرور جديدة. الرمز صالح لمدة 30 دقيقة.';
+
+  @override
+  String get resetCodeLabel => 'الرمز (6 أرقام)';
+
+  @override
+  String get resetConfirmPassword => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get resetSubmit => 'تعيين كلمة المرور';
+
+  @override
+  String get resetDone =>
+      'تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة.';
+
+  @override
+  String get validationResetCode => 'أدخل الرمز المكوّن من 6 أرقام';
+
+  @override
+  String get errorInvalidResetCode =>
+      'الرمز غير صحيح أو منتهي. تحقق منه أو اطلب رمزاً جديداً.';
+
+  @override
+  String get errorTooManyAttempts =>
+      'محاولات خاطئة كثيرة. اطلب رمزاً جديداً من دعم سهل.';
 }

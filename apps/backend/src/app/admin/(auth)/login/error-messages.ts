@@ -1,13 +1,15 @@
-const ERROR_MESSAGES: Record<string, string> = {
-  invalid_credentials: "Incorrect phone number or password.",
-  account_not_active: "This account isn't active.",
-  pending_approval: "This account is still waiting for approval.",
-  api_unreachable: "The SAHL API isn't reachable. Make sure it's running.",
-  not_staff: "This account doesn't have Admin Platform access.",
-  unknown: "Something went wrong. Please try again.",
+import type { MessageKey } from "@/presentation/i18n/en";
+
+const ERROR_KEYS: Record<string, MessageKey> = {
+  invalid_credentials: "login.error.invalidCredentials",
+  account_not_active: "login.error.accountNotActive",
+  pending_approval: "login.error.pendingApproval",
+  api_unreachable: "login.error.apiUnreachable",
+  not_staff: "login.error.notStaff",
+  unknown: "login.error.unknown",
 };
 
-export function adminLoginErrorMessage(code: string | undefined): string | null {
+export function adminLoginErrorKey(code: string | undefined): MessageKey | null {
   if (!code) return null;
-  return ERROR_MESSAGES[code] ?? ERROR_MESSAGES.unknown ?? null;
+  return ERROR_KEYS[code] ?? ERROR_KEYS.unknown ?? null;
 }

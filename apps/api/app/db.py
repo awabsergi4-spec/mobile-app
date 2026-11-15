@@ -23,7 +23,7 @@ from .ids import new_id
 TABLES = [
     "AuditLog", "Company", "CompanyDocument", "CompanyInvitation", "CompanyMember", "Contract",
     "ContractBid", "ContractMilestone", "ContractProject", "Dispute", "DomainEvent", "Escrow",
-    "HomeLayoutBlock", "MatchingScoreLog", "Notification", "OnDemandAssignment", "OnDemandRequest",
+    "HomeLayoutBlock", "MatchingScoreLog", "Notification", "OnDemandAssignment", "OtpCode", "OnDemandRequest",
     "PaymentTransaction", "Permission", "PromotionalCampaign", "ProviderCategory", "ProviderDocument",
     "ProviderPayoutAccount", "ProviderPortfolioItem", "ProviderProfile", "ProviderServiceArea", "RefreshToken",
     "Region", "RemoteConfigEntry", "RemoteEngagement", "RemoteMilestone", "Review", "ReviewCategoryScore",

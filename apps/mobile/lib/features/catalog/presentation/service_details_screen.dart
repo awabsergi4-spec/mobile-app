@@ -114,7 +114,7 @@ class _Header extends StatelessWidget {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: CategoryArt(categoryKey: category.key, type: category.type, iconSize: 56),
+            child: CategoryArt(categoryKey: category.key, imageUrl: category.imageUrl, type: category.type, iconSize: 56),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.base),

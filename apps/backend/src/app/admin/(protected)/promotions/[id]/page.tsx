@@ -4,6 +4,7 @@ import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { promotionRepository } from "@/infrastructure/promotion/promotion-services";
 import { updatePromotionAction, setPromotionActiveAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 function toLocalInputValue(date: Date): string {
   const offset = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offset * 60000);
@@ -11,6 +12,7 @@ function toLocalInputValue(date: Date): string {
 }
 
 export default async function PromotionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t, e } = await getI18n();
   try {
     await requireAdminPermission("promotions.manage");
   } catch (err) {
@@ -27,9 +29,9 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
     return (
       <div>
         <Link href="/admin/promotions" className="text-sm text-primary hover:underline">
-          ← Back to promotions
+          {t("ui.backToPromotions")}
         </Link>
-        <p className="mt-4 text-text-secondary">Promotion not found.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.promotionNotFound")}</p>
       </div>
     );
   }
@@ -41,20 +43,20 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
   return (
     <div>
       <Link href="/admin/promotions" className="text-sm text-primary hover:underline">
-        ← Back to promotions
+        {t("ui.backToPromotions")}
       </Link>
       <div className="mt-2 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-text-primary">{promotion.name}</h1>
         {promotion.isActive ? (
           <form action={boundDeactivate}>
             <button type="submit" className="rounded-button bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-              Deactivate
+              {t("ui.deactivate")}
             </button>
           </form>
         ) : (
           <form action={boundActivate}>
             <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-              Activate
+              {t("ui.activate")}
             </button>
           </form>
         )}
@@ -63,7 +65,7 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
       <form action={boundUpdate} className="mt-6 max-w-xl space-y-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div>
           <label htmlFor="name" className="block text-xs font-medium text-text-secondary">
-            Name
+            {t("ui.name")}
           </label>
           <input
             id="name"
@@ -75,7 +77,7 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
         </div>
         <div>
           <label htmlFor="description" className="block text-xs font-medium text-text-secondary">
-            Description
+            {t("ui.description")}
           </label>
           <textarea
             id="description"
@@ -88,21 +90,21 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="discountType" className="block text-xs font-medium text-text-secondary">
-              Discount type
+              {t("ui.discountType")}
             </label>
             <select
               id="discountType"
               name="discountType"
-              defaultValue={promotion.discountType}
+              defaultValue={e("enum", promotion.discountType)}
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="PERCENTAGE">Percentage</option>
-              <option value="FLAT">Flat (minor currency units)</option>
+              <option value="PERCENTAGE">{t("ui.percentage")}</option>
+              <option value="FLAT">{t("ui.flatMinorCurrencyUnits")}</option>
             </select>
           </div>
           <div>
             <label htmlFor="discountValue" className="block text-xs font-medium text-text-secondary">
-              Discount value
+              {t("ui.discountValue")}
             </label>
             <input
               id="discountValue"
@@ -118,7 +120,7 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="startsAt" className="block text-xs font-medium text-text-secondary">
-              Starts
+              {t("ui.starts")}
             </label>
             <input
               id="startsAt"
@@ -131,7 +133,7 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
           </div>
           <div>
             <label htmlFor="endsAt" className="block text-xs font-medium text-text-secondary">
-              Ends
+              {t("ui.ends")}
             </label>
             <input
               id="endsAt"
@@ -144,7 +146,7 @@ export default async function PromotionDetailPage({ params }: { params: Promise<
           </div>
         </div>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Save changes
+          {t("ui.saveChanges")}
         </button>
       </form>
     </div>

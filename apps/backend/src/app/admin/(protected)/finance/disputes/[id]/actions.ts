@@ -8,17 +8,19 @@ import { resolvePayoutTarget } from "@/presentation/resolve-payout-target";
 import { DisputeNotFoundError } from "@/application/dispute/errors";
 import type { DisputeResolutionDecision } from "@/application/dispute/resolve-dispute.use-case";
 
+import { getI18n } from "@/presentation/i18n";
 // Never accepts providerWalletId/commissionPercentage from the form — same
 // rule as the REST endpoint (Financial Core Phase 17): both are always
 // derived server-side via resolvePayoutTarget.
 export async function resolveDisputeAction(disputeId: string, formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   const { userId: actorId } = await requireAdminPermission("finance.manage");
 
   const decision = String(formData.get("decision") ?? "");
   const resolutionNotes = String(formData.get("resolutionNotes") ?? "").trim();
   const gatewayProvider = String(formData.get("gatewayProvider") ?? "mock").trim() || "mock";
   if (resolutionNotes.length < 3) {
-    throw new Error("Resolution notes (at least 3 characters) are required.");
+    throw new Error(t("ui.resolutionNotesAtLeast3CharactersAre"));
   }
 
   const dispute = await disputeRepository.findById(disputeId);
@@ -32,7 +34,7 @@ export async function resolveDisputeAction(disputeId: string, formData: FormData
   } else {
     const escrow = await escrowRepository.findByRelatedEntity(dispute.relatedEntityType, dispute.relatedEntityId);
     if (!escrow) {
-      throw new Error("No escrow is associated with this dispute.");
+      throw new Error(t("ui.noEscrowIsAssociatedWithThisDispute"));
     }
     const { providerWalletId, commissionPercentage } = await resolvePayoutTarget(
       dispute.relatedEntityType,
@@ -47,11 +49,11 @@ export async function resolveDisputeAction(disputeId: string, formData: FormData
       const providerAmount = Number(formData.get("providerAmount"));
       const refundAmount = Number(formData.get("refundAmount"));
       if (!Number.isFinite(providerAmount) || !Number.isFinite(refundAmount) || providerAmount <= 0 || refundAmount <= 0) {
-        throw new Error("Provider amount and refund amount must both be positive numbers.");
+        throw new Error(t("ui.providerAmountAndRefundAmountMustBoth"));
       }
       resolution = { decision: "PARTIAL_SPLIT", providerAmount, refundAmount, providerWalletId, commissionPercentage, gatewayProvider };
     } else {
-      throw new Error("Invalid resolution decision.");
+      throw new Error(t("ui.invalidResolutionDecision"));
     }
   }
 

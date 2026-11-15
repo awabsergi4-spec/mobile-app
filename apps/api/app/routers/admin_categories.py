@@ -15,6 +15,7 @@ from ..db import get_conn, insert_row, t, update_rows
 from ..events import audit
 from ..responses import ApiError, ok
 from ..security import require_permission
+from .uploads import is_our_upload
 
 router = APIRouter(prefix="/admin/service-categories", tags=["admin"])
 _guard = require_permission("services.manage")
@@ -26,6 +27,7 @@ class CategoryBody(BaseModel):
     nameAr: str = Field(min_length=2, max_length=80)
     descriptionEn: str | None = Field(default=None, max_length=500)
     descriptionAr: str | None = Field(default=None, max_length=500)
+    imageUrl: str | None = Field(default=None, max_length=500)
     isActive: bool = True
 
 
@@ -34,6 +36,7 @@ class CategoryPatch(BaseModel):
     nameAr: str | None = Field(default=None, min_length=2, max_length=80)
     descriptionEn: str | None = Field(default=None, max_length=500)
     descriptionAr: str | None = Field(default=None, max_length=500)
+    imageUrl: str | None = Field(default=None, max_length=500)  # send null to remove
     isActive: bool | None = None
 
 
@@ -54,6 +57,7 @@ def _present(conn: Connection, categories: list[dict]) -> list[dict]:
         en, ar = trs.get(c["id"], {}).get("en"), trs.get(c["id"], {}).get("ar")
         out.append({
             "id": c["id"], "type": c["type"], "isActive": c["isActive"], "createdAt": c["createdAt"],
+            "imageUrl": c["imageUrl"],
             "nameEn": en["name"] if en else None, "nameAr": ar["name"] if ar else None,
             "descriptionEn": en["description"] if en else None, "descriptionAr": ar["description"] if ar else None,
             "key": category_key(en["name"] if en else None),
@@ -106,11 +110,17 @@ def _ensure_unique_name(conn: Connection, type_: str, name_en: str, exclude_id: 
         raise ApiError(409, "CATEGORY_EXISTS", "A category with this English name already exists for this type")
 
 
+def _check_image(url: str | None) -> None:
+    if url is not None and not is_our_upload(url, None, purpose="category"):
+        raise ApiError(422, "INVALID_IMAGE_URL", "Category images must be uploaded through the admin panel")
+
+
 @router.post("")
 def create_category(body: CategoryBody, actor: dict = Depends(_guard), conn: Connection = Depends(get_conn)):
     _ensure_unique_name(conn, body.type, body.nameEn)
+    _check_image(body.imageUrl)
     category = insert_row(conn, "ServiceCategory", {"type": body.type, "isActive": body.isActive,
-                                                    "verificationLevel": "NONE"})
+                                                    "verificationLevel": "NONE", "imageUrl": body.imageUrl})
     _upsert_translation(conn, category["id"], "en", body.nameEn, body.descriptionEn, True)
     _upsert_translation(conn, category["id"], "ar", body.nameAr, body.descriptionAr, True)
     audit(conn, actor["id"], "category.create", "ServiceCategory", category["id"], {"nameEn": body.nameEn})
@@ -128,8 +138,14 @@ def update_category(category_id: str, body: CategoryPatch, actor: dict = Depends
         _ensure_unique_name(conn, category["type"], body.nameEn, exclude_id=category_id)
     _upsert_translation(conn, category_id, "en", body.nameEn, body.descriptionEn, "descriptionEn" in sent)
     _upsert_translation(conn, category_id, "ar", body.nameAr, body.descriptionAr, "descriptionAr" in sent)
+    changes: dict = {}
     if body.isActive is not None:
+        changes["isActive"] = body.isActive
+    if "imageUrl" in sent:
+        _check_image(body.imageUrl)
+        changes["imageUrl"] = body.imageUrl
+    if changes:
         sc = t("ServiceCategory")
-        category = update_rows(conn, "ServiceCategory", sc.c.id == category_id, {"isActive": body.isActive})[0]
+        category = update_rows(conn, "ServiceCategory", sc.c.id == category_id, changes)[0]
     audit(conn, actor["id"], "category.update", "ServiceCategory", category_id, body.model_dump(exclude_unset=True))
     return ok(_present(conn, [category])[0])

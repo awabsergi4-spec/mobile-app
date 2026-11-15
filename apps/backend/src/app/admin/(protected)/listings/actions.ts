@@ -17,7 +17,7 @@ export async function rejectListingAction(listingId: string, formData: FormData)
   await requireAdminPermission("services.manage");
   const reason = String(formData.get("reason") ?? "").trim();
   if (reason.length < 3) {
-    redirect(`/admin/listings/${listingId}?error=${encodeURIComponent("Write a reason of at least 3 characters.")}`);
+    redirect(`/admin/listings/${listingId}?error=reason`);
   }
   await adminApi(`/admin/listings/${listingId}/reject`, { method: "POST", body: { reason } });
   revalidatePath("/admin/listings");

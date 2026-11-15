@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAdminSession } from "@/presentation/admin-session";
 import { adminNavSections } from "@/presentation/admin-ui/nav-config";
+import { LocaleSwitch } from "@/presentation/admin-ui/locale-switch";
+import { getI18n } from "@/presentation/i18n";
 import { adminLogoutAction } from "../logout-action";
 
 // Wraps every /admin/* page except /admin/login. Session check here is
@@ -14,20 +16,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) {
     redirect("/admin/login");
   }
+  const { t } = await getI18n();
 
   return (
     <div className="flex min-h-screen bg-background-light">
-      <aside className="w-64 shrink-0 border-r border-text-disabled/20 bg-surface-light">
+      <aside className="w-64 shrink-0 border-e border-text-disabled/20 bg-surface-light">
         <div className="px-5 py-6">
-          <span className="text-lg font-semibold text-primary">SAHL Admin</span>
+          <span className="text-lg font-semibold text-primary">{t("app.title")}</span>
         </div>
         <nav className="space-y-6 px-3">
           {adminNavSections.map((section) => {
             const visibleItems = section.items.filter((item) => session.permissionKeys.includes(item.permissionKey));
             if (visibleItems.length === 0) return null;
             return (
-              <div key={section.title}>
-                <p className="px-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">{section.title}</p>
+              <div key={section.titleKey}>
+                <p className="px-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">{t(section.titleKey)}</p>
                 <div className="mt-1 space-y-0.5">
                   {visibleItems.map((item) => (
                     <Link
@@ -35,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                       href={item.href}
                       className="block rounded-button px-3 py-2 text-sm text-text-primary hover:bg-primary/10"
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   ))}
                 </div>
@@ -47,9 +50,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-end gap-4 border-b border-text-disabled/20 bg-surface-light px-6 py-3">
+          <LocaleSwitch />
           <form action={adminLogoutAction}>
             <button type="submit" className="text-sm font-medium text-text-secondary hover:text-error">
-              Sign out
+              {t("app.signOut")}
             </button>
           </form>
         </header>

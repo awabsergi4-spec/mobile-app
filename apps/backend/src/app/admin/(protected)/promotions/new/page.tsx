@@ -3,7 +3,9 @@ import { ForbiddenAdminError, requireAdminPermission } from "@/presentation/admi
 import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { createPromotionAction } from "../actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function NewPromotionPage() {
+  const { t } = await getI18n();
   try {
     await requireAdminPermission("promotions.manage");
   } catch (err) {
@@ -16,14 +18,14 @@ export default async function NewPromotionPage() {
   return (
     <div>
       <Link href="/admin/promotions" className="text-sm text-primary hover:underline">
-        ← Back to promotions
+        {t("ui.backToPromotions")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">New promotion</h1>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.newPromotion")}</h1>
 
       <form action={createPromotionAction} className="mt-4 max-w-xl space-y-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <div>
           <label htmlFor="name" className="block text-xs font-medium text-text-secondary">
-            Name
+            {t("ui.name")}
           </label>
           <input
             id="name"
@@ -34,7 +36,7 @@ export default async function NewPromotionPage() {
         </div>
         <div>
           <label htmlFor="description" className="block text-xs font-medium text-text-secondary">
-            Description
+            {t("ui.description")}
           </label>
           <textarea
             id="description"
@@ -46,20 +48,20 @@ export default async function NewPromotionPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="discountType" className="block text-xs font-medium text-text-secondary">
-              Discount type
+              {t("ui.discountType")}
             </label>
             <select
               id="discountType"
               name="discountType"
               className="mt-1 w-full rounded-button border border-text-disabled/30 bg-background-light px-3 py-2 text-sm text-text-primary"
             >
-              <option value="PERCENTAGE">Percentage</option>
-              <option value="FLAT">Flat (minor currency units)</option>
+              <option value="PERCENTAGE">{t("ui.percentage")}</option>
+              <option value="FLAT">{t("ui.flatMinorCurrencyUnits")}</option>
             </select>
           </div>
           <div>
             <label htmlFor="discountValue" className="block text-xs font-medium text-text-secondary">
-              Discount value
+              {t("ui.discountValue")}
             </label>
             <input
               id="discountValue"
@@ -74,7 +76,7 @@ export default async function NewPromotionPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="startsAt" className="block text-xs font-medium text-text-secondary">
-              Starts
+              {t("ui.starts")}
             </label>
             <input
               id="startsAt"
@@ -86,7 +88,7 @@ export default async function NewPromotionPage() {
           </div>
           <div>
             <label htmlFor="endsAt" className="block text-xs font-medium text-text-secondary">
-              Ends
+              {t("ui.ends")}
             </label>
             <input
               id="endsAt"
@@ -97,9 +99,9 @@ export default async function NewPromotionPage() {
             />
           </div>
         </div>
-        <p className="text-xs text-text-secondary">Created inactive — publish it from the detail page once reviewed.</p>
+        <p className="text-xs text-text-secondary">{t("ui.createdInactivePublishItFromTheDetail")}</p>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Create promotion
+          {t("ui.createPromotion")}
         </button>
       </form>
     </div>

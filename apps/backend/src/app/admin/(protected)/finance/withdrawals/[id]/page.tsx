@@ -10,7 +10,9 @@ import {
   markWithdrawalFailedAction,
 } from "./actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function AdminWithdrawalDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t, e, dateTime } = await getI18n();
   try {
     await requireAdminPermission("finance.manage");
   } catch (err) {
@@ -27,9 +29,9 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
     return (
       <div>
         <Link href="/admin/finance/withdrawals" className="text-sm text-primary hover:underline">
-          ← Back to withdrawals
+          {t("ui.backToWithdrawals")}
         </Link>
-        <p className="mt-4 text-text-secondary">Withdrawal not found.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.withdrawalNotFound")}</p>
       </div>
     );
   }
@@ -42,37 +44,37 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
   return (
     <div>
       <Link href="/admin/finance/withdrawals" className="text-sm text-primary hover:underline">
-        ← Back to withdrawals
+        {t("ui.backToWithdrawals")}
       </Link>
 
       <div className="mt-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <h1 className="text-xl font-semibold text-text-primary">{formatMoney(withdrawal.amount + withdrawal.feeMinorUnits, withdrawal.currency)}</h1>
         <dl className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
-            <dt className="text-text-secondary">Status</dt>
-            <dd className="mt-0.5 font-medium text-text-primary">{withdrawal.status}</dd>
+            <dt className="text-text-secondary">{t("ui.status")}</dt>
+            <dd className="mt-0.5 font-medium text-text-primary">{e("enum", withdrawal.status)}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Method</dt>
-            <dd className="mt-0.5 text-text-primary">{withdrawal.method}</dd>
+            <dt className="text-text-secondary">{t("ui.method")}</dt>
+            <dd className="mt-0.5 text-text-primary">{e("enum", withdrawal.method)}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Fee</dt>
+            <dt className="text-text-secondary">{t("ui.fee")}</dt>
             <dd className="mt-0.5 text-text-primary">{formatMoney(withdrawal.feeMinorUnits, withdrawal.currency)}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Requested</dt>
-            <dd className="mt-0.5 text-text-primary">{withdrawal.requestedAt.toLocaleString()}</dd>
+            <dt className="text-text-secondary">{t("ui.requested")}</dt>
+            <dd className="mt-0.5 text-text-primary">{dateTime(withdrawal.requestedAt)}</dd>
           </div>
           {withdrawal.paidAt && (
             <div>
-              <dt className="text-text-secondary">Paid</dt>
-              <dd className="mt-0.5 text-text-primary">{withdrawal.paidAt.toLocaleString()}</dd>
+              <dt className="text-text-secondary">{t("ui.paid")}</dt>
+              <dd className="mt-0.5 text-text-primary">{dateTime(withdrawal.paidAt)}</dd>
             </div>
           )}
           {withdrawal.rejectedReason && (
             <div>
-              <dt className="text-text-secondary">Rejection reason</dt>
+              <dt className="text-text-secondary">{t("ui.rejectionReason")}</dt>
               <dd className="mt-0.5 text-text-primary">{withdrawal.rejectedReason}</dd>
             </div>
           )}
@@ -80,19 +82,19 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
       </div>
 
       <div className="mt-6 rounded-card border border-text-disabled/20 bg-surface-light p-6">
-        <h2 className="text-sm font-semibold text-text-primary">Actions</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t("ui.actions")}</h2>
 
         {(withdrawal.status === "REQUESTED" || withdrawal.status === "PENDING_APPROVAL") && (
           <div className="mt-3 flex flex-wrap items-end gap-6">
             <form action={boundApprove}>
               <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-                Approve
+                {t("ui.approve")}
               </button>
             </form>
             <form action={boundReject} className="flex items-end gap-3">
               <div>
                 <label htmlFor="reject-reason" className="block text-xs font-medium text-text-secondary">
-                  Rejection reason
+                  {t("ui.rejectionReason")}
                 </label>
                 <input
                   id="reject-reason"
@@ -103,7 +105,7 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
                 />
               </div>
               <button type="submit" className="rounded-button bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-                Reject
+                {t("ui.reject")}
               </button>
             </form>
           </div>
@@ -114,7 +116,7 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
             <form action={boundMarkPaid} className="flex items-end gap-3">
               <div>
                 <label htmlFor="gatewayProvider" className="block text-xs font-medium text-text-secondary">
-                  Gateway provider
+                  {t("ui.gatewayProvider")}
                 </label>
                 <input
                   id="gatewayProvider"
@@ -126,7 +128,7 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
               </div>
               <div>
                 <label htmlFor="gatewayRef" className="block text-xs font-medium text-text-secondary">
-                  Gateway reference (optional)
+                  {t("ui.gatewayReferenceOptional")}
                 </label>
                 <input
                   id="gatewayRef"
@@ -135,13 +137,13 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
                 />
               </div>
               <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-                Mark paid
+                {t("ui.markPaid")}
               </button>
             </form>
             <form action={boundMarkFailed} className="flex items-end gap-3">
               <div>
                 <label htmlFor="fail-reason" className="block text-xs font-medium text-text-secondary">
-                  Failure reason
+                  {t("ui.failureReason")}
                 </label>
                 <input
                   id="fail-reason"
@@ -152,20 +154,20 @@ export default async function AdminWithdrawalDetailPage({ params }: { params: Pr
                 />
               </div>
               <button type="submit" className="rounded-button bg-error px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-                Mark failed
+                {t("ui.markFailed")}
               </button>
             </form>
           </div>
         )}
 
         {!["REQUESTED", "PENDING_APPROVAL", "PROCESSING", "APPROVED"].includes(withdrawal.status) && (
-          <p className="mt-2 text-sm text-text-secondary">This withdrawal is {withdrawal.status} — no further action available here.</p>
+          <p className="mt-2 text-sm text-text-secondary">{t("ui.withdrawalNoAction", { status: e("enum", withdrawal.status) })}</p>
         )}
         {withdrawal.status === "APPROVED" && (
           <p className="mt-2 text-sm text-text-secondary">
-            Approved withdrawals move to PROCESSING once batched into a Settlement — see{" "}
+            {t("ui.withdrawalBatchNote")}{" "}
             <Link href="/admin/finance/settlements" className="text-primary hover:underline">
-              Settlements
+              {t("ui.settlements")}
             </Link>
             .
           </p>

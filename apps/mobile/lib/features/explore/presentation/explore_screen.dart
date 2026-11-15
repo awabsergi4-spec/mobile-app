@@ -97,7 +97,7 @@ class _CategoryGrid extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(child: CategoryArt(categoryKey: category.key, type: type.wireValue)),
+                      Expanded(child: CategoryArt(categoryKey: category.key, imageUrl: category.imageUrl, type: type.wireValue)),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.md),
                         child: Column(

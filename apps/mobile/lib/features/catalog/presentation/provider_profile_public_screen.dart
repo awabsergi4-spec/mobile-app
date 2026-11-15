@@ -139,7 +139,7 @@ class ProviderProfilePublicScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10),
                             child: SizedBox.square(
                               dimension: 44,
-                              child: CategoryArt(categoryKey: service.key, type: service.type, iconSize: 22),
+                              child: CategoryArt(categoryKey: service.key, imageUrl: service.imageUrl, type: service.type, iconSize: 22),
                             ),
                           ),
                           title: service.name,

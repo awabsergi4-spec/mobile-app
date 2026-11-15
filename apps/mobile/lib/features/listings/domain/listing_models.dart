@@ -10,19 +10,21 @@ ListingStatus _status(String? v) => switch (v) {
     };
 
 class ListingCategory {
-  const ListingCategory({required this.id, required this.type, required this.name, this.key});
+  const ListingCategory({required this.id, required this.type, required this.name, this.key, this.imageUrl});
 
   factory ListingCategory.fromJson(Map<String, dynamic> json) => ListingCategory(
         id: json['id'] as String,
         type: json['type'] as String? ?? 'REMOTE',
         name: json['name'] as String? ?? '',
         key: json['key'] as String?,
+        imageUrl: json['imageUrl'] as String?,
       );
 
   final String id;
   final String type;
   final String name;
   final String? key;
+  final String? imageUrl;
 }
 
 class ListingProvider {

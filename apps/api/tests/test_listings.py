@@ -150,3 +150,28 @@ def test_listing_rules(client, admin_headers, conn, uploads):
         "categoryId": on_demand, "title": "x" * 6, "description": "y" * 25, "priceFrom": 1, "coverUrl": _img(uid)
     }).json()["errorCode"] == "PROVIDER_PROFILE_NOT_FOUND"
     assert client.post(f"{API}/admin/listings/nope/approve", headers=ch).json()["errorCode"] == "FORBIDDEN"
+
+
+def test_category_image(client, admin_headers, uploads):
+    _, h, _ = _user(client, admin_headers, "+249915000030")
+    assert client.post(f"{API}/uploads/signature", headers=h, json={"purpose": "category"}).json()["errorCode"] == "FORBIDDEN"
+    signed = client.post(f"{API}/uploads/signature", headers=admin_headers, json={"purpose": "category"}).json()["data"]
+    assert signed["folder"].startswith("sahl/categories/")
+
+    good = f"https://res.cloudinary.com/{CLOUD}/image/upload/v1/{signed['folder']}/writing.jpg"
+    bad = client.post(f"{API}/admin/service-categories", headers=admin_headers, json={
+        "type": "REMOTE", "nameEn": "Writing", "nameAr": "كتابة", "imageUrl": _img("someone", "x.jpg")})
+    assert bad.json()["errorCode"] == "INVALID_IMAGE_URL"
+
+    cat = client.post(f"{API}/admin/service-categories", headers=admin_headers, json={
+        "type": "REMOTE", "nameEn": "Writing", "nameAr": "كتابة", "imageUrl": good}).json()["data"]
+    assert cat["imageUrl"] == good
+    listed = client.get(f"{API}/service-categories?type=REMOTE", headers=h).json()["data"]
+    assert next(c for c in listed if c["id"] == cat["id"])["imageUrl"] == good
+    assert client.get(f"{API}/service-categories/{cat['id']}", headers=h).json()["data"]["imageUrl"] == good
+
+    # Renaming keeps the image; sending null removes it.
+    kept = client.patch(f"{API}/admin/service-categories/{cat['id']}", headers=admin_headers, json={"nameEn": "Copywriting"})
+    assert kept.json()["data"]["imageUrl"] == good
+    cleared = client.patch(f"{API}/admin/service-categories/{cat['id']}", headers=admin_headers, json={"imageUrl": None})
+    assert cleared.json()["data"]["imageUrl"] is None

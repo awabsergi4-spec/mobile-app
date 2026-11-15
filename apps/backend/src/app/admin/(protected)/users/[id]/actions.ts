@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdminPermission } from "@/presentation/admin-session";
 import { adminApi } from "@/presentation/sahl-api";
 
+import { getI18n } from "@/presentation/i18n";
 // All three go through the SAHL API (apps/api), which enforces users.manage
 // itself; the local permission check keeps the fail-closed UI behaviour.
 export async function approveUserAction(userId: string): Promise<void> {
@@ -14,10 +15,11 @@ export async function approveUserAction(userId: string): Promise<void> {
 }
 
 export async function suspendUserAction(userId: string, formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   await requireAdminPermission("users.manage");
   const reason = String(formData.get("reason") ?? "").trim();
   if (reason.length < 3) {
-    throw new Error("A reason of at least 3 characters is required.");
+    throw new Error(t("ui.aReasonOfAtLeast3Characters"));
   }
   await adminApi(`/admin/users/${userId}/suspend`, { method: "POST", body: { reason } });
   revalidatePath(`/admin/users/${userId}`);

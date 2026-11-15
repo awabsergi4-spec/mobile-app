@@ -3,19 +3,10 @@ import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { aiFeatureToggleRepository } from "@/infrastructure/ai/ai-feature-toggle-services";
 import { setAiFeatureToggleAction } from "./actions";
 
-const CAPABILITY_LABELS: Record<string, string> = {
-  INTENT_CLASSIFICATION: "Intent classification",
-  RANKING_ADJUSTMENT: "Ranking adjustment",
-  RECOMMENDATION: "Recommendation",
-  FRAUD_DETECTION: "Fraud detection",
-  DEMAND_FORECAST: "Demand forecast",
-  PRICING_SUGGESTION: "Pricing suggestion",
-  ASSISTANT_CUSTOMER: "Assistant — customer",
-  ASSISTANT_PROVIDER: "Assistant — provider",
-  ASSISTANT_ADMIN: "Assistant — admin",
-};
+import { getI18n } from "@/presentation/i18n";
 
 export default async function AdminAiPage() {
+  const { t, e, dateTime } = await getI18n();
   try {
     await requireAdminPermission("ai.manage");
   } catch (err) {
@@ -29,10 +20,9 @@ export default async function AdminAiPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-text-primary">AI Features</h1>
+      <h1 className="text-xl font-semibold text-text-primary">{t("ui.aiFeatures")}</h1>
       <p className="mt-1 text-sm text-text-secondary">
-        Disabled or unconfigured capabilities fall back to the rule-based implementation automatically — nothing ever breaks by
-        turning a capability off.
+        {t("ui.disabledOrUnconfiguredCapabilitiesFallBackTo")}
       </p>
 
       <div className="mt-4 space-y-3">
@@ -45,10 +35,10 @@ export default async function AdminAiPage() {
               className="flex items-center justify-between gap-4 rounded-card border border-text-disabled/20 bg-surface-light p-4"
             >
               <div>
-                <p className="text-sm font-medium text-text-primary">{CAPABILITY_LABELS[toggle.capability] ?? toggle.capability}</p>
+                <p className="text-sm font-medium text-text-primary">{e("capability", toggle.capability)}</p>
                 <p className="text-xs text-text-secondary">
-                  {toggle.isEnabled ? "Enabled" : "Disabled"} · provider: {toggle.provider}
-                  {toggle.updatedAt ? ` · updated ${toggle.updatedAt.toLocaleString()}` : ""}
+                  {toggle.isEnabled ? t("ui.enabled") : t("ui.disabled")} · {t("ui.providerLabel", { name: toggle.provider })}
+                  {toggle.updatedAt ? ` · ${t("ui.updatedAt", { when: dateTime(toggle.updatedAt) })}` : ""}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -59,10 +49,10 @@ export default async function AdminAiPage() {
                 />
                 <label className="flex items-center gap-2 text-sm text-text-primary">
                   <input type="checkbox" name="isEnabled" defaultChecked={toggle.isEnabled} />
-                  Enabled
+                  {t("ui.enabled")}
                 </label>
                 <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-                  Save
+                  {t("ui.save")}
                 </button>
               </div>
             </form>

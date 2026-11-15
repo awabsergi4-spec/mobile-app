@@ -146,7 +146,7 @@ class _Results extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                         child: SizedBox.square(
                           dimension: 44,
-                          child: CategoryArt(categoryKey: c.key, type: c.type, iconSize: 22),
+                          child: CategoryArt(categoryKey: c.key, imageUrl: c.imageUrl, type: c.type, iconSize: 22),
                         ),
                       ),
                       title: c.name,

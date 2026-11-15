@@ -743,5 +743,19 @@
   "providerServicesListings": "Posted services",
   "errorListingNotEligible": "Your provider profile must be verified before you can post services.",
   "errorInvalidImage": "One of the images wasn't uploaded through the app. Please add it again.",
-  "errorUploadsOff": "Image uploads aren't available right now."
+  "errorUploadsOff": "Image uploads aren't available right now.",
+  "forgotPassword": "Forgot password?",
+  "resetTitle": "Reset your password",
+  "resetRequestSubtitle": "Enter your phone number. SAHL support will contact you with a 6-digit code.",
+  "resetRequestButton": "Send request",
+  "resetHaveCode": "I already have a code",
+  "resetCodeTitle": "Enter your code",
+  "resetRequestedMessage": "Your request was sent. When SAHL support gives you the 6-digit code, enter it below with a new password. Codes are valid for 30 minutes.",
+  "resetCodeLabel": "6-digit code",
+  "resetConfirmPassword": "Confirm new password",
+  "resetSubmit": "Set new password",
+  "resetDone": "Password changed. Sign in with your new password.",
+  "validationResetCode": "Enter the 6-digit code",
+  "errorInvalidResetCode": "The code is wrong or has expired. Check it, or ask for a new one.",
+  "errorTooManyAttempts": "Too many wrong codes. Ask SAHL support for a new one."
 }

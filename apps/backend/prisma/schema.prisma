@@ -619,6 +619,7 @@ model ServiceCategory {
   durationClass       DurationClass?
   requiredDocumentTypes String[] // ProviderDocument.type values required before a provider may offer this category — "Required Documents" / "Verification Rules" (docs/00-admin-panel-spec.md), admin-editable, no code change to add a new required type
   isActive            Boolean             @default(true)
+  imageUrl            String? // admin-uploaded 16:9 picture (Cloudinary); app falls back to bundled art
   createdAt           DateTime            @default(now())
 
   translations       ServiceCategoryTranslation[]

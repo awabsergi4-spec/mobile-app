@@ -7,10 +7,12 @@ import { settlementRepository } from "@/infrastructure/finance/finance-services"
 import { createSettlementAction, completeSettlementAction } from "./actions";
 import type { SettlementSchedule, SettlementStatus } from "@prisma/client";
 
+import { getI18n } from "@/presentation/i18n";
 const STATUS_OPTIONS: SettlementStatus[] = ["PENDING", "PROCESSING", "COMPLETED", "FAILED"];
 const SCHEDULE_OPTIONS: SettlementSchedule[] = ["INSTANT", "DAILY", "WEEKLY", "MONTHLY", "MANUAL"];
 
 export default async function AdminSettlementsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { t, e } = await getI18n();
   try {
     await requireAdminPermission("finance.manage");
   } catch (err) {
@@ -27,17 +29,17 @@ export default async function AdminSettlementsPage({ searchParams }: { searchPar
   return (
     <div>
       <Link href="/admin/finance" className="text-sm text-primary hover:underline">
-        ← Back to finance
+        {t("ui.backToFinance")}
       </Link>
-      <h1 className="mt-2 text-xl font-semibold text-text-primary">Settlements</h1>
-      <p className="mt-1 text-sm text-text-secondary">A batch run over every currently-APPROVED withdrawal in one currency.</p>
+      <h1 className="mt-2 text-xl font-semibold text-text-primary">{t("ui.settlements")}</h1>
+      <p className="mt-1 text-sm text-text-secondary">{t("ui.aBatchRunOverEveryCurrentlyApproved")}</p>
 
       <div className="mt-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
-        <h2 className="text-sm font-semibold text-text-primary">Create a settlement batch</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t("ui.createASettlementBatch")}</h2>
         <form action={createSettlementAction} className="mt-3 flex flex-wrap items-end gap-3">
           <div>
             <label htmlFor="schedule" className="block text-xs font-medium text-text-secondary">
-              Schedule
+              {t("ui.schedule")}
             </label>
             <select
               id="schedule"
@@ -47,14 +49,14 @@ export default async function AdminSettlementsPage({ searchParams }: { searchPar
             >
               {SCHEDULE_OPTIONS.map((s) => (
                 <option key={s} value={s}>
-                  {s}
+                  {e("enum", s)}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label htmlFor="currency" className="block text-xs font-medium text-text-secondary">
-              Currency
+              {t("ui.currency")}
             </label>
             <input
               id="currency"
@@ -67,7 +69,7 @@ export default async function AdminSettlementsPage({ searchParams }: { searchPar
             />
           </div>
           <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-            Batch approved withdrawals
+            {t("ui.batchApprovedWithdrawals")}
           </button>
         </form>
       </div>
@@ -80,25 +82,25 @@ export default async function AdminSettlementsPage({ searchParams }: { searchPar
         >
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {e("enum", s)}
             </option>
           ))}
         </select>
         <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-          Filter
+          {t("ui.filter")}
         </button>
       </form>
 
       <div className="mt-4 overflow-x-auto rounded-card border border-text-disabled/20 bg-surface-light">
         {settlements.length === 0 ? (
-          <EmptyState message="No settlements in this status." />
+          <EmptyState message={t("ui.noSettlementsInThisStatus")} />
         ) : (
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <thead className="border-b border-text-disabled/20 text-xs uppercase text-text-secondary">
               <tr>
-                <th className="px-4 py-3">Total</th>
-                <th className="px-4 py-3">Schedule</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">{t("ui.total")}</th>
+                <th className="px-4 py-3">{t("ui.schedule")}</th>
+                <th className="px-4 py-3">{t("ui.status")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -108,13 +110,13 @@ export default async function AdminSettlementsPage({ searchParams }: { searchPar
                 return (
                   <tr key={settlement.id} className="border-b border-text-disabled/10 last:border-0">
                     <td className="px-4 py-3 font-medium text-text-primary">{formatMoney(settlement.totalAmount, settlement.currency)}</td>
-                    <td className="px-4 py-3 text-text-secondary">{settlement.schedule}</td>
-                    <td className="px-4 py-3 text-text-secondary">{settlement.status}</td>
+                    <td className="px-4 py-3 text-text-secondary">{e("enum", settlement.schedule)}</td>
+                    <td className="px-4 py-3 text-text-secondary">{e("enum", settlement.status)}</td>
                     <td className="px-4 py-3">
                       {(settlement.status === "PENDING" || settlement.status === "PROCESSING") && (
                         <form action={boundComplete}>
                           <button type="submit" className="text-primary hover:underline">
-                            Complete
+                            {t("ui.complete")}
                           </button>
                         </form>
                       )}

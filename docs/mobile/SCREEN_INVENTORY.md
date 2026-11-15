@@ -225,3 +225,21 @@ Providers post services customers can order directly. A posted service has a tit
 | `/listings/:id` | Customer: gallery, details, provider, Order / Request a quote |
 | `/services/:categoryId` | Now also lists "Services you can order" for Short-Term and Long-Term categories |
 | `/providers/:id` | Now also shows the provider's posted services |
+
+## 9. Admin in Arabic, category pictures, forgot password (done 2026-11-15)
+
+### Admin Platform in Arabic
+- English/العربية switch in the header and on the login page, remembered in the `sahl_admin_locale` cookie. Arabic renders right-to-left (`<html dir="rtl">`); layout classes use start/end so the sidebar and tables mirror.
+- All admin pages read their text from `src/presentation/i18n/en.ts` and `ar.ts` (about 620 keys). `ar.ts` is type-checked against `en.ts`, so a missing Arabic string fails the build. Status values are shown through `e("enum", value)` and fall back to the raw value.
+- Dates and numbers use the selected locale with Latin digits.
+
+### Category pictures (approved schema change)
+- New column `ServiceCategory.imageUrl` (Alembic `0003_category_image`, Prisma migration `20261115120000_category_image`). Applied to Neon on 2026-11-15.
+- Admin → Categories: upload a picture when creating or editing a category (16:9, at least 800×450, up to 5 MB, JPG/PNG/WebP), or remove it. Uploads go through a signed Cloudinary upload (`purpose: category`, requires `services.manage`).
+- The app shows the uploaded picture first and falls back to the built-in picture matched from the English name, then to the service-type icon.
+
+### Forgot password (admin-assisted, no schema change)
+- App: "Forgot password?" on the login screen opens `/forgot-password`. Step 1 sends a request for the phone number. Step 2 takes the 6-digit code plus a new password. "I already have a code" skips step 1.
+- API: `POST /auth/password-reset/request` (same answer for unknown numbers) and `POST /auth/password-reset/confirm` (5 wrong tries max; success signs out every session).
+- Admin → Password resets (`users.manage`): Waiting / Code sent / Closed. "Generate code" shows a 6-digit code once (valid 30 minutes) for the admin to send to the user by phone or WhatsApp. Only its hash is stored, and the code is never put in a URL. Requests can be cancelled.
+- Stored in the existing `OtpCode` table with purpose `PASSWORD_RESET`.

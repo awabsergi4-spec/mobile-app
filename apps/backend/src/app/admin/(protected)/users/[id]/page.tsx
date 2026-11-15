@@ -5,7 +5,9 @@ import { adminApi, SahlApiError } from "@/presentation/sahl-api";
 import { ACCOUNT_TYPE_LABELS, STATUS_LABELS, type AdminUser } from "../api";
 import { approveUserAction, suspendUserAction, reactivateUserAction } from "./actions";
 
+import { getI18n } from "@/presentation/i18n";
 export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t, e, dateTime } = await getI18n();
   try {
     await requireAdminPermission("users.manage");
   } catch (err) {
@@ -27,9 +29,9 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     return (
       <div>
         <Link href="/admin/users" className="text-sm text-primary hover:underline">
-          ← Back to users
+          {t("ui.backToUsers")}
         </Link>
-        <p className="mt-4 text-text-secondary">User not found.</p>
+        <p className="mt-4 text-text-secondary">{t("ui.userNotFound")}</p>
       </div>
     );
   }
@@ -41,52 +43,52 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   return (
     <div>
       <Link href="/admin/users" className="text-sm text-primary hover:underline">
-        ← Back to users
+        {t("ui.backToUsers")}
       </Link>
 
       <div className="mt-4 rounded-card border border-text-disabled/20 bg-surface-light p-6">
         <h1 className="text-xl font-semibold text-text-primary">{user.fullName}</h1>
         <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
           <div>
-            <dt className="text-text-secondary">Phone</dt>
+            <dt className="text-text-secondary">{t("ui.phone")}</dt>
             <dd className="mt-0.5 text-text-primary" dir="ltr">
               {user.phone}
             </dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Email</dt>
+            <dt className="text-text-secondary">{t("ui.email")}</dt>
             <dd className="mt-0.5 text-text-primary">{user.email ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Account type</dt>
-            <dd className="mt-0.5 text-text-primary">{ACCOUNT_TYPE_LABELS[user.accountType]}</dd>
+            <dt className="text-text-secondary">{t("ui.accountType")}</dt>
+            <dd className="mt-0.5 text-text-primary">{e("accountType", user.accountType)}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Status</dt>
-            <dd className="mt-0.5 font-medium text-text-primary">{STATUS_LABELS[user.status]}</dd>
+            <dt className="text-text-secondary">{t("ui.status")}</dt>
+            <dd className="mt-0.5 font-medium text-text-primary">{e("enum", user.status)}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Preferred language</dt>
+            <dt className="text-text-secondary">{t("ui.preferredLanguage")}</dt>
             <dd className="mt-0.5 text-text-primary">{user.preferredLanguage}</dd>
           </div>
           <div>
-            <dt className="text-text-secondary">Joined</dt>
-            <dd className="mt-0.5 text-text-primary">{new Date(user.createdAt).toLocaleString()}</dd>
+            <dt className="text-text-secondary">{t("ui.joined")}</dt>
+            <dd className="mt-0.5 text-text-primary">{dateTime(user.createdAt)}</dd>
           </div>
         </dl>
       </div>
 
       <div className="mt-6 rounded-card border border-text-disabled/20 bg-surface-light p-6">
-        <h2 className="text-sm font-semibold text-text-primary">Account actions</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t("ui.accountActions")}</h2>
 
         {user.status === "PENDING_VERIFICATION" && (
           <div className="mt-3 flex items-center justify-between gap-4 rounded-button border border-warning/40 bg-warning/10 p-4">
             <p className="text-sm text-text-primary">
-              This account signed up and is waiting for approval. It can&apos;t sign in until approved.
+              {t("ui.thisAccountSignedUpAndIsWaiting")}
             </p>
             <form action={boundApprove}>
               <button type="submit" className="whitespace-nowrap rounded-button bg-success px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-                Approve account
+                {t("ui.approveAccount")}
               </button>
             </form>
           </div>
@@ -95,14 +97,14 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         {user.status === "SUSPENDED" ? (
           <form action={boundReactivate} className="mt-3">
             <button type="submit" className="rounded-button bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-secondary">
-              Reactivate account
+              {t("ui.reactivateAccount")}
             </button>
           </form>
         ) : user.status === "ACTIVE" || user.status === "PENDING_VERIFICATION" ? (
           <form action={boundSuspend} className="mt-3 flex items-end gap-3">
             <div className="flex-1">
               <label htmlFor="reason" className="block text-xs font-medium text-text-secondary">
-                Reason
+                {t("ui.reason")}
               </label>
               <input
                 id="reason"
@@ -118,7 +120,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             </button>
           </form>
         ) : (
-          <p className="mt-2 text-sm text-text-secondary">This account is BANNED and has no available actions here.</p>
+          <p className="mt-2 text-sm text-text-secondary">{t("ui.thisAccountIsBannedAndHasNo")}</p>
         )}
       </div>
     </div>

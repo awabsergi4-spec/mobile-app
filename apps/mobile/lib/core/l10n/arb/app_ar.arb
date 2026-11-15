@@ -557,5 +557,19 @@
   "providerServicesListings": "الخدمات المنشورة",
   "errorListingNotEligible": "يجب توثيق ملفك كمقدم خدمة قبل نشر الخدمات.",
   "errorInvalidImage": "إحدى الصور لم تُرفع عبر التطبيق. أضفها مرة أخرى.",
-  "errorUploadsOff": "رفع الصور غير متاح حالياً."
+  "errorUploadsOff": "رفع الصور غير متاح حالياً.",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "resetTitle": "استعادة كلمة المرور",
+  "resetRequestSubtitle": "أدخل رقم هاتفك، وسيتواصل معك فريق دعم سهل برمز من 6 أرقام.",
+  "resetRequestButton": "إرسال الطلب",
+  "resetHaveCode": "لدي رمز بالفعل",
+  "resetCodeTitle": "أدخل الرمز",
+  "resetRequestedMessage": "تم إرسال طلبك. عندما يرسل لك فريق دعم سهل الرمز المكوّن من 6 أرقام، أدخله أدناه مع كلمة مرور جديدة. الرمز صالح لمدة 30 دقيقة.",
+  "resetCodeLabel": "الرمز (6 أرقام)",
+  "resetConfirmPassword": "تأكيد كلمة المرور الجديدة",
+  "resetSubmit": "تعيين كلمة المرور",
+  "resetDone": "تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة.",
+  "validationResetCode": "أدخل الرمز المكوّن من 6 أرقام",
+  "errorInvalidResetCode": "الرمز غير صحيح أو منتهي. تحقق منه أو اطلب رمزاً جديداً.",
+  "errorTooManyAttempts": "محاولات خاطئة كثيرة. اطلب رمزاً جديداً من دعم سهل."
 }

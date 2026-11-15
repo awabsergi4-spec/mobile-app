@@ -84,13 +84,15 @@ def _category_info(conn: Connection, ids: list[str], locale: str) -> dict[str, d
     if not ids:
         return {}
     sc, sct = t("ServiceCategory"), t("ServiceCategoryTranslation")
-    types = {r["id"]: r["type"] for r in rows(conn, select(sc.c.id, sc.c.type).where(sc.c.id.in_(ids)))}
+    found = rows(conn, select(sc.c.id, sc.c.type, sc.c.imageUrl).where(sc.c.id.in_(ids)))
+    types = {r["id"]: r["type"] for r in found}
+    images = {r["id"]: r["imageUrl"] for r in found}
     names: dict[str, dict[str, str]] = {}
     for tr in rows(conn, select(sct).where(sct.c.categoryId.in_(ids), sct.c.locale.in_([locale, "en"]))):
         names.setdefault(tr["categoryId"], {})[tr["locale"]] = tr["name"]
     keys = category_keys(conn, ids)
     return {
-        cid: {"id": cid, "type": types.get(cid), "key": keys.get(cid),
+        cid: {"id": cid, "type": types.get(cid), "key": keys.get(cid), "imageUrl": images.get(cid),
               "name": names.get(cid, {}).get(locale) or names.get(cid, {}).get("en") or cid}
         for cid in ids
     }

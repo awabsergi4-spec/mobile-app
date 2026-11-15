@@ -6,13 +6,15 @@ import { requireAdminPermission } from "@/presentation/admin-session";
 import { createNotificationBroadcastUseCase, sendNotificationBroadcastUseCase } from "@/infrastructure/notification/notification-services";
 import type { NotificationChannel } from "@prisma/client";
 
+import { getI18n } from "@/presentation/i18n";
 export async function createBroadcastAction(formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   const { userId: actorId } = await requireAdminPermission("notifications.manage");
 
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
   if (title.length < 1 || body.length < 1) {
-    throw new Error("Title and body are required.");
+    throw new Error(t("ui.titleAndBodyAreRequired"));
   }
 
   const broadcast = await createNotificationBroadcastUseCase.execute({

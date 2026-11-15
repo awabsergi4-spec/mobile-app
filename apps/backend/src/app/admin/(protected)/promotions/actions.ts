@@ -10,19 +10,21 @@ import {
 } from "@/infrastructure/promotion/promotion-services";
 import type { DiscountType } from "@prisma/client";
 
-function readCommonFields(formData: FormData) {
+import { getI18n, type Translate } from "@/presentation/i18n";
+
+function readCommonFields(formData: FormData, t: Translate) {
   const startsAt = new Date(String(formData.get("startsAt")));
   const endsAt = new Date(String(formData.get("endsAt")));
   if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime()) || endsAt <= startsAt) {
-    throw new Error("End date must be after the start date.");
+    throw new Error(t("ui.endDateMustBeAfterTheStart"));
   }
   const name = String(formData.get("name") ?? "").trim();
   if (name.length < 1) {
-    throw new Error("Name is required.");
+    throw new Error(t("ui.nameIsRequired"));
   }
   const discountValue = Number(formData.get("discountValue") ?? 0);
   if (!Number.isFinite(discountValue) || discountValue <= 0) {
-    throw new Error("Discount value must be a positive number.");
+    throw new Error(t("ui.discountValueMustBeAPositiveNumber"));
   }
 
   return {
@@ -37,7 +39,7 @@ function readCommonFields(formData: FormData) {
 
 export async function createPromotionAction(formData: FormData): Promise<void> {
   const { userId: actorId } = await requireAdminPermission("promotions.manage");
-  const fields = readCommonFields(formData);
+  const fields = readCommonFields(formData, (await getI18n()).t);
   const promotion = await createPromotionUseCase.execute({ ...fields, actorId });
   revalidatePath("/admin/promotions");
   redirect(`/admin/promotions/${promotion.id}`);
@@ -45,7 +47,7 @@ export async function createPromotionAction(formData: FormData): Promise<void> {
 
 export async function updatePromotionAction(promotionId: string, formData: FormData): Promise<void> {
   const { userId: actorId } = await requireAdminPermission("promotions.manage");
-  const fields = readCommonFields(formData);
+  const fields = readCommonFields(formData, (await getI18n()).t);
   await updatePromotionUseCase.execute({ promotionId, actorId, ...fields });
   revalidatePath(`/admin/promotions/${promotionId}`);
 }

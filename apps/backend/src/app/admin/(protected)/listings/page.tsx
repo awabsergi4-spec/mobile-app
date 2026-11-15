@@ -3,12 +3,12 @@ import { ForbiddenAdminError, requireAdminPermission } from "@/presentation/admi
 import { ForbiddenNotice } from "@/presentation/admin-ui/forbidden-notice";
 import { EmptyState } from "@/presentation/admin-ui/empty-state";
 import { adminApi } from "@/presentation/sahl-api";
-import { LISTING_STATUS_LABELS, type AdminListingQueue, type ListingStatus } from "./api";
-
-const STATUSES = Object.keys(LISTING_STATUS_LABELS) as ListingStatus[];
+import { getI18n } from "@/presentation/i18n";
+import { LISTING_STATUS_KEYS, LISTING_STATUSES, type AdminListingQueue } from "./api";
 
 // Data comes from the SAHL API (GET /api/v1/admin/listings).
 export default async function AdminListingsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { t, number, dateTime } = await getI18n();
   try {
     await requireAdminPermission("services.manage");
   } catch (err) {
@@ -23,13 +23,13 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-text-primary">Service listings</h1>
+      <h1 className="text-xl font-semibold text-text-primary">{t("listings.title")}</h1>
       <p className="mt-1 text-sm text-text-secondary">
-        Services providers post. New and edited listings stay hidden from customers until approved.
+        {t("listings.subtitle")}
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2 text-sm">
-        {STATUSES.map((s) => (
+        {LISTING_STATUSES.map((s) => (
           <Link
             key={s}
             href={`/admin/listings?status=${s}`}
@@ -37,7 +37,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
               status === s ? "border-primary bg-primary/10 font-semibold text-primary" : "border-text-disabled/30 text-text-secondary"
             }`}
           >
-            {LISTING_STATUS_LABELS[s]}
+            {t(LISTING_STATUS_KEYS[s])}
             {s === "PENDING_REVIEW" && pendingCount > 0 ? ` (${pendingCount})` : ""}
           </Link>
         ))}
@@ -45,7 +45,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
 
       {listings.length === 0 ? (
         <div className="mt-4 rounded-card border border-text-disabled/20 bg-surface-light">
-          <EmptyState message="Nothing here." />
+          <EmptyState message={t("listings.empty")} />
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -62,8 +62,8 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
                 <p className="mt-1 text-xs text-text-secondary">
                   {l.provider?.businessName ?? "—"} · {l.category?.name ?? "—"}
                 </p>
-                <p className="mt-2 text-sm text-text-primary">From {l.priceFrom.toLocaleString()}</p>
-                <p className="mt-1 text-xs text-text-secondary">Updated {new Date(l.updatedAt).toLocaleString()}</p>
+                <p className="mt-2 text-sm text-text-primary">{t("listings.priceFrom", { price: number(l.priceFrom) })}</p>
+                <p className="mt-1 text-xs text-text-secondary">{t("listings.updated", { when: dateTime(l.updatedAt) })}</p>
               </div>
             </Link>
           ))}

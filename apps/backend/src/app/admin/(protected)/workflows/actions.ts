@@ -6,7 +6,9 @@ import { requireAdminPermission } from "@/presentation/admin-session";
 import { createWorkflowDefinitionUseCase, setWorkflowDefinitionStatusUseCase } from "@/infrastructure/workflow/workflow-admin-services";
 import { createWorkflowDefinitionSchema } from "@sahl/shared/schemas/workflow.schema";
 
+import { getI18n } from "@/presentation/i18n";
 export async function createWorkflowDefinitionAction(formData: FormData): Promise<void> {
+  const { t } = await getI18n();
   const { userId: actorId } = await requireAdminPermission("workflows.manage");
 
   const key = String(formData.get("key") ?? "").trim();
@@ -19,7 +21,7 @@ export async function createWorkflowDefinitionAction(formData: FormData): Promis
   try {
     stepsJson = JSON.parse(stepsRaw);
   } catch {
-    throw new Error("Steps must be valid JSON — an array of step objects.");
+    throw new Error(t("ui.stepsMustBeValidJsonAnArray"));
   }
 
   const parsed = createWorkflowDefinitionSchema.safeParse({ key, name, triggerEventType, priority, steps: stepsJson });
