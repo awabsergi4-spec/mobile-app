@@ -32,6 +32,11 @@ class AccountRepository {
 
   /// Changes the password. The API signs out every other device and returns
   /// a fresh session for this one, which is stored right away.
+  /// Sets (or with null, removes) the profile picture.
+  Future<Result<void>> updateProfilePicture(String? url) => apiCall(() async {
+        await _api.patch('/users/me', data: {'profilePictureUrl': url});
+      });
+
   Future<Result<void>> changePassword({required String currentPassword, required String newPassword}) => apiCall(() async {
         final res = await _api.post('/users/me/password', data: {'currentPassword': currentPassword, 'newPassword': newPassword});
         final data = res.dataAsMap;

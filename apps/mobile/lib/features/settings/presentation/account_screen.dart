@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../shared/widgets/sahl_ui.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../account/presentation/widgets/profile_photo_editor.dart';
 import '../../auth/domain/current_user.dart';
 
 /// Profile tab shared by all three roles: account summary, role-specific
@@ -40,7 +41,7 @@ class AccountScreen extends ConsumerWidget {
           SahlCard(
             child: Row(
               children: [
-                SahlAvatar(name: user.fullName, imageUrl: user.profilePictureUrl, size: 60),
+                const ProfilePhotoEditor(size: 64),
                 const SizedBox(width: AppSpacing.base),
                 Expanded(
                   child: Column(

@@ -10,6 +10,7 @@ from ..events import audit
 from ..responses import ApiError, ok
 from ..security import current_user, hash_password, issue_session, revoke_all_sessions, verify_password
 from .auth import user_payload
+from .uploads import is_our_upload
 
 router = APIRouter(tags=["account"])
 
@@ -24,6 +25,7 @@ class UpdateMeBody(BaseModel):
     bio: str | None = Field(default=None, max_length=1000)
     city: str | None = Field(default=None, max_length=120)
     address: str | None = Field(default=None, max_length=300)
+    profilePictureUrl: str | None = Field(default=None, max_length=500)  # null removes it
     profilePictureUrl: HttpUrl | None = None
 
 
@@ -51,6 +53,8 @@ def update_me(body: UpdateMeBody, user: dict = Depends(current_user), conn: Conn
         taken = conn.execute(select(users.c.id).where(users.c.email == data["email"], users.c.id != user["id"])).first()
         if taken:
             raise ApiError(409, "EMAIL_ALREADY_REGISTERED", "Email already registered")
+    if data.get("profilePictureUrl") and not is_our_upload(data["profilePictureUrl"], user["id"], purpose="avatar"):
+        raise ApiError(422, "INVALID_IMAGE_URL", "Profile pictures must be uploaded from the app")
     if not data:
         return ok(user_payload(conn, user))
     users = t("User")

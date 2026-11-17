@@ -12,6 +12,9 @@ import '../application/company_documents_controller.dart';
 import '../domain/company.dart';
 import '../domain/company_document.dart';
 import 'widgets/company_document_status_label.dart';
+import '../../../shared/media/image_upload_field.dart';
+import '../../../shared/media/media_uploader.dart';
+import '../../../shared/utils/document_types.dart';
 
 class CompanyVerificationScreen extends ConsumerStatefulWidget {
   const CompanyVerificationScreen({super.key, required this.companyId});
@@ -82,7 +85,7 @@ class _CompanyVerificationScreenState extends ConsumerState<CompanyVerificationS
                 else
                   ...data.map((doc) => Card(
                         child: ListTile(
-                          title: Text(doc.type),
+                          title: Text(documentTypeLabel(l10n, doc.type)),
                           subtitle: Text(doc.fileUrl, maxLines: 1, overflow: TextOverflow.ellipsis),
                           trailing: Chip(
                             label: Text(companyDocumentStatusText(l10n, doc.status)),
@@ -139,29 +142,23 @@ class _AddDocumentForm extends ConsumerStatefulWidget {
 
 class _AddDocumentFormState extends ConsumerState<_AddDocumentForm> {
   final _formKey = GlobalKey<FormState>();
-  final _typeController = TextEditingController();
-  final _fileUrlController = TextEditingController();
+  String? _type;
+  String? _fileUrl;
+  bool _fileMissing = false;
   bool _isSubmitting = false;
   String? _errorMessage;
 
-  @override
-  void dispose() {
-    _typeController.dispose();
-    _fileUrlController.dispose();
-    super.dispose();
-  }
-
   Future<void> _submit() async {
-    if (_isSubmitting || !_formKey.currentState!.validate()) return;
+    final valid = _formKey.currentState!.validate();
+    setState(() => _fileMissing = _fileUrl == null);
+    if (_isSubmitting || !valid || _fileUrl == null) return;
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
     });
 
     final l10n = AppLocalizations.of(context)!;
-    final result = await ref
-        .read(companyDocumentsControllerProvider(widget.companyId).notifier)
-        .addDocument(type: _typeController.text.trim(), fileUrl: _fileUrlController.text.trim());
+    final result = await ref.read(companyDocumentsControllerProvider(widget.companyId).notifier).addDocument(type: _type!, fileUrl: _fileUrl!);
 
     if (!mounted) return;
     result.when(
@@ -179,36 +176,47 @@ class _AddDocumentFormState extends ConsumerState<_AddDocumentForm> {
 
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            controller: _typeController,
-            decoration: InputDecoration(labelText: l10n.companyDocumentType),
-            enabled: !_isSubmitting,
-            validator: (value) => (value == null || value.trim().length < 2) ? l10n.validationRequired : null,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          TextFormField(
-            controller: _fileUrlController,
-            decoration: InputDecoration(labelText: l10n.companyDocumentFileUrl),
-            keyboardType: TextInputType.url,
-            enabled: !_isSubmitting,
-            validator: (value) => (value == null || Uri.tryParse(value.trim())?.isAbsolute != true) ? l10n.validationRequired : null,
-          ),
-          if (_errorMessage != null) ...[
-            const SizedBox(height: AppSpacing.sm),
-            ErrorBanner(message: _errorMessage!),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: _type,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.providerDocumentType),
+              items: [
+                for (final type in companyDocumentTypes) DropdownMenuItem(value: type, child: Text(documentTypeLabel(l10n, type))),
+              ],
+              onChanged: _isSubmitting ? null : (v) => setState(() => _type = v),
+              validator: (v) => v == null ? l10n.validationRequired : null,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ImageUploadField(
+              purpose: MediaPurpose.document,
+              label: l10n.documentPhoto,
+              hint: l10n.documentPhotoHint,
+              enabled: !_isSubmitting,
+              aspectRatio: 3 / 2,
+              errorText: _fileMissing ? l10n.mediaRequired : null,
+              onChanged: (url) => setState(() {
+                _fileUrl = url;
+                _fileMissing = false;
+              }),
+            ),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              ErrorBanner(message: _errorMessage!),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(l10n.companyAddDocument),
+            ),
           ],
-          const SizedBox(height: AppSpacing.md),
-          FilledButton(
-            onPressed: _isSubmitting ? null : _submit,
-            child: _isSubmitting
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(l10n.companyAddDocument),
-          ),
-        ],
+        ),
       ),
     );
   }

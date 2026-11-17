@@ -14,6 +14,7 @@ import '../../../shared/widgets/sahl_ui.dart';
 import '../../auth/application/auth_controller.dart';
 import '../application/account_providers.dart';
 import '../domain/account_models.dart';
+import 'widgets/profile_photo_editor.dart';
 
 final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -83,7 +84,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.base),
           children: [
-            Center(child: SahlAvatar(name: _user?.fullName ?? '', imageUrl: _user?.profilePictureUrl, size: 84)),
+            const Center(child: ProfilePhotoEditor(size: 96)),
             const SizedBox(height: AppSpacing.lg),
             TextFormField(
               controller: _name,

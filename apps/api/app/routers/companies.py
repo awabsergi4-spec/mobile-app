@@ -12,6 +12,7 @@ from ..db import get_conn, insert_row, t, update_rows, utcnow
 from ..events import audit, publish
 from ..responses import ApiError, ok
 from ..security import current_user
+from .uploads import is_our_upload
 
 router = APIRouter(tags=["companies"])
 
@@ -41,8 +42,12 @@ class RoleBody(BaseModel):
     role: NonOwnerRole
 
 
+# Documents a company can submit for verification.
+CompanyDocumentType = Literal["COMMERCIAL_REGISTRATION", "TAX_CERTIFICATE", "NATIONAL_ID", "PASSPORT", "DRIVER_LICENSE"]
+
+
 class DocumentBody(BaseModel):
-    type: str = Field(min_length=2, max_length=60)
+    type: CompanyDocumentType
     fileUrl: HttpUrl
 
 
@@ -220,6 +225,8 @@ def list_documents(company_id: str, user: dict = Depends(current_user), conn: Co
 def add_document(company_id: str, body: DocumentBody, user: dict = Depends(current_user),
                  conn: Connection = Depends(get_conn)):
     _require_role(conn, company_id, user["id"])
+    if not is_our_upload(str(body.fileUrl), user["id"], purpose="document"):
+        raise ApiError(422, "INVALID_IMAGE_URL", "Documents must be uploaded from the app")
     return ok(insert_row(conn, "CompanyDocument",
                          {"companyId": company_id, "type": body.type, "fileUrl": str(body.fileUrl)}), status=201)
 

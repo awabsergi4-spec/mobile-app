@@ -1864,4 +1864,59 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get emailOrPhone => 'البريد الإلكتروني أو رقم الهاتف';
+
+  @override
+  String get mediaCamera => 'التقط صورة';
+
+  @override
+  String get mediaGallery => 'اختر من المعرض';
+
+  @override
+  String get mediaPick => 'أضف صورة';
+
+  @override
+  String get mediaChange => 'تغيير الصورة';
+
+  @override
+  String get mediaRemove => 'إزالة الصورة';
+
+  @override
+  String get mediaRequired => 'أضف صورة';
+
+  @override
+  String get profilePhoto => 'الصورة الشخصية';
+
+  @override
+  String get profilePhotoUpdated => 'تم تحديث الصورة الشخصية';
+
+  @override
+  String get profilePhotoRemoved => 'تمت إزالة الصورة الشخصية';
+
+  @override
+  String get portfolioPhoto => 'صورة من أعمالك';
+
+  @override
+  String get portfolioPhotoHint => 'الصورة الأفقية الواضحة هي الأفضل.';
+
+  @override
+  String get documentPhoto => 'صورة المستند';
+
+  @override
+  String get documentPhotoHint =>
+      'التقط صورة واضحة للمستند كاملاً: تظهر الزوايا الأربع ودون انعكاس للضوء. لا يراها إلا فريق المراجعة في سهل.';
+
+  @override
+  String get docTypePassport => 'جواز السفر';
+
+  @override
+  String get docTypeNationalId => 'البطاقة القومية';
+
+  @override
+  String get docTypeDriverLicense => 'رخصة القيادة';
+
+  @override
+  String get docTypeCommercialRegistration => 'السجل التجاري';
+
+  @override
+  String get docTypeTaxCertificate => 'الشهادة الضريبية';
 }

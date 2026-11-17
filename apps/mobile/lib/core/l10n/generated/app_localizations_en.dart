@@ -1861,4 +1861,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emailOrPhone => 'Email or phone number';
+
+  @override
+  String get mediaCamera => 'Take a photo';
+
+  @override
+  String get mediaGallery => 'Choose from gallery';
+
+  @override
+  String get mediaPick => 'Add photo';
+
+  @override
+  String get mediaChange => 'Change photo';
+
+  @override
+  String get mediaRemove => 'Remove photo';
+
+  @override
+  String get mediaRequired => 'Add a photo';
+
+  @override
+  String get profilePhoto => 'Profile photo';
+
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated';
+
+  @override
+  String get profilePhotoRemoved => 'Profile photo removed';
+
+  @override
+  String get portfolioPhoto => 'Photo of your work';
+
+  @override
+  String get portfolioPhotoHint => 'A clear landscape photo works best.';
+
+  @override
+  String get documentPhoto => 'Photo of the document';
+
+  @override
+  String get documentPhotoHint =>
+      'Take a clear photo of the whole document: all four corners visible, no glare. Only SAHL reviewers can see it.';
+
+  @override
+  String get docTypePassport => 'Passport';
+
+  @override
+  String get docTypeNationalId => 'National ID card';
+
+  @override
+  String get docTypeDriverLicense => 'Driver\'s license';
+
+  @override
+  String get docTypeCommercialRegistration => 'Commercial registration';
+
+  @override
+  String get docTypeTaxCertificate => 'Tax certificate';
 }

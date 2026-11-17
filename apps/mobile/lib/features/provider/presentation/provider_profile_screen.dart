@@ -90,14 +90,15 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
 
     final result = await ref.read(providerProfileControllerProvider.notifier).updateProfile(
           businessName: _businessNameController.text.trim(),
-          bio: _bioController.text.trim(),
+          bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
           yearsOfExperience: int.tryParse(_yearsController.text.trim()),
           skills: skills,
           travelDistanceKm: double.tryParse(_travelDistanceController.text.trim()),
           remoteAvailable: _remoteAvailable,
           emergencyAvailable: _emergencyAvailable,
-          emergencyContactName: _emergencyContactNameController.text.trim(),
-          emergencyContactPhone: _emergencyContactPhoneController.text.trim(),
+          emergencyContactName: _emergencyContactNameController.text.trim().isEmpty ? null : _emergencyContactNameController.text.trim(),
+          emergencyContactPhone:
+              _emergencyContactPhoneController.text.trim().isEmpty ? null : _emergencyContactPhoneController.text.trim(),
         );
 
     if (!mounted) return;

@@ -3,7 +3,7 @@
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, model_validator
 from sqlalchemy import Connection, delete, func, select
 
 from ..common import get_row, provider_for_user, require_provider, rows
@@ -11,6 +11,7 @@ from ..db import get_conn, insert_row, t, update_rows
 from ..events import publish
 from ..responses import ApiError, ok
 from ..security import current_user
+from .uploads import is_our_upload
 
 router = APIRouter(tags=["providers"])
 
@@ -40,13 +41,25 @@ class UpdateProfileBody(BaseModel):
     emergencyContactName: str | None = Field(default=None, max_length=120)
     emergencyContactPhone: str | None = Field(default=None, min_length=8, max_length=16)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _blank_is_unset(cls, data: Any) -> Any:
+        # The app sends "" for optional fields the provider left empty.
+        if isinstance(data, dict):
+            return {k: (None if isinstance(v, str) and not v.strip() else v) for k, v in data.items()}
+        return data
+
 
 class AvailabilityBody(BaseModel):
     mode: AvailabilityMode
 
 
+# Identity documents a provider can submit.
+DocumentType = Literal["PASSPORT", "NATIONAL_ID", "DRIVER_LICENSE"]
+
+
 class DocumentBody(BaseModel):
-    type: str = Field(min_length=2, max_length=60)
+    type: DocumentType
     fileUrl: HttpUrl
 
 
@@ -119,6 +132,8 @@ def list_documents(user: dict = Depends(current_user), conn: Connection = Depend
 @router.post("/providers/me/documents")
 def add_document(body: DocumentBody, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
     profile = require_provider(conn, user["id"])
+    if not is_our_upload(str(body.fileUrl), user["id"], purpose="document"):
+        raise ApiError(422, "INVALID_IMAGE_URL", "Documents must be uploaded from the app")
     return ok(insert_row(conn, "ProviderDocument",
                          {"providerId": profile["id"], "type": body.type, "fileUrl": str(body.fileUrl)}), status=201)
 
@@ -149,6 +164,8 @@ def list_portfolio(user: dict = Depends(current_user), conn: Connection = Depend
 @router.post("/providers/me/portfolio")
 def add_portfolio(body: PortfolioBody, user: dict = Depends(current_user), conn: Connection = Depends(get_conn)):
     profile = require_provider(conn, user["id"])
+    if not is_our_upload(str(body.mediaUrl), user["id"], purpose="portfolio"):
+        raise ApiError(422, "INVALID_IMAGE_URL", "Portfolio images must be uploaded from the app")
     data = body.model_dump(exclude_none=True, mode="json")
     return ok(insert_row(conn, "ProviderPortfolioItem", {"providerId": profile["id"], **data}), status=201)
 

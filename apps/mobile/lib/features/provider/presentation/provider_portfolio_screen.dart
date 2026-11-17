@@ -9,6 +9,8 @@ import '../../../shared/widgets/empty_state_view.dart';
 import '../../../shared/widgets/error_banner.dart';
 import '../application/provider_portfolio_controller.dart';
 import '../domain/provider_portfolio_item.dart';
+import '../../../shared/media/image_upload_field.dart';
+import '../../../shared/media/media_uploader.dart';
 
 class ProviderPortfolioScreen extends ConsumerWidget {
   const ProviderPortfolioScreen({super.key});
@@ -85,22 +87,24 @@ class _AddPortfolioItemForm extends ConsumerStatefulWidget {
 
 class _AddPortfolioItemFormState extends ConsumerState<_AddPortfolioItemForm> {
   final _formKey = GlobalKey<FormState>();
-  final _mediaUrlController = TextEditingController();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  String? _mediaUrl;
+  bool _photoMissing = false;
   bool _isSubmitting = false;
   String? _errorMessage;
 
   @override
   void dispose() {
-    _mediaUrlController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (_isSubmitting || !_formKey.currentState!.validate()) return;
+    final valid = _formKey.currentState!.validate();
+    setState(() => _photoMissing = _mediaUrl == null);
+    if (_isSubmitting || !valid || _mediaUrl == null) return;
     setState(() {
       _isSubmitting = true;
       _errorMessage = null;
@@ -108,7 +112,7 @@ class _AddPortfolioItemFormState extends ConsumerState<_AddPortfolioItemForm> {
 
     final l10n = AppLocalizations.of(context)!;
     final result = await ref.read(providerPortfolioControllerProvider.notifier).addItem(
-          mediaUrl: _mediaUrlController.text.trim(),
+          mediaUrl: _mediaUrl!,
           title: _titleController.text.trim().isEmpty ? null : _titleController.text.trim(),
           description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
         );
@@ -129,42 +133,50 @@ class _AddPortfolioItemFormState extends ConsumerState<_AddPortfolioItemForm> {
 
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            controller: _mediaUrlController,
-            decoration: InputDecoration(labelText: l10n.providerPortfolioMediaUrl),
-            keyboardType: TextInputType.url,
-            enabled: !_isSubmitting,
-            validator: (value) => (value == null || Uri.tryParse(value.trim())?.isAbsolute != true) ? l10n.validationRequired : null,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          TextFormField(
-            controller: _titleController,
-            decoration: InputDecoration(labelText: l10n.providerPortfolioItemTitle),
-            enabled: !_isSubmitting,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          TextFormField(
-            controller: _descriptionController,
-            decoration: InputDecoration(labelText: l10n.providerPortfolioItemDescription),
-            maxLines: 3,
-            enabled: !_isSubmitting,
-          ),
-          if (_errorMessage != null) ...[
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ImageUploadField(
+              purpose: MediaPurpose.portfolio,
+              label: l10n.portfolioPhoto,
+              hint: l10n.portfolioPhotoHint,
+              enabled: !_isSubmitting,
+              errorText: _photoMissing ? l10n.mediaRequired : null,
+              onChanged: (url) => setState(() {
+                _mediaUrl = url;
+                _photoMissing = false;
+              }),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _titleController,
+              decoration: InputDecoration(labelText: l10n.providerPortfolioItemTitle),
+              maxLength: 150,
+              enabled: !_isSubmitting,
+            ),
             const SizedBox(height: AppSpacing.sm),
-            ErrorBanner(message: _errorMessage!),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: InputDecoration(labelText: l10n.providerPortfolioItemDescription),
+              maxLines: 3,
+              maxLength: 1000,
+              enabled: !_isSubmitting,
+            ),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              ErrorBanner(message: _errorMessage!),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(l10n.providerAddPortfolioItem),
+            ),
           ],
-          const SizedBox(height: AppSpacing.md),
-          FilledButton(
-            onPressed: _isSubmitting ? null : _submit,
-            child: _isSubmitting
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text(l10n.providerAddPortfolioItem),
-          ),
-        ],
+        ),
       ),
     );
   }

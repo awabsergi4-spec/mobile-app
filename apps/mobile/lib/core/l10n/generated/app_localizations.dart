@@ -3535,6 +3535,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email or phone number'**
   String get emailOrPhone;
+
+  /// No description provided for @mediaCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get mediaCamera;
+
+  /// No description provided for @mediaGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get mediaGallery;
+
+  /// No description provided for @mediaPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get mediaPick;
+
+  /// No description provided for @mediaChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get mediaChange;
+
+  /// No description provided for @mediaRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get mediaRemove;
+
+  /// No description provided for @mediaRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get mediaRequired;
+
+  /// No description provided for @profilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get profilePhoto;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo removed'**
+  String get profilePhotoRemoved;
+
+  /// No description provided for @portfolioPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of your work'**
+  String get portfolioPhoto;
+
+  /// No description provided for @portfolioPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A clear landscape photo works best.'**
+  String get portfolioPhotoHint;
+
+  /// No description provided for @documentPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of the document'**
+  String get documentPhoto;
+
+  /// No description provided for @documentPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a clear photo of the whole document: all four corners visible, no glare. Only SAHL reviewers can see it.'**
+  String get documentPhotoHint;
+
+  /// No description provided for @docTypePassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport'**
+  String get docTypePassport;
+
+  /// No description provided for @docTypeNationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID card'**
+  String get docTypeNationalId;
+
+  /// No description provided for @docTypeDriverLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver\'s license'**
+  String get docTypeDriverLicense;
+
+  /// No description provided for @docTypeCommercialRegistration.
+  ///
+  /// In en, this message translates to:
+  /// **'Commercial registration'**
+  String get docTypeCommercialRegistration;
+
+  /// No description provided for @docTypeTaxCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax certificate'**
+  String get docTypeTaxCertificate;
 }
 
 class _AppLocalizationsDelegate

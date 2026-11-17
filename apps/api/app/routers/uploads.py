@@ -22,11 +22,20 @@ from ..security import current_user, permission_keys
 router = APIRouter(tags=["uploads"])
 
 ROOT_FOLDER = "sahl"
-PURPOSE_FOLDERS = {"listing": f"{ROOT_FOLDER}/listings", "category": f"{ROOT_FOLDER}/categories"}
+PURPOSE_FOLDERS = {
+    "listing": f"{ROOT_FOLDER}/listings",
+    "category": f"{ROOT_FOLDER}/categories",
+    "avatar": f"{ROOT_FOLDER}/avatars",
+    "portfolio": f"{ROOT_FOLDER}/portfolio",
+    "document": f"{ROOT_FOLDER}/documents",
+}
+# ID documents are stored as "authenticated" assets: not reachable by
+# public URL, only through the signed URL Cloudinary returns.
+PRIVATE_PURPOSES = {"document"}
 
 
 class SignatureBody(BaseModel):
-    purpose: Literal["listing", "category"]
+    purpose: Literal["listing", "category", "avatar", "portfolio", "document"]
 
 
 def _sign(params: dict[str, str | int], secret: str) -> str:
@@ -49,6 +58,8 @@ def upload_signature(body: SignatureBody, user: dict = Depends(current_user), co
         raise ApiError(403, "FORBIDDEN", "Missing required permission: services.manage")
     folder = f"{PURPOSE_FOLDERS[body.purpose]}/{user['id']}"
     params: dict[str, str | int] = {"folder": folder, "timestamp": int(time.time())}
+    if body.purpose in PRIVATE_PURPOSES:
+        params["type"] = "authenticated"
     return ok({
         **params,
         "signature": _sign(params, settings.cloudinary_api_secret),
@@ -64,7 +75,8 @@ def is_our_upload(url: str, user_id: str | None, purpose: str = "listing") -> bo
     cloud = get_settings().cloudinary_cloud_name
     if not cloud:
         return False
-    prefix = f"https://res.cloudinary.com/{cloud}/image/upload/"
+    delivery = "authenticated" if purpose in PRIVATE_PURPOSES else "upload"
+    prefix = f"https://res.cloudinary.com/{cloud}/image/{delivery}/"
     if not url.startswith(prefix) or len(url) > 500:
         return False
     folder = f"/{PURPOSE_FOLDERS[purpose]}/"
